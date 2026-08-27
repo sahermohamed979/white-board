@@ -1,5 +1,7 @@
 import { Geist, Geist_Mono, Noto_Serif } from "next/font/google";
 import { cn } from "@/src/shared/lib//utils";
+import SideDropDown from "@/src/features/main/components/side-drop-down";
+import Tools from "@/src/features/main/components/tools";
 
 const geistHeading = Geist({ subsets: ["latin"], variable: "--font-heading" });
 
@@ -36,9 +38,11 @@ export default async function RootLayout({
         geistHeading.variable,
       )}
     >
-      <body className="min-h-full flex flex-col">
-        
-        {children}</body>
+      <body className="min-h-full flex flex-row relative">
+        <SideDropDown />
+        <Tools />
+        {children}
+      </body>
     </html>
   );
 }
