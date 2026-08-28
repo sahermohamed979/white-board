@@ -33,7 +33,6 @@ export default async function RootLayout({
   const paramsResult = await params;
   const locale = paramsResult.locale;
 
-
   return (
     <html
       lang={locale}
@@ -48,8 +47,8 @@ export default async function RootLayout({
         geistHeading.variable,
       )}
     >
-      <Providers>
-        <body className="min-h-full flex flex-row relative">
+      <body className="min-h-full flex flex-row relative">
+        <Providers>
           <Tools />
           <SideDropDown />
 
@@ -57,8 +56,8 @@ export default async function RootLayout({
           <StylePanel />
 
           {children}
-        </body>
-      </Providers>
+        </Providers>
+      </body>
     </html>
   );
 }
