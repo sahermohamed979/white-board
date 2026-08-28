@@ -33,9 +33,7 @@ export function getDiamondSvgPaths(
   const dash = getDashArray(strokeStyle);
 
   const effectiveFill =
-    fillColor &&
-    fillColor !== "transparent" &&
-    fillStyle !== "none"
+    fillColor && fillColor !== "transparent" && fillStyle !== "none"
       ? fillColor
       : undefined;
 
@@ -43,19 +41,16 @@ export function getDiamondSvgPaths(
   const centerY = y + height / 2;
 
   const points: [number, number][] = [
-    [centerX, y],           
-    [x + width, centerY],   
-    [centerX, y + height],   
-    [x, centerY],           
+    [centerX, y],
+    [x + width, centerY],
+    [centerX, y + height],
+    [x, centerY],
   ];
 
   const shape = generator.polygon(points, {
     stroke: strokeColor,
     fill: effectiveFill,
-    fillStyle:
-      fillStyle === "none"
-        ? undefined
-        : fillStyle || "solid",
+    fillStyle: fillStyle === "none" ? undefined : fillStyle || "solid",
     strokeWidth,
     strokeLineDash: dash,
     roughness,
@@ -70,6 +65,32 @@ export function getDiamondSvgPaths(
     d: p.d,
     stroke: p.stroke,
     fill: p.fill,
+    strokeWidth: p.strokeWidth,
+    strokeLineDash: dash,
+  }));
+}
+// straight line
+export function getStraightLineSvgPaths(
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  strokeColor: string,
+  strokeWidth: number = 2,
+  strokeStyle?: StrokeStyle,
+  roughness: number = 1,
+): RoughPathData[] {
+  const dash = getDashArray(strokeStyle);
+  const shape = generator.line(x1, y1, x2, y2, {
+    stroke: strokeColor,
+    strokeWidth,
+    strokeLineDash: dash,
+    roughness,
+  });
+  const paths = generator.toPaths(shape);
+  return paths.map((p) => ({
+    d: p.d,
+    stroke: p.stroke,
     strokeWidth: p.strokeWidth,
     strokeLineDash: dash,
   }));

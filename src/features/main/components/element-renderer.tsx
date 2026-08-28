@@ -8,6 +8,7 @@ import {
   getEllipseSvgPaths,
   getArrowSvgPath,
   getDiamondSvgPaths,
+  getStraightLineSvgPaths,
 } from "../lib/shapes";
 
 interface ElementRendererProps {
@@ -39,6 +40,34 @@ function BaseElementRenderer({ element }: ElementRendererProps) {
           d={path}
           fill={element.strokeColor || element.color || "#1e1e1e"}
         />
+      );
+    }
+    case "straightLine": {
+      const paths = getStraightLineSvgPaths(
+        element.x1,
+        element.y1,
+        element.x2,
+        element.y2,
+        element.strokeColor || "#1e1e1e",
+        element.strokeWidth || 2,
+        element.strokeStyle,
+        element.roughness ?? 0,
+      );
+      return (
+        <g>
+          {paths.map((p, idx) => (
+            <path
+              key={idx}
+              d={p.d}
+              stroke={p.stroke}
+              fill={p.fill || "none"}
+              strokeWidth={p.strokeWidth || element.strokeWidth || 2}
+              strokeDasharray={p.strokeLineDash?.join(" ")}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          ))}
+        </g>
       );
     }
     case "diamond": {

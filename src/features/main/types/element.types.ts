@@ -5,6 +5,7 @@ export type ToolName =
   | "pen"
   | "hand"
   | "diamond"
+  | "straightLine"
   | "rectangle"
   | "circle"
   | "arrow"
@@ -21,6 +22,17 @@ export interface BaseElement {
 }
 export interface HandElement extends BaseElement {
   type: "hand";
+}
+export interface StraightLineElement extends BaseElement {
+  type: "straightLine";
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  strokeColor: string;
+  strokeWidth: number;
+  strokeStyle?: StrokeStyle;
+  roughness?: number;
 }
 export interface DiamondElement extends BaseElement {
   type: "diamond";
@@ -98,6 +110,7 @@ export type Element =
   | HandElement
   | FreehandElement
   | DiamondElement
+  | StraightLineElement
   | RectangleElement
   | EllipseElement
   | ArrowElement

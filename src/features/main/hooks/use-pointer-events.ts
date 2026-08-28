@@ -67,10 +67,12 @@ export function usePointerEvents(
       }
 
       // Capture pointer for drawing & selection dragging
-      try {
-        e.currentTarget.setPointerCapture(e.pointerId);
-      } catch {
-        // Ignore InvalidPointerId
+      if (e.currentTarget.isConnected && e.buttons !== 0) {
+        try {
+          e.currentTarget.setPointerCapture(e.pointerId);
+        } catch {
+          // The pointer may have become inactive between the checks and capture.
+        }
       }
 
       isPointerDownRef.current = true;
@@ -108,7 +110,21 @@ export function usePointerEvents(
           setCurrentElement(newEl);
           break;
         }
+        case "straightLine": {
+          const newEl: Element = {
+            id: generateId(),
+            type: "straightLine",
+            x1: point[0],
+            y1: point[1],
+            x2: point[0],
+            y2: point[1],
+            strokeColor,
+            strokeWidth,
+          };
 
+          setCurrentElement(newEl);
+          break;
+        }
         case "rectangle": {
           const newEl: Element = {
             id: generateId(),
@@ -231,6 +247,7 @@ export function usePointerEvents(
         }
 
         case "rectangle":
+
         case "diamond":
         case "circle": {
           const start = startPointRef.current;
@@ -256,6 +273,24 @@ export function usePointerEvents(
               height,
             });
           }
+          break;
+        }
+        case "straightLine": {
+          const start = startPointRef.current;
+          if (!start) return;
+
+          const current = useBoardStore.getState().currentElement;
+
+          if (current && current.type === "straightLine") {
+            setCurrentElement({
+              ...current,
+              x1: start[0],
+              y1: start[1],
+              x2: point[0],
+              y2: point[1],
+            });
+          }
+
           break;
         }
 
@@ -305,6 +340,14 @@ export function usePointerEvents(
                 ([px, py, pr]) => [px + dx, py + dy, pr] as Point,
               );
               updateElement(item.id, { points: shiftedPoints });
+            } else if (initial.type === "straightLine") {
+              const { x1, y1, x2, y2 } = initial;
+              updateElement(item.id, {
+                x1: x1 + dx,
+                y1: y1 + dy,
+                x2: x2 + dx,
+                y2: y2 + dy,
+              });
             }
           }
           break;
@@ -359,6 +402,9 @@ export function usePointerEvents(
           isValid = Math.hypot(p2[0] - p1[0], p2[1] - p1[1]) > 4;
         } else if (current.type === "freehand") {
           isValid = current.points.length > 0;
+        } else if (current.type === "straightLine") {
+          const { x1, y1, x2, y2 } = current;
+          isValid = Math.hypot(x2 - x1, y2 - y1) > 2;
         }
 
         if (isValid) {

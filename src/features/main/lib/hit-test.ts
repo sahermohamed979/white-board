@@ -51,6 +51,18 @@ export function isPointInElement(
         py <= box.y + box.height + threshold
       );
     }
+    case "straightLine": {
+      const dist = distanceToLineSegment(
+        px,
+        py,
+        element.x1,
+        element.y1,
+        element.x2,
+        element.y2,
+      );
+
+      return dist <= threshold + (element.strokeWidth || 2) / 2;
+    }
     case "diamond": {
       const box = getBoundingBox(element);
       const rx = box.width / 2;

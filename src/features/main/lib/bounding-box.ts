@@ -28,6 +28,13 @@ export function getBoundingBox(element: Element): BoundingBox {
       const height = Math.abs(element.height);
       return { x: minX, y: minY, width, height };
     }
+    case "straightLine": {
+      const minX = Math.min(element.x1, element.x2);
+      const minY = Math.min(element.y1, element.y2);
+      const width = Math.abs(element.x2 - element.x1);
+      const height = Math.abs(element.y2 - element.y1);
+      return { x: minX, y: minY, width, height };
+    }
 
     case "arrow": {
       const [p1, p2] = element.points;

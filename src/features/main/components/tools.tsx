@@ -12,6 +12,8 @@ import {
   Type,
   Eraser,
   MoveHorizontal,
+ 
+  Minus,
 } from "lucide-react";
 
 const TOOLS: { name: ToolName; label: React.ReactNode | string }[] = [
@@ -19,6 +21,7 @@ const TOOLS: { name: ToolName; label: React.ReactNode | string }[] = [
   { name: "hand", label: <Hand /> },
   { name: "diamond", label: <Diamond /> },
   { name: "pen", label: <Pen /> },
+  { name: "straightLine", label: <Minus /> },
   { name: "rectangle", label: <RectangleHorizontal /> },
   { name: "circle", label: <Circle /> },
   { name: "arrow", label: <MoveHorizontal /> },
