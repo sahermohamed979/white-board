@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "../../../shared/components/ui/dropdown-menu";
 import { ThemeToggle } from "@/src/shared/components/ui/ThemeToggle";
+import LanguageToggle from "@/src/shared/components/ui/language-toggle";
 
 export default function SideDropDown() {
   return (
@@ -23,7 +24,9 @@ export default function SideDropDown() {
             <DropdownMenuLabel>
               <ThemeToggle />
             </DropdownMenuLabel>
-            <DropdownMenuItem>Profile</DropdownMenuItem>
+            <DropdownMenuItem>
+              <LanguageToggle />
+            </DropdownMenuItem>
             <DropdownMenuItem>Billing</DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
