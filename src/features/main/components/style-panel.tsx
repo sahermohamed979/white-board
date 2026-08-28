@@ -1,11 +1,11 @@
 "use client";
 
-import React from "react";
+import { Button } from "@/src/shared/components/ui/button";
 import { useBoardStore } from "../store/board-store";
 
 const STROKE_COLORS = ["#1e1e1e", "#e03131", "#2f9e44", "#1971c2", "#f08c00"];
 const FILL_COLORS = ["transparent", "#ffc9c9", "#b2f2bb", "#a5d8ff", "#ffec99"];
-const STROKE_WIDTHS = [1, 2, 4 ,5];
+const STROKE_WIDTHS = [1, 2, 4, 5];
 
 export function StylePanel() {
   const selectedIds = useBoardStore((s) => s.selectedIds);
@@ -46,11 +46,13 @@ export function StylePanel() {
         </span>
         <div className="flex items-center gap-1.5">
           {STROKE_COLORS.map((c) => (
-            <button
+            <Button
               key={c}
               type="button"
               className={`h-6 w-6 rounded-full border border-gray-300 transition-transform ${
-                strokeColor === c ? "scale-110 ring-2 ring-blue-500" : "hover:scale-105"
+                strokeColor === c
+                  ? "scale-110 ring-2 ring-blue-500"
+                  : "hover:scale-105"
               }`}
               style={{ backgroundColor: c }}
               onClick={() => handleStrokeColorChange(c)}
@@ -66,11 +68,13 @@ export function StylePanel() {
         </span>
         <div className="flex items-center gap-1.5">
           {FILL_COLORS.map((c) => (
-            <button
+            <Button
               key={c}
               type="button"
               className={`h-6 w-6 rounded-full border border-gray-300 transition-transform ${
-                fillColor === c ? "scale-110 ring-2 ring-blue-500" : "hover:scale-105"
+                fillColor === c
+                  ? "scale-110 ring-2 ring-blue-500"
+                  : "hover:scale-105"
               } ${c === "transparent" ? "bg-white relative overflow-hidden" : ""}`}
               style={{ backgroundColor: c !== "transparent" ? c : undefined }}
               onClick={() => handleFillColorChange(c)}
@@ -80,7 +84,7 @@ export function StylePanel() {
                   /
                 </div>
               )}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -92,7 +96,7 @@ export function StylePanel() {
         </span>
         <div className="flex items-center gap-1.5">
           {STROKE_WIDTHS.map((w) => (
-            <button
+            <Button
               key={w}
               type="button"
               className={`flex h-6 flex-1 items-center justify-center rounded-md border text-xs font-semibold transition-all ${
@@ -103,7 +107,7 @@ export function StylePanel() {
               onClick={() => handleStrokeWidthChange(w)}
             >
               {w}px
-            </button>
+            </Button>
           ))}
         </div>
       </div>

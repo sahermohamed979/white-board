@@ -3,6 +3,8 @@ export type Point = [number, number, number]; // [x, y, pressure]
 export type ToolName =
   | "select"
   | "pen"
+  | "hand"
+  | "diamond"
   | "rectangle"
   | "circle"
   | "arrow"
@@ -16,6 +18,22 @@ export type TextAlign = "left" | "center" | "right";
 
 export interface BaseElement {
   id: string;
+}
+export interface HandElement extends BaseElement {
+  type: "hand";
+}
+export interface DiamondElement extends BaseElement {
+  type: "diamond";
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  strokeColor: string;
+  fillColor?: string;
+  strokeWidth: number;
+  strokeStyle?: StrokeStyle;
+  fillStyle?: FillStyle;
+  roughness?: number;
 }
 
 export interface FreehandElement extends BaseElement {
@@ -77,7 +95,9 @@ export interface TextElement extends BaseElement {
 }
 
 export type Element =
+  | HandElement
   | FreehandElement
+  | DiamondElement
   | RectangleElement
   | EllipseElement
   | ArrowElement

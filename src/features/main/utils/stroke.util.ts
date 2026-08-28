@@ -1,5 +1,5 @@
 import { getStroke, StrokeOptions } from "perfect-freehand";
-import type { Point } from "../types/element";
+import type { Point } from "../types/element.types";
 
 /**
  * Converts outline stroke points into an SVG path string.
@@ -13,7 +13,7 @@ export function getSvgPathFromStroke(stroke: number[][]): string {
       acc.push(x0, y0, (x0 + x1) / 2, (y0 + y1) / 2);
       return acc;
     },
-    ["M", ...stroke[0], "Q"] as (string | number)[]
+    ["M", ...stroke[0], "Q"] as (string | number)[],
   );
 
   d.push("Z");
@@ -25,7 +25,7 @@ export function getSvgPathFromStroke(stroke: number[][]): string {
  */
 export function generateStrokePath(
   points: Point[],
-  options: StrokeOptions = {}
+  options: StrokeOptions = {},
 ): string {
   if (!points.length) return "";
 

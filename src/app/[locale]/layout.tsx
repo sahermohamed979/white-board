@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono, Noto_Serif } from "next/font/google";
 import { cn } from "@/src/shared/lib//utils";
 import SideDropDown from "@/src/features/main/components/side-drop-down";
+import { StylePanel } from "@/src/features/main/components/style-panel";
 import Tools from "@/src/features/main/components/tools";
 
 const geistHeading = Geist({ subsets: ["latin"], variable: "--font-heading" });
@@ -39,8 +40,12 @@ export default async function RootLayout({
       )}
     >
       <body className="min-h-full flex flex-row relative">
-        <SideDropDown />
         <Tools />
+        <SideDropDown />
+
+        {/* Floating Style Panel for Selection */}
+        <StylePanel />
+
         {children}
       </body>
     </html>

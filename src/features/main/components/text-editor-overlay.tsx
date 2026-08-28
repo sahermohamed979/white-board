@@ -10,7 +10,10 @@ interface TextEditorOverlayProps {
   onClose: () => void;
 }
 
-export function TextEditorOverlay({ placement, onClose }: TextEditorOverlayProps) {
+export function TextEditorOverlay({
+  placement,
+  onClose,
+}: TextEditorOverlayProps) {
   const addElement = useBoardStore((s) => s.addElement);
   const strokeColor = useBoardStore((s) => s.strokeColor);
   const setActiveTool = useBoardStore((s) => s.setActiveTool);
@@ -21,15 +24,19 @@ export function TextEditorOverlay({ placement, onClose }: TextEditorOverlayProps
 
   useEffect(() => {
     if (placement) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setText("");
+
       isReadyRef.current = false;
-      // Focus on next tick to prevent immediate blur from pointer events
+
       const timer = setTimeout(() => {
         if (textareaRef.current) {
           textareaRef.current.focus();
+
           isReadyRef.current = true;
         }
       }, 50);
+
       return () => clearTimeout(timer);
     }
   }, [placement]);
@@ -54,6 +61,7 @@ export function TextEditorOverlay({ placement, onClose }: TextEditorOverlayProps
       addElement(newEl);
       setActiveTool("select");
     }
+
     setText("");
     onClose();
   };

@@ -10,7 +10,7 @@ function distanceToLineSegment(
   x1: number,
   y1: number,
   x2: number,
-  y2: number
+  y2: number,
 ): number {
   const dx = x2 - x1;
   const dy = y2 - y1;
@@ -36,7 +36,7 @@ function distanceToLineSegment(
 export function isPointInElement(
   point: [number, number] | Point,
   element: Element,
-  threshold: number = 8
+  threshold: number = 8,
 ): boolean {
   const [px, py] = point;
 
@@ -51,7 +51,18 @@ export function isPointInElement(
         py <= box.y + box.height + threshold
       );
     }
-
+    case "diamond": {
+      const box = getBoundingBox(element);
+      const rx = box.width / 2;
+      const ry = box.height / 2;
+      const cx = box.x + rx;
+      const cy = box.y + ry;
+      if (rx === 0 || ry === 0) return false;
+      const normalizedDist =
+        Math.pow((px - cx) / (rx + threshold), 2) +
+        Math.pow((py - cy) / (ry + threshold), 2);
+      return normalizedDist <= 1;
+    }
     case "circle": {
       const box = getBoundingBox(element);
       const rx = box.width / 2;

@@ -54,6 +54,8 @@ export interface BoardStore {
   setFontSize: (size: number) => void;
   setFontFamily: (family: FontFamily) => void;
   setTextAlign: (align: TextAlign) => void;
+
+  
 }
 
 export const useBoardStore = create<BoardStore>()(
@@ -71,8 +73,10 @@ export const useBoardStore = create<BoardStore>()(
     bowing: 0.5,
     disableMultiStroke: true,
     fontSize: 20,
-    fontFamily: "mono",
+    fontFamily: "sans",
     textAlign: "left",
+
+  
 
     setActiveTool: (tool) =>
       set((state) => {
@@ -182,6 +186,7 @@ export const useBoardStore = create<BoardStore>()(
     setTextAlign: (align) =>
       set((state) => {
         state.textAlign = align;
-      }),
+      })
+   
   })),
 );

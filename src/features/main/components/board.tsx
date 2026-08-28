@@ -1,35 +1,46 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { usePointerEvents } from "../hooks/use-pointer-events";
 import { usePersistedBoard } from "../hooks/use-persisted-board";
 import { useKeyboardShortcuts } from "../hooks/use-keyboard-shortcuts";
-import Tools from "./tools";
 import { CanvasSvgLayer } from "./canvas-svg-layer";
 import { SelectionOverlay } from "./selection-overlay";
-import { StylePanel } from "./style-panel";
 import { TextEditorOverlay } from "./text-editor-overlay";
+import { useCanvasTransform } from "../hooks/use-canvas-transform";
+import { useBoardStore } from "../store/board-store";
+import { cn } from "@/src/shared/lib/utils";
 
 export function Board() {
   const svgRef = useRef<SVGSVGElement | null>(null);
-  const [textPlacement, setTextPlacement] = useState<[number, number] | null>(null);
-
+  const [textPlacement, setTextPlacement] = useState<[number, number] | null>(
+    null,
+  );
+  const { isPanning, transform, screenToCanvas } = useCanvasTransform(); // جديد
+  const activeTool = useBoardStore((state) => state.activeTool);
   // Initialize Dexie persistence & Keyboard shortcuts
   usePersistedBoard();
   useKeyboardShortcuts();
 
   // Pointer events hook for canvas drawing & selection
-  const { pointerEventsProps } = usePointerEvents(svgRef, (point) => {
-    setTextPlacement(point);
-  });
+  const { pointerEventsProps } = usePointerEvents(
+    svgRef,
+    (point) => setTextPlacement(point),
+    screenToCanvas,
+  );
 
   return (
-    <main className="relative h-screen w-screen overflow-hidden bg-white">
+    <main
+      className={cn(
+        "relative h-screen w-screen overflow-hidden",
+        activeTool === "hand"
+          ? isPanning
+            ? "cursor-grabbing"
+            : "cursor-grab"
+          : "cursor-default",
+      )}
+    >
       {/* Top Floating Toolbar */}
-      <Tools />
-
-      {/* Floating Style Panel for Selection */}
-      <StylePanel />
 
       {/* Floating Text Editor when Text tool is active */}
       <TextEditorOverlay
@@ -38,7 +49,12 @@ export function Board() {
       />
 
       {/* Interactive SVG Canvas Layer */}
-      <CanvasSvgLayer ref={svgRef} {...pointerEventsProps}>
+      <CanvasSvgLayer
+        ref={svgRef}
+        {...pointerEventsProps}
+        canvasTransform={transform}
+      >
+        {" "}
         <SelectionOverlay />
       </CanvasSvgLayer>
     </main>

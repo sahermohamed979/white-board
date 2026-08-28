@@ -13,7 +13,11 @@ interface DragOffset {
 
 export function usePointerEvents(
   svgRef: React.RefObject<SVGSVGElement | null>,
-  onTextPlacement?: (point: [number, number]) => void
+  onTextPlacement?: (point: [number, number]) => void,
+  screenToCanvas: (x: number, y: number) => { x: number; y: number } = (
+    x,
+    y,
+  ) => ({ x, y }),
 ) {
   // Store state & actions
   const activeTool = useBoardStore((s) => s.activeTool);
@@ -42,19 +46,20 @@ export function usePointerEvents(
         return [e.clientX, e.clientY, e.pressure || 0.5];
       }
       const rect = svg.getBoundingClientRect();
-      return [
-        e.clientX - rect.left,
-        e.clientY - rect.top,
-        e.pressure > 0 ? e.pressure : 0.5,
-      ];
+      const screenX = e.clientX - rect.left;
+      const screenY = e.clientY - rect.top;
+      const { x, y } = screenToCanvas(screenX, screenY); // ← التحويل الوحيد المطلوب
+      return [x, y, e.pressure > 0 ? e.pressure : 0.5];
     },
-    [svgRef]
+    [svgRef, screenToCanvas],
   );
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent<SVGSVGElement>) => {
       const point = getCoordinates(e);
-
+      if (activeTool === "hand") {
+        return;
+      }
       // Text tool opens editor at clicked location without pointer capture
       if (activeTool === "text") {
         onTextPlacement?.([point[0], point[1]]);
@@ -83,6 +88,21 @@ export function usePointerEvents(
             color: strokeColor,
             size: strokeWidth * 3,
             strokeColor,
+            strokeWidth,
+          };
+          setCurrentElement(newEl);
+          break;
+        }
+        case "diamond": {
+          const newEl: Element = {
+            id: generateId(),
+            type: "diamond",
+            x: point[0],
+            y: point[1],
+            width: 0,
+            height: 0,
+            strokeColor,
+            fillColor,
             strokeWidth,
           };
           setCurrentElement(newEl);
@@ -189,7 +209,7 @@ export function usePointerEvents(
       setSelectedIds,
       deleteElements,
       onTextPlacement,
-    ]
+    ],
   );
 
   const handlePointerMove = useCallback(
@@ -211,6 +231,7 @@ export function usePointerEvents(
         }
 
         case "rectangle":
+        case "diamond":
         case "circle": {
           const start = startPointRef.current;
           if (!start) return;
@@ -221,7 +242,12 @@ export function usePointerEvents(
           const height = Math.abs(point[1] - start[1]);
 
           const current = useBoardStore.getState().currentElement;
-          if (current && (current.type === "rectangle" || current.type === "circle")) {
+          if (
+            current &&
+            (current.type === "rectangle" ||
+              current.type === "circle" ||
+              current.type === "diamond")
+          ) {
             setCurrentElement({
               ...current,
               x,
@@ -248,14 +274,20 @@ export function usePointerEvents(
         }
 
         case "select": {
-          if (!dragOriginRef.current || dragOffsetsRef.current.length === 0) return;
+          if (!dragOriginRef.current || dragOffsetsRef.current.length === 0)
+            return;
           const [origX, origY] = dragOriginRef.current;
           const dx = point[0] - origX;
           const dy = point[1] - origY;
 
           for (const item of dragOffsetsRef.current) {
             const initial = item.initialElement;
-            if (initial.type === "rectangle" || initial.type === "circle" || initial.type === "text") {
+            if (
+              initial.type === "rectangle" ||
+              initial.type === "circle" ||
+              initial.type === "diamond" ||
+              initial.type === "text"
+            ) {
               updateElement(item.id, {
                 x: initial.x + dx,
                 y: initial.y + dy,
@@ -270,7 +302,7 @@ export function usePointerEvents(
               });
             } else if (initial.type === "freehand") {
               const shiftedPoints = initial.points.map(
-                ([px, py, pr]) => [px + dx, py + dy, pr] as Point
+                ([px, py, pr]) => [px + dx, py + dy, pr] as Point,
               );
               updateElement(item.id, { points: shiftedPoints });
             }
@@ -293,7 +325,13 @@ export function usePointerEvents(
         }
       }
     },
-    [activeTool, getCoordinates, setCurrentElement, updateElement, deleteElements]
+    [
+      activeTool,
+      getCoordinates,
+      setCurrentElement,
+      updateElement,
+      deleteElements,
+    ],
   );
 
   const handlePointerUp = useCallback(
@@ -334,7 +372,7 @@ export function usePointerEvents(
       dragOffsetsRef.current = [];
       dragOriginRef.current = null;
     },
-    [activeTool, addElement, setCurrentElement]
+    [activeTool, addElement, setCurrentElement],
   );
 
   return {

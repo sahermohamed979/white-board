@@ -3,15 +3,27 @@
 
 import { Button } from "@/src/shared/components/ui/button";
 import { useBoardStore, type ToolName } from "../hooks/main-hook";
+import {
+  Diamond,
+  Hand,
+  Pen,
+  RectangleHorizontal,
+  Circle,
+  Type,
+  Eraser,
+  MoveHorizontal,
+} from "lucide-react";
 
-const TOOLS: { name: ToolName; label: string }[] = [
+const TOOLS: { name: ToolName; label: React.ReactNode | string }[] = [
   { name: "select", label: "Select" },
-  { name: "pen", label: "Pen" },
-  { name: "rectangle", label: "Rectangle" },
-  { name: "circle", label: "Circle" },
-  { name: "arrow", label: "Arrow" },
-  { name: "text", label: "Text" },
-  { name: "eraser", label: "Eraser" },
+  { name: "hand", label: <Hand /> },
+  { name: "diamond", label: <Diamond /> },
+  { name: "pen", label: <Pen /> },
+  { name: "rectangle", label: <RectangleHorizontal /> },
+  { name: "circle", label: <Circle /> },
+  { name: "arrow", label: <MoveHorizontal /> },
+  { name: "text", label: <Type /> },
+  { name: "eraser", label: <Eraser /> },
 ];
 
 export default function Tools() {

@@ -17,6 +17,64 @@ function getDashArray(strokeStyle?: StrokeStyle): number[] | undefined {
   return undefined;
 }
 
+//  generates diamond pattern for the fill
+export function getDiamondSvgPaths(
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  strokeColor: string,
+  fillColor?: string,
+  strokeWidth: number = 2,
+  strokeStyle?: StrokeStyle,
+  fillStyle?: FillStyle,
+  roughness: number = 1,
+): RoughPathData[] {
+  const dash = getDashArray(strokeStyle);
+
+  const effectiveFill =
+    fillColor &&
+    fillColor !== "transparent" &&
+    fillStyle !== "none"
+      ? fillColor
+      : undefined;
+
+  const centerX = x + width / 2;
+  const centerY = y + height / 2;
+
+  const points: [number, number][] = [
+    [centerX, y],           
+    [x + width, centerY],   
+    [centerX, y + height],   
+    [x, centerY],           
+  ];
+
+  const shape = generator.polygon(points, {
+    stroke: strokeColor,
+    fill: effectiveFill,
+    fillStyle:
+      fillStyle === "none"
+        ? undefined
+        : fillStyle || "solid",
+    strokeWidth,
+    strokeLineDash: dash,
+    roughness,
+    bowing: 1,
+    hachureAngle: 60,
+    hachureGap: 6,
+  });
+
+  const paths = generator.toPaths(shape);
+
+  return paths.map((p) => ({
+    d: p.d,
+    stroke: p.stroke,
+    fill: p.fill,
+    strokeWidth: p.strokeWidth,
+    strokeLineDash: dash,
+  }));
+}
+
 /**
  * Generates rough SVG path data for a rectangle with style parameters.
  */
@@ -30,7 +88,7 @@ export function getRectangleSvgPaths(
   strokeWidth: number = 2,
   strokeStyle?: StrokeStyle,
   fillStyle?: FillStyle,
-  roughness: number = 1
+  roughness: number = 1,
 ): RoughPathData[] {
   const dash = getDashArray(strokeStyle);
   const effectiveFill =
@@ -41,7 +99,7 @@ export function getRectangleSvgPaths(
   const shape = generator.rectangle(x, y, width, height, {
     stroke: strokeColor,
     fill: effectiveFill,
-    fillStyle: fillStyle === "none" ? undefined : fillStyle || "hachure",
+    fillStyle: fillStyle === "none" ? undefined : fillStyle || "solid",
     strokeWidth,
     strokeLineDash: dash,
     roughness,
@@ -73,7 +131,7 @@ export function getEllipseSvgPaths(
   strokeWidth: number = 2,
   strokeStyle?: StrokeStyle,
   fillStyle?: FillStyle,
-  roughness: number = 1
+  roughness: number = 1,
 ): RoughPathData[] {
   const centerX = x + width / 2;
   const centerY = y + height / 2;
@@ -86,7 +144,7 @@ export function getEllipseSvgPaths(
   const shape = generator.ellipse(centerX, centerY, width, height, {
     stroke: strokeColor,
     fill: effectiveFill,
-    fillStyle: fillStyle === "none" ? undefined : fillStyle || "hachure",
+    fillStyle: fillStyle === "none" ? undefined : fillStyle || "solid",
     strokeWidth,
     strokeLineDash: dash,
     roughness,
@@ -112,7 +170,7 @@ export function getArrowSvgPath(
   startPoint: Point,
   endPoint: Point,
   headLength: number = 16,
-  headAngle: number = Math.PI / 6
+  headAngle: number = Math.PI / 6,
 ): string {
   const [x1, y1] = startPoint;
   const [x2, y2] = endPoint;

@@ -12,7 +12,7 @@ import {
 
 export default function SideDropDown() {
   return (
-    <div className=" absolute top-5 left-5">
+    <div className=" absolute top-5 left-5 z-50">
       <DropdownMenu>
         <DropdownMenuTrigger render={<Button variant="outline" />}>
           Open

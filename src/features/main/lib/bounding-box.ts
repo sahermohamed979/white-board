@@ -21,6 +21,14 @@ export function getBoundingBox(element: Element): BoundingBox {
       return { x: minX, y: minY, width, height };
     }
 
+    case "diamond": {
+      const minX = Math.min(element.x, element.x + element.width);
+      const minY = Math.min(element.y, element.y + element.height);
+      const width = Math.abs(element.width);
+      const height = Math.abs(element.height);
+      return { x: minX, y: minY, width, height };
+    }
+
     case "arrow": {
       const [p1, p2] = element.points;
       const minX = Math.min(p1[0], p2[0]);

@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { useBoardStore } from "../store/board-store";
 import { getBoundingBox } from "../lib/bounding-box";
 

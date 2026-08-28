@@ -1,12 +1,13 @@
 "use client";
 
-import React, { memo } from "react";
+import { memo } from "react";
 import type { Element, FontFamily } from "../types/element.types";
 import { getSvgPathFromPoints } from "../lib/freehand";
 import {
   getRectangleSvgPaths,
   getEllipseSvgPaths,
   getArrowSvgPath,
+  getDiamondSvgPaths,
 } from "../lib/shapes";
 
 interface ElementRendererProps {
@@ -27,6 +28,8 @@ function getFontFamilyCss(family?: FontFamily): string {
 
 function BaseElementRenderer({ element }: ElementRendererProps) {
   switch (element.type) {
+    case "hand":
+      return null;
     case "freehand": {
       const path = getSvgPathFromPoints(element.points, {
         size: element.strokeWidth ? element.strokeWidth * 3 : element.size || 6,
@@ -36,6 +39,37 @@ function BaseElementRenderer({ element }: ElementRendererProps) {
           d={path}
           fill={element.strokeColor || element.color || "#1e1e1e"}
         />
+      );
+    }
+    case "diamond": {
+      const paths = getDiamondSvgPaths(
+        element.x,
+        element.y,
+        element.width,
+        element.height,
+        element.strokeColor || "#1e1e1e",
+        element.fillColor,
+        element.strokeWidth || 2,
+        element.strokeStyle,
+        element.fillStyle,
+        element.roughness ?? 0,
+      );
+
+      return (
+        <g>
+          {paths.map((p, idx) => (
+            <path
+              key={idx}
+              d={p.d}
+              stroke={p.stroke}
+              fill={p.fill || "none"}
+              strokeWidth={p.strokeWidth || element.strokeWidth || 2}
+              strokeDasharray={p.strokeLineDash?.join(" ")}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          ))}
+        </g>
       );
     }
 
@@ -50,7 +84,7 @@ function BaseElementRenderer({ element }: ElementRendererProps) {
         element.strokeWidth || 2,
         element.strokeStyle,
         element.fillStyle,
-        element.roughness ?? 1
+        element.roughness ?? 0,
       );
 
       return (
@@ -82,7 +116,7 @@ function BaseElementRenderer({ element }: ElementRendererProps) {
         element.strokeWidth || 2,
         element.strokeStyle,
         element.fillStyle,
-        element.roughness ?? 1
+        element.roughness ?? 0,
       );
 
       return (
