@@ -12,9 +12,9 @@ import {
   Type,
   Eraser,
   MoveHorizontal,
- 
   Minus,
 } from "lucide-react";
+import { cn } from "@/src/shared/lib/utils";
 
 const TOOLS: { name: ToolName; label: React.ReactNode | string }[] = [
   { name: "select", label: "Select" },
@@ -35,20 +35,23 @@ export default function Tools() {
   const clearBoard = useBoardStore((s) => s.clearBoard);
 
   return (
-    <div className="absolute top-5 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 rounded-2xl border border-gray-200 bg-white/90 px-3 py-1.5 shadow-lg backdrop-blur-md">
+    <div className="absolute top-5 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 rounded-2xl border  border-popover-foreground bg-card px-3 py-1.5 shadow-lg backdrop-blur-md">
       {TOOLS.map((tool) => (
         <Button
           key={tool.name}
           size="sm"
           variant={activeTool === tool.name ? "default" : "outline"}
-          className="h-8 text-xs font-medium cursor-pointer"
+          className={cn(
+            "h-8 text-xs font-medium cursor-pointer text-primary-foreground",
+            activeTool === tool.name && " text-white",
+          )}
           onClick={() => setActiveTool(tool.name)}
         >
           {tool.label}
         </Button>
       ))}
 
-      <div className="mx-1 h-4 w-px bg-gray-300" />
+      <div className="mx-1 h-4 w-px " />
 
       <Button
         size="sm"

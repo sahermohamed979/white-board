@@ -20,6 +20,7 @@ export type {
 
 export interface BoardStore {
   elements: Element[];
+  backgroundColor: string;
   currentElement: Element | null;
   activeTool: ToolName;
   selectedIds: string[];
@@ -54,17 +55,17 @@ export interface BoardStore {
   setFontSize: (size: number) => void;
   setFontFamily: (family: FontFamily) => void;
   setTextAlign: (align: TextAlign) => void;
-
-  
 }
 
 export const useBoardStore = create<BoardStore>()(
   immer((set) => ({
     elements: [],
+    backgroundColor: "var(--background)",
+
     currentElement: null,
     activeTool: "select",
     selectedIds: [],
-    strokeColor: "#1e1e1e",
+    strokeColor: "var(--primary)",
     fillColor: "transparent",
     strokeWidth: 2,
     strokeStyle: "solid",
@@ -75,8 +76,6 @@ export const useBoardStore = create<BoardStore>()(
     fontSize: 20,
     fontFamily: "sans",
     textAlign: "left",
-
-  
 
     setActiveTool: (tool) =>
       set((state) => {
@@ -186,7 +185,6 @@ export const useBoardStore = create<BoardStore>()(
     setTextAlign: (align) =>
       set((state) => {
         state.textAlign = align;
-      })
-   
+      }),
   })),
 );

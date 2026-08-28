@@ -9,6 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../../../shared/components/ui/dropdown-menu";
+import { ThemeToggle } from "@/src/shared/components/ui/ThemeToggle";
 
 export default function SideDropDown() {
   return (
@@ -19,7 +20,9 @@ export default function SideDropDown() {
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuGroup>
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuLabel>
+              <ThemeToggle />
+            </DropdownMenuLabel>
             <DropdownMenuItem>Profile</DropdownMenuItem>
             <DropdownMenuItem>Billing</DropdownMenuItem>
           </DropdownMenuGroup>

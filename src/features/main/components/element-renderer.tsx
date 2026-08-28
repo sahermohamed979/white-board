@@ -38,7 +38,7 @@ function BaseElementRenderer({ element }: ElementRendererProps) {
       return (
         <path
           d={path}
-          fill={element.strokeColor || element.color || "#1e1e1e"}
+          fill={element.strokeColor || element.color || "var(--primary)"}
         />
       );
     }
@@ -48,7 +48,7 @@ function BaseElementRenderer({ element }: ElementRendererProps) {
         element.y1,
         element.x2,
         element.y2,
-        element.strokeColor || "#1e1e1e",
+        element.strokeColor || "var(--primary)",
         element.strokeWidth || 2,
         element.strokeStyle,
         element.roughness ?? 0,
