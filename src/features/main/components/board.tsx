@@ -12,6 +12,7 @@ import { useBoardStore } from "../store/board-store";
 import { cn } from "@/src/shared/lib/utils";
 import SideDropDown from "./side-drop-down";
 import Tools from "./tools";
+import { Loader } from "lucide-react";
 
 export function Board() {
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -39,11 +40,10 @@ export function Board() {
     typeof window !== "undefined" ? window.innerHeight / 2 : 0,
   );
 
-
   if (!isHydrated) {
     return (
       <div className="flex h-screen w-screen items-center justify-center">
-        Loading...
+        <Loader className="animate-spin h-16 w-16 text-primary" />
       </div>
     );
   }
@@ -58,7 +58,7 @@ export function Board() {
           : "cursor-default",
       )}
     >
-      <Tools viewportCenter={viewportCenter} /> {/* ← بقت مستقبلة prop */}
+      <Tools viewportCenter={viewportCenter} />
       <SideDropDown
         containerRef={exportContainerRef}
         backgroundColor={backgroundColor}
