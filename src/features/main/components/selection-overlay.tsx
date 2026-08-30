@@ -17,13 +17,13 @@ type ResizeState = {
 
 export function SelectionOverlay() {
   const resizeCursors = [
-    "cursor-nwse-resize", 
-    "cursor-ns-resize", 
-    "cursor-nesw-resize", 
-    "cursor-ew-resize", 
-    "cursor-nwse-resize", 
-    "cursor-ns-resize", 
-    "cursor-nesw-resize", 
+    "cursor-nwse-resize",
+    "cursor-ns-resize",
+    "cursor-nesw-resize",
+    "cursor-ew-resize",
+    "cursor-nwse-resize",
+    "cursor-ns-resize",
+    "cursor-nesw-resize",
     "cursor-ew-resize",
   ];
   const selectedIds = useBoardStore((s) => s.selectedIds);
@@ -49,7 +49,8 @@ export function SelectionOverlay() {
     if (
       el.type !== "rectangle" &&
       el.type !== "circle" &&
-      el.type !== "diamond"
+      el.type !== "diamond" &&
+      el.type !== "image"
     ) {
       return;
     }

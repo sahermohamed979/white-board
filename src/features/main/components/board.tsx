@@ -11,33 +11,46 @@ import { useCanvasTransform } from "../hooks/use-canvas-transform";
 import { useBoardStore } from "../store/board-store";
 import { cn } from "@/src/shared/lib/utils";
 import SideDropDown from "./side-drop-down";
+import Tools from "./tools";
 
 export function Board() {
   const svgRef = useRef<SVGSVGElement | null>(null);
-  const exportContainerRef = useRef<HTMLDivElement | null>(null); // ← جديد
+  const exportContainerRef = useRef<HTMLDivElement | null>(null);
 
   const [textPlacement, setTextPlacement] = useState<[number, number] | null>(
     null,
   );
-  const { isPanning, transform, screenToCanvas } = useCanvasTransform(); // جديد
+  const { isPanning, transform, screenToCanvas } = useCanvasTransform();
   const activeTool = useBoardStore((state) => state.activeTool);
   const backgroundColor = useBoardStore((state) => state.backgroundColor);
-  // Initialize Dexie persistence & Keyboard shortcuts
+  const { isHydrated } = usePersistedBoard();
+
   usePersistedBoard();
   useKeyboardShortcuts();
 
-  // Pointer events hook for canvas drawing & selection
   const { pointerEventsProps } = usePointerEvents(
     svgRef,
     (point) => setTextPlacement(point),
     screenToCanvas,
   );
 
+  const viewportCenter = screenToCanvas(
+    typeof window !== "undefined" ? window.innerWidth / 2 : 0,
+    typeof window !== "undefined" ? window.innerHeight / 2 : 0,
+  );
+
+
+  if (!isHydrated) {
+    return (
+      <div className="flex h-screen w-screen items-center justify-center">
+        Loading...
+      </div>
+    );
+  }
   return (
     <main
       className={cn(
-        "relative h-screen w-screen overflow-hidden ",
-
+        "relative h-screen w-screen overflow-hidden",
         activeTool === "hand"
           ? isPanning
             ? "cursor-grabbing"
@@ -45,28 +58,25 @@ export function Board() {
           : "cursor-default",
       )}
     >
+      <Tools viewportCenter={viewportCenter} /> {/* ← بقت مستقبلة prop */}
       <SideDropDown
         containerRef={exportContainerRef}
         backgroundColor={backgroundColor}
       />
-
       <div
         className={cn("w-full h-full", backgroundColor)}
         ref={exportContainerRef}
       >
-        {/* Floating Text Editor when Text tool is active */}
         <TextEditorOverlay
           placement={textPlacement}
           onClose={() => setTextPlacement(null)}
         />
 
-        {/* Interactive SVG Canvas Layer */}
         <CanvasSvgLayer
           ref={svgRef}
           {...pointerEventsProps}
           canvasTransform={transform}
         >
-          {" "}
           <SelectionOverlay />
         </CanvasSvgLayer>
       </div>

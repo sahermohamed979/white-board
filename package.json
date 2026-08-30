@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
+    "@hookform/resolvers": "^5.9.1",
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.112.3",
     "@use-gesture/react": "^10.3.1",
@@ -26,6 +27,7 @@
     "perfect-freehand": "^1.2.3",
     "react": "19.2.8",
     "react-dom": "19.2.8",
+    "react-hook-form": "^7.87.0",
     "react-hotkeys-hook": "^5.3.3",
     "roughjs": "^4.6.6",
     "shadcn": "^4.19.0",

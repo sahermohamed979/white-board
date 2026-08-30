@@ -8,7 +8,6 @@ import type {
   TextAlign,
   ToolName,
 } from "../types/element.types";
-import { HtmlContext } from "next/dist/server/route-modules/pages/vendored/contexts/entrypoints";
 
 export type {
   Element,
@@ -22,7 +21,7 @@ export type {
 export interface BoardStore {
   elements: Element[];
   backgroundColor: string;
- 
+
   currentElement: Element | null;
   activeTool: ToolName;
   selectedIds: string[];
@@ -58,7 +57,6 @@ export interface BoardStore {
   setFontFamily: (family: FontFamily) => void;
   setBackgroundColor: (color: string) => void;
   setTextAlign: (align: TextAlign) => void;
-
 }
 
 export const useBoardStore = create<BoardStore>()(
@@ -79,7 +77,7 @@ export const useBoardStore = create<BoardStore>()(
     fontSize: 20,
     fontFamily: "sans",
     textAlign: "left",
-   
+
     setActiveTool: (tool) =>
       set((state) => {
         state.activeTool = tool;

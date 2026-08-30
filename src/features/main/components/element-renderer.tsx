@@ -10,6 +10,7 @@ import {
   getDiamondSvgPaths,
   getStraightLineSvgPaths,
 } from "../lib/shapes";
+import Image from "next/image";
 
 interface ElementRendererProps {
   element: Element;
@@ -179,7 +180,18 @@ function BaseElementRenderer({ element }: ElementRendererProps) {
         />
       );
     }
-
+    case "image": {
+      return (
+        <image
+          href={element.src}
+          x={element.x}
+          y={element.y}
+          width={element.width}
+          height={element.height}
+          preserveAspectRatio="xMidYMid meet"
+        />
+      );
+    }
     case "text": {
       const lines = element.text.split("\n");
       const fontSize = element.fontSize || 20;

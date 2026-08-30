@@ -1,35 +1,38 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useBoardStore } from "../store/board-store";
 import { getAllElements, saveAllElements } from "../db/board-db";
 
 export function usePersistedBoard() {
   const elements = useBoardStore((s) => s.elements);
   const setElements = useBoardStore((s) => s.setElements);
-  const isHydratedRef = useRef(false);
+  const [isHydrated, setIsHydrated] = useState(false); // ← state بدل ref
 
-  // Initial load from Dexie
   useEffect(() => {
+    let cancelled = false;
+
     async function loadInitial() {
       try {
         const saved = await getAllElements();
-        if (saved && saved.length > 0) {
+        if (!cancelled && saved && saved.length > 0) {
           setElements(saved);
         }
       } catch (err) {
         console.error("Failed to load elements from DB:", err);
       } finally {
-        isHydratedRef.current = true;
+        if (!cancelled) setIsHydrated(true);
       }
     }
 
     loadInitial();
+    return () => {
+      cancelled = true;
+    };
   }, [setElements]);
 
-  // Debounced auto-save to Dexie on elements change
   useEffect(() => {
-    if (!isHydratedRef.current) return;
+    if (!isHydrated) return; // ← الحفظ بيستنى الـ hydration الحقيقي
 
     const timer = setTimeout(() => {
       saveAllElements(elements).catch((err) => {
@@ -38,5 +41,7 @@ export function usePersistedBoard() {
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [elements]);
+  }, [elements, isHydrated]);
+
+  return { isHydrated }; // ← رجّعها عشان تقدر تمنع رفع صور قبل ما تخلص
 }

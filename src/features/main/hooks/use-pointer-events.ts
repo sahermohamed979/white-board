@@ -321,7 +321,8 @@ export function usePointerEvents(
               initial.type === "rectangle" ||
               initial.type === "circle" ||
               initial.type === "diamond" ||
-              initial.type === "text"
+              initial.type === "text" ||
+              initial.type === "image"
             ) {
               updateElement(item.id, {
                 x: initial.x + dx,

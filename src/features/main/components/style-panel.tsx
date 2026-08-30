@@ -9,6 +9,7 @@ const FILL_COLORS = ["transparent", "#ffc9c9", "#b2f2bb", "#a5d8ff", "#ffec99"];
 // const STROKE_WIDTHS = [1, 2, 4, 5];
 
 export function StylePanel() {
+  const activeTool = useBoardStore((s) => s.activeTool);
   const selectedIds = useBoardStore((s) => s.selectedIds);
   const strokeColor = useBoardStore((s) => s.strokeColor);
   const fillColor = useBoardStore((s) => s.fillColor);
@@ -21,6 +22,7 @@ export function StylePanel() {
 
   // Apply to selected elements as well as store defaults
   const handleStrokeColorChange = (color: string) => {
+    
     setStrokeColor(color);
     selectedIds.forEach((id) => updateElement(id, { strokeColor: color }));
   };
@@ -31,6 +33,7 @@ export function StylePanel() {
   };
 
   const handleStrokeWidthChange = (width: number) => {
+    if (activeTool === "image") return;
     setStrokeWidth(width);
     selectedIds.forEach((id) => updateElement(id, { strokeWidth: width }));
   };
@@ -100,7 +103,6 @@ export function StylePanel() {
             min={1}
             max={20}
             step={1}
-            
             value={strokeWidth}
             onValueChange={(value) => {
               if (typeof value === "number") {
@@ -109,7 +111,6 @@ export function StylePanel() {
             }}
             className="w-32"
           />
-         
         </div>
       </div>
     </div>

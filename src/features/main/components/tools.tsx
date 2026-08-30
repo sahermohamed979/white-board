@@ -1,21 +1,15 @@
-// src/features/main/components/tools.tsx
 "use client";
 
 import { Button } from "@/src/shared/components/ui/button";
 import { useBoardStore, type ToolName } from "../hooks/main-hook";
 import {
-  Diamond,
-  Hand,
-  Pen,
-  RectangleHorizontal,
-  Circle,
-  Type,
-  Eraser,
-  MoveHorizontal,
-  Minus,
-  ImagePlus,
+  Diamond, Hand, Pen, RectangleHorizontal, Circle,
+  Type, Eraser, MoveHorizontal, Minus,
 } from "lucide-react";
 import { cn } from "@/src/shared/lib/utils";
+import UploadImage from "./upload-image";
+import { generateId } from "../lib/id";
+import type { ImageElement } from "../types/element.types";
 
 const TOOLS: { name: ToolName; label: React.ReactNode | string }[] = [
   { name: "select", label: "Select" },
@@ -30,13 +24,51 @@ const TOOLS: { name: ToolName; label: React.ReactNode | string }[] = [
   { name: "eraser", label: <Eraser /> },
 ];
 
-export default function Tools() {
+interface ToolsProps {
+  viewportCenter: { x: number; y: number }; // ← جديد
+}
+
+export default function Tools({ viewportCenter }: ToolsProps) {
   const activeTool = useBoardStore((s) => s.activeTool);
   const setActiveTool = useBoardStore((s) => s.setActiveTool);
   const clearBoard = useBoardStore((s) => s.clearBoard);
+  const addElement = useBoardStore((s) => s.addElement);
+  const setSelectedIds = useBoardStore((s) => s.setSelectedIds);
+
+  const handleImageSelect = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const src = reader.result as string;
+
+      const img = new window.Image();
+      img.onload = () => {
+        const maxWidth = 400;
+        const scale = img.width > maxWidth ? maxWidth / img.width : 1;
+        const width = img.width * scale;
+        const height = img.height * scale;
+
+        const newId = generateId();
+        const newEl: ImageElement = {
+          id: newId,
+          type: "image",
+          x: viewportCenter.x - width / 2, // ← من الـ prop مباشرة
+          y: viewportCenter.y - height / 2,
+          width,
+          height,
+          src,
+        };
+
+        addElement(newEl);
+        setActiveTool("select");
+        setSelectedIds([newId]);
+      };
+      img.src = src;
+    };
+    reader.readAsDataURL(file);
+  };
 
   return (
-    <div className="absolute top-5 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 rounded-2xl border  border-popover-foreground bg-card px-3 py-1.5 shadow-lg backdrop-blur-md">
+    <div className="absolute top-5 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 rounded-2xl border border-popover-foreground bg-card px-3 py-1.5 shadow-lg backdrop-blur-md">
       {TOOLS.map((tool) => (
         <Button
           key={tool.name}
@@ -44,29 +76,17 @@ export default function Tools() {
           variant={activeTool === tool.name ? "default" : "outline"}
           className={cn(
             "h-8 text-xs font-medium cursor-pointer text-primary-foreground",
-            activeTool === tool.name && " text-white",
+            activeTool === tool.name && "text-white",
           )}
           onClick={() => setActiveTool(tool.name)}
         >
           {tool.label}
         </Button>
       ))}
-      <label
-        htmlFor="image-upload"
-        className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full"
-      >
-        <ImagePlus className="h-5 w-5" />
-      </label>
 
-      <input
-        id="image-upload"
-        type="file"
-        className="hidden"
-        accept="image/* "
-      
-      />
+      <UploadImage onImageSelect={handleImageSelect} />
 
-      <div className="mx-1 h-4 w-px " />
+      <div className="mx-1 h-4 w-px" />
 
       <Button
         size="sm"

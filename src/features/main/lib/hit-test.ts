@@ -42,7 +42,8 @@ export function isPointInElement(
 
   switch (element.type) {
     case "rectangle":
-    case "text": {
+    case "text":
+    case "image": {
       const box = getBoundingBox(element);
       return (
         px >= box.x - threshold &&

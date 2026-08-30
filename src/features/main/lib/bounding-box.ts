@@ -13,7 +13,8 @@ export interface BoundingBox {
 export function getBoundingBox(element: Element): BoundingBox {
   switch (element.type) {
     case "rectangle":
-    case "circle": {
+    case "circle": 
+     case "image":{
       const minX = Math.min(element.x, element.x + element.width);
       const minY = Math.min(element.y, element.y + element.height);
       const width = Math.abs(element.width);

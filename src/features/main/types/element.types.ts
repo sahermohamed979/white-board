@@ -10,7 +10,8 @@ export type ToolName =
   | "circle"
   | "arrow"
   | "text"
-  | "eraser";
+  | "eraser"
+  | "image";
 
 export type StrokeStyle = "solid" | "dashed" | "dotted";
 export type FillStyle = "none" | "hachure" | "solid" | "cross-hatch";
@@ -105,8 +106,20 @@ export interface TextElement extends BaseElement {
   fontFamily?: FontFamily;
   textAlign?: TextAlign;
 }
+export interface ImageElement extends BaseElement {
+  type: "image";
+
+  x: number;
+  y: number;
+
+  width: number;
+  height: number;
+
+  src: string;
+}
 
 export type Element =
+  | ImageElement
   | HandElement
   | FreehandElement
   | DiamondElement

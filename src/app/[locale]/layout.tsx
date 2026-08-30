@@ -37,6 +37,7 @@ export default async function RootLayout({
     <html
       lang={locale}
       dir={locale === "ar" ? "rtl" : "ltr"}
+      suppressHydrationWarning
       className={cn(
         "h-full",
         "antialiased",
@@ -49,8 +50,6 @@ export default async function RootLayout({
     >
       <body className="min-h-full flex flex-row relative">
         <Providers>
-          <Tools />
-
           {/* Floating Style Panel for Selection */}
           <StylePanel />
 
