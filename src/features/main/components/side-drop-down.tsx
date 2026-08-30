@@ -47,6 +47,7 @@ export default function SideDropDown({
           <DropdownMenuGroup>
             <ExportButton
               containerRef={containerRef}
+              backgroundColor={backgroundColor}
               
             />{" "}
             <DropdownMenuItem>Subscription</DropdownMenuItem>

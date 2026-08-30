@@ -37,7 +37,7 @@ export function Board() {
     <main
       className={cn(
         "relative h-screen w-screen overflow-hidden ",
-    
+
         activeTool === "hand"
           ? isPanning
             ? "cursor-grabbing"
@@ -45,7 +45,10 @@ export function Board() {
           : "cursor-default",
       )}
     >
-      <SideDropDown containerRef={exportContainerRef} />
+      <SideDropDown
+        containerRef={exportContainerRef}
+        backgroundColor={backgroundColor}
+      />
 
       <div
         className={cn("w-full h-full", backgroundColor)}

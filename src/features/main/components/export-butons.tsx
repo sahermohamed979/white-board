@@ -8,7 +8,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/src/shared/components/ui/dropdown-menu"; // shadcn dropdown
+} from "@/src/shared/components/ui/dropdown-menu"; 
 import { exportBoardAsPng, exportBoardAsJpeg } from "../lib/export";
 
 interface ExportButtonProps {
