@@ -5,6 +5,11 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --color-bg-0: var(--bg-0);
+  --color-bg-1: var(--bg-1);
+  --color-bg-2: var(--bg-2);
+  --color-bg-3: var(--bg-3);
+  --color-bg-4: var(--bg-4);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -50,7 +55,13 @@
 }
 
 :root {
-  --background: oklch(100% 0.00011 271.152);
+  --bg-0: #fff;
+  --bg-1: #f8f9fa;
+  --bg-2: #f5faff;
+  --bg-3: #fffce8;
+  --bg-4: #fdf8f6;
+
+  --background: #ffffff;
   --text-light: #fff;
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -86,9 +97,13 @@
 }
 
 .dark {
+  --bg-0: #121212;
+  --bg-1: #161718;
+  --bg-2: #13171b;
+  --bg-3: #181604;
+  --bg-4: #1b1715;
   --background: #121212;
   --text-light: #fff;
-
   --foreground: oklch(0.985 0 0);
   --card: #232329;
   --card-foreground: oklch(0.985 0 0);

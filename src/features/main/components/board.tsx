@@ -10,14 +10,18 @@ import { TextEditorOverlay } from "./text-editor-overlay";
 import { useCanvasTransform } from "../hooks/use-canvas-transform";
 import { useBoardStore } from "../store/board-store";
 import { cn } from "@/src/shared/lib/utils";
+import SideDropDown from "./side-drop-down";
 
 export function Board() {
   const svgRef = useRef<SVGSVGElement | null>(null);
+  const exportContainerRef = useRef<HTMLDivElement | null>(null); // ← جديد
+
   const [textPlacement, setTextPlacement] = useState<[number, number] | null>(
     null,
   );
   const { isPanning, transform, screenToCanvas } = useCanvasTransform(); // جديد
   const activeTool = useBoardStore((state) => state.activeTool);
+  const backgroundColor = useBoardStore((state) => state.backgroundColor);
   // Initialize Dexie persistence & Keyboard shortcuts
   usePersistedBoard();
   useKeyboardShortcuts();
@@ -32,7 +36,8 @@ export function Board() {
   return (
     <main
       className={cn(
-        "relative h-screen w-screen overflow-hidden",
+        "relative h-screen w-screen overflow-hidden ",
+    
         activeTool === "hand"
           ? isPanning
             ? "cursor-grabbing"
@@ -40,23 +45,28 @@ export function Board() {
           : "cursor-default",
       )}
     >
-      {/* Top Floating Toolbar */}
+      <SideDropDown containerRef={exportContainerRef} />
 
-      {/* Floating Text Editor when Text tool is active */}
-      <TextEditorOverlay
-        placement={textPlacement}
-        onClose={() => setTextPlacement(null)}
-      />
-
-      {/* Interactive SVG Canvas Layer */}
-      <CanvasSvgLayer
-        ref={svgRef}
-        {...pointerEventsProps}
-        canvasTransform={transform}
+      <div
+        className={cn("w-full h-full", backgroundColor)}
+        ref={exportContainerRef}
       >
-        {" "}
-        <SelectionOverlay />
-      </CanvasSvgLayer>
+        {/* Floating Text Editor when Text tool is active */}
+        <TextEditorOverlay
+          placement={textPlacement}
+          onClose={() => setTextPlacement(null)}
+        />
+
+        {/* Interactive SVG Canvas Layer */}
+        <CanvasSvgLayer
+          ref={svgRef}
+          {...pointerEventsProps}
+          canvasTransform={transform}
+        >
+          {" "}
+          <SelectionOverlay />
+        </CanvasSvgLayer>
+      </div>
     </main>
   );
 }

@@ -13,6 +13,7 @@ import {
   Eraser,
   MoveHorizontal,
   Minus,
+  ImagePlus,
 } from "lucide-react";
 import { cn } from "@/src/shared/lib/utils";
 
@@ -50,6 +51,20 @@ export default function Tools() {
           {tool.label}
         </Button>
       ))}
+      <label
+        htmlFor="image-upload"
+        className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full"
+      >
+        <ImagePlus className="h-5 w-5" />
+      </label>
+
+      <input
+        id="image-upload"
+        type="file"
+        className="hidden"
+        accept="image/* "
+      
+      />
 
       <div className="mx-1 h-4 w-px " />
 

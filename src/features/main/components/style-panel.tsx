@@ -2,10 +2,11 @@
 
 import { Button } from "@/src/shared/components/ui/button";
 import { useBoardStore } from "../store/board-store";
+import { Slider } from "@/src/shared/components/ui/slider";
 
 const STROKE_COLORS = ["#1e1e1e", "#e03131", "#2f9e44", "#1971c2", "#f08c00"];
 const FILL_COLORS = ["transparent", "#ffc9c9", "#b2f2bb", "#a5d8ff", "#ffec99"];
-const STROKE_WIDTHS = [1, 2, 4, 5];
+// const STROKE_WIDTHS = [1, 2, 4, 5];
 
 export function StylePanel() {
   const selectedIds = useBoardStore((s) => s.selectedIds);
@@ -38,7 +39,7 @@ export function StylePanel() {
   if (selectedIds.length === 0) return null;
 
   return (
-    <div className="absolute top-20 left-6 z-20 flex flex-col gap-3 rounded-xl border border-gray-200 bg-white/95 p-3 shadow-lg backdrop-blur-md">
+    <div className="absolute top-20 left-6 z-20 flex flex-col gap-3 rounded-xl border border-gray-200 bg-card p-3 shadow-lg backdrop-blur-md">
       {/* Stroke Color */}
       <div className="flex flex-col gap-1">
         <span className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">
@@ -75,7 +76,7 @@ export function StylePanel() {
                 fillColor === c
                   ? "scale-110 ring-2 ring-blue-500"
                   : "hover:scale-105"
-              } ${c === "transparent" ? "bg-white relative overflow-hidden" : ""}`}
+              } ${c === "transparent" ? "bg-card relative overflow-hidden" : ""}`}
               style={{ backgroundColor: c !== "transparent" ? c : undefined }}
               onClick={() => handleFillColorChange(c)}
             >
@@ -94,21 +95,21 @@ export function StylePanel() {
         <span className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">
           Width
         </span>
-        <div className="flex items-center gap-1.5">
-          {STROKE_WIDTHS.map((w) => (
-            <Button
-              key={w}
-              type="button"
-              className={`flex h-6 flex-1 items-center justify-center rounded-md border text-xs font-semibold transition-all ${
-                strokeWidth === w
-                  ? "border-blue-500 bg-blue-50 text-blue-600"
-                  : "border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100"
-              }`}
-              onClick={() => handleStrokeWidthChange(w)}
-            >
-              {w}px
-            </Button>
-          ))}
+        <div className="flex items-center gap-1.5 pt-1 pb-1">
+          <Slider
+            min={1}
+            max={20}
+            step={1}
+            
+            value={strokeWidth}
+            onValueChange={(value) => {
+              if (typeof value === "number") {
+                handleStrokeWidthChange(value);
+              }
+            }}
+            className="w-32"
+          />
+         
         </div>
       </div>
     </div>

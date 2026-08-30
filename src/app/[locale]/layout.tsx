@@ -50,7 +50,6 @@ export default async function RootLayout({
       <body className="min-h-full flex flex-row relative">
         <Providers>
           <Tools />
-          <SideDropDown />
 
           {/* Floating Style Panel for Selection */}
           <StylePanel />
