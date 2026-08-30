@@ -13,6 +13,7 @@ import LanguageToggle from "@/src/shared/components/ui/language-toggle";
 import BackgroundSelection from "./background-selection";
 import { Menu } from "lucide-react";
 import { ExportButton } from "./export-butons";
+import { useTranslations } from "next-intl";
 
 export default function SideDropDown({
   containerRef,
@@ -21,6 +22,7 @@ export default function SideDropDown({
   containerRef: React.RefObject<HTMLDivElement | null>;
   backgroundColor?: string;
 }) {
+  const t = useTranslations();
   return (
     <div className=" absolute top-5 left-5 z-50 ">
       <DropdownMenu>
@@ -36,7 +38,7 @@ export default function SideDropDown({
               <LanguageToggle />
             </DropdownMenuItem>
             <DropdownMenuLabel className="text-[11px] font-medium text-foreground uppercase tracking-wider ">
-              Background:
+              {t("main.sideDropDown.background")}
             </DropdownMenuLabel>
 
             <BackgroundSelection />
@@ -47,7 +49,6 @@ export default function SideDropDown({
               containerRef={containerRef}
               backgroundColor={backgroundColor}
             />{" "}
-            <DropdownMenuItem>Subscription</DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>

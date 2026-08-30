@@ -8,8 +8,9 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/src/shared/components/ui/dropdown-menu"; 
+} from "@/src/shared/components/ui/dropdown-menu";
 import { exportBoardAsPng, exportBoardAsJpeg } from "../lib/export";
+import { useTranslations } from "next-intl";
 
 interface ExportButtonProps {
   containerRef: React.RefObject<HTMLDivElement | null>;
@@ -20,6 +21,7 @@ export function ExportButton({
   containerRef,
   backgroundColor,
 }: ExportButtonProps) {
+  const t = useTranslations();
   const [isExporting, setIsExporting] = useState(false);
 
   const handleExport = async (format: "png" | "jpeg") => {
@@ -50,7 +52,7 @@ export function ExportButton({
         render={
           <Button size="sm" variant="outline" disabled={isExporting}>
             <Download size={16} className="mr-1" />
-            {isExporting ? "..." : "Export"}
+            {isExporting ? "..." : t("main.sideDropDown.export")}
           </Button>
         }
       ></DropdownMenuTrigger>

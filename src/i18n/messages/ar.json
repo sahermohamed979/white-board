@@ -1,1 +1,12 @@
-{}
+{
+  "main": {
+    "tools": {
+      "select": "اختيار",
+      "clear": "مسح"
+    },
+    "sideDropDown": {
+      "background": "الخلفية:",
+      "export": "تنزيل"
+    }
+  }
+}

@@ -17,22 +17,10 @@ import { cn } from "@/src/shared/lib/utils";
 import UploadImage from "./upload-image";
 import { generateId } from "../lib/id";
 import type { ImageElement } from "../types/element.types";
-
-const TOOLS: { name: ToolName; label: React.ReactNode | string }[] = [
-  { name: "select", label: "Select" },
-  { name: "hand", label: <Hand /> },
-  { name: "diamond", label: <Diamond /> },
-  { name: "pen", label: <Pen /> },
-  { name: "straightLine", label: <Minus /> },
-  { name: "rectangle", label: <RectangleHorizontal /> },
-  { name: "circle", label: <Circle /> },
-  { name: "arrow", label: <MoveHorizontal /> },
-  { name: "text", label: <Type /> },
-  { name: "eraser", label: <Eraser /> },
-];
+import { useTranslations } from "next-intl";
 
 interface ToolsProps {
-  viewportCenter: { x: number; y: number }; // ← جديد
+  viewportCenter: { x: number; y: number };
 }
 
 export default function Tools({ viewportCenter }: ToolsProps) {
@@ -41,7 +29,19 @@ export default function Tools({ viewportCenter }: ToolsProps) {
   const clearBoard = useBoardStore((s) => s.clearBoard);
   const addElement = useBoardStore((s) => s.addElement);
   const setSelectedIds = useBoardStore((s) => s.setSelectedIds);
-
+  const t = useTranslations();
+  const TOOLS: { name: ToolName; label: React.ReactNode | string }[] = [
+    { name: "select", label: t("main.tools.select") },
+    { name: "hand", label: <Hand /> },
+    { name: "diamond", label: <Diamond /> },
+    { name: "pen", label: <Pen /> },
+    { name: "straightLine", label: <Minus /> },
+    { name: "rectangle", label: <RectangleHorizontal /> },
+    { name: "circle", label: <Circle /> },
+    { name: "arrow", label: <MoveHorizontal /> },
+    { name: "text", label: <Type /> },
+    { name: "eraser", label: <Eraser /> },
+  ];
   const handleImageSelect = (file: File) => {
     const reader = new FileReader();
     reader.onload = () => {
@@ -101,7 +101,7 @@ export default function Tools({ viewportCenter }: ToolsProps) {
         className="h-8 text-xs font-medium cursor-pointer"
         onClick={clearBoard}
       >
-        Clear
+        {t("main.tools.clear")}
       </Button>
     </div>
   );
