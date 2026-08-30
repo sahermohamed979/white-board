@@ -4,14 +4,14 @@ import { useRef, useState } from "react";
 import { usePointerEvents } from "../hooks/use-pointer-events";
 import { usePersistedBoard } from "../hooks/use-persisted-board";
 import { useKeyboardShortcuts } from "../hooks/use-keyboard-shortcuts";
-import { CanvasSvgLayer } from "./canvas-svg-layer";
-import { SelectionOverlay } from "./selection-overlay";
-import { TextEditorOverlay } from "./text-editor-overlay";
+import { CanvasSvgLayer } from "../components/canvas-svg-layer";
+import { SelectionOverlay } from "../components/selection-overlay";
+import { TextEditorOverlay } from "../components/text-editor-overlay";
 import { useCanvasTransform } from "../hooks/use-canvas-transform";
 import { useBoardStore } from "../store/board-store";
 import { cn } from "@/src/shared/lib/utils";
-import SideDropDown from "./side-drop-down";
-import Tools from "./tools";
+import SideDropDown from "../components/side-drop-down";
+import Tools from "../components/tools";
 import { Loader } from "lucide-react";
 
 export function Board() {

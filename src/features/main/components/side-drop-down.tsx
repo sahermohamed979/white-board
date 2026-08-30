@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import { Button } from "../../../shared/components/ui/button";
 import {
   DropdownMenu,
@@ -12,7 +11,7 @@ import {
 import { ThemeToggle } from "@/src/shared/components/ui/ThemeToggle";
 import LanguageToggle from "@/src/shared/components/ui/language-toggle";
 import BackgroundSelection from "./background-selection";
-import { SidebarIcon } from "lucide-react";
+import { Menu } from "lucide-react";
 import { ExportButton } from "./export-butons";
 
 export default function SideDropDown({
@@ -22,12 +21,11 @@ export default function SideDropDown({
   containerRef: React.RefObject<HTMLDivElement | null>;
   backgroundColor?: string;
 }) {
- 
   return (
     <div className=" absolute top-5 left-5 z-50 ">
       <DropdownMenu>
         <DropdownMenuTrigger render={<Button variant="outline" />}>
-          <SidebarIcon />
+          <Menu />{" "}
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-35.7 mt-3">
           <DropdownMenuGroup>
@@ -48,7 +46,6 @@ export default function SideDropDown({
             <ExportButton
               containerRef={containerRef}
               backgroundColor={backgroundColor}
-              
             />{" "}
             <DropdownMenuItem>Subscription</DropdownMenuItem>
           </DropdownMenuGroup>

@@ -10,7 +10,6 @@ import {
   getDiamondSvgPaths,
   getStraightLineSvgPaths,
 } from "../lib/shapes";
-import Image from "next/image";
 
 interface ElementRendererProps {
   element: Element;

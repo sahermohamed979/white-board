@@ -1,8 +1,6 @@
 import { Geist, Geist_Mono, Noto_Serif } from "next/font/google";
 import { cn } from "@/src/shared/lib//utils";
-import SideDropDown from "@/src/features/main/components/side-drop-down";
 import { StylePanel } from "@/src/features/main/components/style-panel";
-import Tools from "@/src/features/main/components/tools";
 import Providers from "@/src/shared/context/providers";
 import { routing } from "@/src/i18n/routing";
 
