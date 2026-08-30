@@ -3,8 +3,15 @@
 import { Button } from "@/src/shared/components/ui/button";
 import { useBoardStore, type ToolName } from "../hooks/main-hook";
 import {
-  Diamond, Hand, Pen, RectangleHorizontal, Circle,
-  Type, Eraser, MoveHorizontal, Minus,
+  Diamond,
+  Hand,
+  Pen,
+  RectangleHorizontal,
+  Circle,
+  Type,
+  Eraser,
+  MoveHorizontal,
+  Minus,
 } from "lucide-react";
 import { cn } from "@/src/shared/lib/utils";
 import UploadImage from "./upload-image";
@@ -68,7 +75,7 @@ export default function Tools({ viewportCenter }: ToolsProps) {
   };
 
   return (
-    <div className="absolute top-5 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 rounded-2xl border border-popover-foreground bg-card px-3 py-1.5 shadow-lg backdrop-blur-md">
+    <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 flex max-w-[calc(100vw-16px)] flex-wrap items-center justify-center gap-1 rounded-2xl border border-popover-foreground bg-card px-2 py-1.5 shadow-lg backdrop-blur-md sm:top-5 sm:max-w-none sm:flex-nowrap sm:gap-1.5 sm:px-3 ">
       {TOOLS.map((tool) => (
         <Button
           key={tool.name}
