@@ -13,6 +13,7 @@ import { cn } from "@/src/shared/lib/utils";
 import SideDropDown from "../components/side-drop-down";
 import Tools from "../components/tools";
 import { Loader } from "lucide-react";
+import ZoomUndoButtons from "../components/zoom-undo-buttons";
 
 export function Board() {
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -80,6 +81,7 @@ export function Board() {
           <SelectionOverlay />
         </CanvasSvgLayer>
       </div>
+      <ZoomUndoButtons scale={transform.scale} />
     </main>
   );
 }

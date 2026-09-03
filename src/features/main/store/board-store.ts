@@ -1,195 +1,155 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
-import type {
-  Element,
-  FillStyle,
-  FontFamily,
-  StrokeStyle,
-  TextAlign,
-  ToolName,
-} from "../types/element.types";
+import { temporal } from "zundo";
 
-export type {
-  Element,
-  FillStyle,
-  FontFamily,
-  StrokeStyle,
-  TextAlign,
-  ToolName,
-} from "../types/element.types";
-
-export interface BoardStore {
-  elements: Element[];
-  backgroundColor: string;
-
-  currentElement: Element | null;
-  activeTool: ToolName;
-  selectedIds: string[];
-  strokeColor: string;
-  fillColor: string;
-  strokeWidth: number;
-  strokeStyle: StrokeStyle;
-  fillStyle: FillStyle;
-  roughness: number;
-  bowing: number;
-  disableMultiStroke: boolean;
-  fontSize: number;
-  fontFamily: FontFamily;
-  textAlign: TextAlign;
-
-  setActiveTool: (tool: ToolName) => void;
-  setSelectedIds: (ids: string[]) => void;
-  addElement: (element: Element) => void;
-  setElements: (elements: Element[]) => void;
-  setCurrentElement: (element: Element | null) => void;
-  updateElement: (id: string, partial: Partial<Element>) => void;
-  deleteElements: (ids: string[]) => void;
-  clearBoard: () => void;
-  setStrokeColor: (color: string) => void;
-  setFillColor: (color: string) => void;
-  setStrokeWidth: (width: number) => void;
-  setBowing: (bowing: number) => void; // ← ضيف السطر ده
-  setDisableMultiStroke: (disabled: boolean) => void;
-  setStrokeStyle: (style: StrokeStyle) => void;
-  setFillStyle: (style: FillStyle) => void;
-  setRoughness: (roughness: number) => void;
-  setFontSize: (size: number) => void;
-  setFontFamily: (family: FontFamily) => void;
-  setBackgroundColor: (color: string) => void;
-  setTextAlign: (align: TextAlign) => void;
-}
+import type { Element } from "../types/element.types";
+import { BoardStore } from "../types/store-types";
 
 export const useBoardStore = create<BoardStore>()(
-  immer((set) => ({
-    elements: [],
-    backgroundColor: "bg-background",
-    currentElement: null,
-    activeTool: "select",
-    selectedIds: [],
-    strokeColor: "var(--primary)",
-    fillColor: "transparent",
-    strokeWidth: 2,
-    strokeStyle: "solid",
-    fillStyle: "hachure",
-    roughness: 0,
-    bowing: 0.5,
-    disableMultiStroke: true,
-    fontSize: 20,
-    fontFamily: "sans",
-    textAlign: "left",
+  temporal(
+    immer((set) => ({
+      elements: [],
+      backgroundColor: "bg-background",
+      currentElement: null,
+      activeTool: "select",
+      selectedIds: [],
+      strokeColor: "var(--primary)",
+      fillColor: "transparent",
+      strokeWidth: 2,
+      strokeStyle: "solid",
+      fillStyle: "hachure",
+      roughness: 0,
+      bowing: 0.5,
+      disableMultiStroke: true,
+      fontSize: 20,
+      fontFamily: "sans",
+      textAlign: "left",
 
-    setActiveTool: (tool) =>
-      set((state) => {
-        state.activeTool = tool;
-        if (tool !== "select") {
+      setActiveTool: (tool) =>
+        set((state) => {
+          state.activeTool = tool;
+
+          if (tool !== "select") {
+            state.selectedIds = [];
+          }
+        }),
+
+      setBackgroundColor: (color) =>
+        set((state) => {
+          state.backgroundColor = color;
+        }),
+
+      setSelectedIds: (ids) =>
+        set((state) => {
+          state.selectedIds = ids;
+        }),
+
+      addElement: (element) =>
+        set((state) => {
+          state.elements.push(element);
+        }),
+
+      setElements: (elements) =>
+        set((state) => {
+          state.elements = elements;
+        }),
+
+      setCurrentElement: (element) =>
+        set((state) => {
+          state.currentElement = element;
+        }),
+
+      updateElement: (id, partial) =>
+        set((state) => {
+          const index = state.elements.findIndex((el) => el.id === id);
+
+          if (index !== -1) {
+            state.elements[index] = {
+              ...state.elements[index],
+              ...partial,
+            } as Element;
+          }
+        }),
+
+      deleteElements: (ids) =>
+        set((state) => {
+          const idSet = new Set(ids);
+
+          state.elements = state.elements.filter((el) => !idSet.has(el.id));
+
+          state.selectedIds = state.selectedIds.filter((id) => !idSet.has(id));
+        }),
+
+      clearBoard: () =>
+        set((state) => {
+          state.elements = [];
+          state.currentElement = null;
           state.selectedIds = [];
-        }
-      }),
-    setBackgroundColor: (color: string) =>
-      set((state) => {
-        state.backgroundColor = color;
-      }),
+        }),
 
-    setSelectedIds: (ids) =>
-      set((state) => {
-        state.selectedIds = ids;
-      }),
+      setStrokeColor: (color) =>
+        set((state) => {
+          state.strokeColor = color;
+        }),
 
-    addElement: (element) =>
-      set((state) => {
-        state.elements.push(element);
-      }),
+      setFillColor: (color) =>
+        set((state) => {
+          state.fillColor = color;
+        }),
 
-    setElements: (elements) =>
-      set((state) => {
-        state.elements = elements;
-      }),
+      setStrokeWidth: (width) =>
+        set((state) => {
+          state.strokeWidth = width;
+        }),
 
-    setCurrentElement: (element) =>
-      set((state) => {
-        state.currentElement = element;
-      }),
+      setBowing: (bowing) =>
+        set((state) => {
+          state.bowing = bowing;
+        }),
 
-    updateElement: (id, partial) =>
-      set((state) => {
-        const index = state.elements.findIndex((el) => el.id === id);
-        if (index !== -1) {
-          state.elements[index] = {
-            ...state.elements[index],
-            ...partial,
-          } as Element;
-        }
-      }),
+      setDisableMultiStroke: (disabled) =>
+        set((state) => {
+          state.disableMultiStroke = disabled;
+        }),
 
-    deleteElements: (ids) =>
-      set((state) => {
-        const idSet = new Set(ids);
-        state.elements = state.elements.filter((el) => !idSet.has(el.id));
-        state.selectedIds = state.selectedIds.filter((id) => !idSet.has(id));
-      }),
+      setStrokeStyle: (style) =>
+        set((state) => {
+          state.strokeStyle = style;
+        }),
 
-    clearBoard: () =>
-      set((state) => {
-        state.elements = [];
-        state.currentElement = null;
-        state.selectedIds = [];
-      }),
+      setFillStyle: (style) =>
+        set((state) => {
+          state.fillStyle = style;
+        }),
 
-    setStrokeColor: (color) =>
-      set((state) => {
-        state.strokeColor = color;
-      }),
-    setBowing: (
-      bowing, // ← ضيف الـ action ده
-    ) =>
-      set((state) => {
-        state.bowing = bowing;
-      }),
+      setRoughness: (roughness) =>
+        set((state) => {
+          state.roughness = roughness;
+        }),
 
-    setDisableMultiStroke: (
-      disabled, // ← وده
-    ) =>
-      set((state) => {
-        state.disableMultiStroke = disabled;
-      }),
-    setFillColor: (color) =>
-      set((state) => {
-        state.fillColor = color;
-      }),
+      setFontSize: (size) =>
+        set((state) => {
+          state.fontSize = size;
+        }),
 
-    setStrokeWidth: (width) =>
-      set((state) => {
-        state.strokeWidth = width;
-      }),
+      setFontFamily: (family) =>
+        set((state) => {
+          state.fontFamily = family;
+        }),
 
-    setStrokeStyle: (style) =>
-      set((state) => {
-        state.strokeStyle = style;
-      }),
+      setTextAlign: (align) =>
+        set((state) => {
+          state.textAlign = align;
+        }),
+    })),
 
-    setFillStyle: (style) =>
-      set((state) => {
-        state.fillStyle = style;
+    {
+      partialize: (state) => ({
+        elements: state.elements,
       }),
-
-    setRoughness: (roughness) =>
-      set((state) => {
-        state.roughness = roughness;
-      }),
-
-    setFontSize: (size) =>
-      set((state) => {
-        state.fontSize = size;
-      }),
-
-    setFontFamily: (family) =>
-      set((state) => {
-        state.fontFamily = family;
-      }),
-
-    setTextAlign: (align) =>
-      set((state) => {
-        state.textAlign = align;
-      }),
-  })),
+      limit: 50,
+      equality: (pastState, currentState) =>
+        pastState.elements === currentState.elements,
+    },
+  ),
 );

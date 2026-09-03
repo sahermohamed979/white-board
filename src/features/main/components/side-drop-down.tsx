@@ -24,31 +24,43 @@ export default function SideDropDown({
 }) {
   const t = useTranslations();
   return (
-    <div className=" absolute top-5 left-5 z-50 ">
+    <div className="absolute top-5 left-5 z-50">
       <DropdownMenu>
         <DropdownMenuTrigger render={<Button variant="outline" />}>
-          <Menu />{" "}
+          <Menu />
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-35.7 mt-3">
           <DropdownMenuGroup>
-            <DropdownMenuLabel>
+            <DropdownMenuItem closeOnClick={false}>
+              {" "}
+              {/* ← بدل Label */}
               <ThemeToggle />
-            </DropdownMenuLabel>
-            <DropdownMenuItem>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem closeOnClick={false}>
               <LanguageToggle />
             </DropdownMenuItem>
-            <DropdownMenuLabel className="text-[11px] font-medium text-foreground uppercase tracking-wider ">
+
+            <DropdownMenuLabel className="text-[11px] font-medium text-foreground uppercase tracking-wider">
               {t("main.sideDropDown.background")}
             </DropdownMenuLabel>
 
-            <BackgroundSelection />
+            <DropdownMenuItem closeOnClick={false}>
+              {" "}
+              {/* ← لفيت BackgroundSelection */}
+              <BackgroundSelection />
+            </DropdownMenuItem>
           </DropdownMenuGroup>
+
           <DropdownMenuSeparator />
+
           <DropdownMenuGroup>
-            <ExportButton
-              containerRef={containerRef}
-              backgroundColor={backgroundColor}
-            />{" "}
+            <DropdownMenuItem closeOnClick={false}>
+              <ExportButton
+                containerRef={containerRef}
+                backgroundColor={backgroundColor}
+              />
+            </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
