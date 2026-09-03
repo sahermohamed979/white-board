@@ -6,7 +6,8 @@
     },
     "sideDropDown": {
       "background": "الخلفية:",
-      "export": "تنزيل"
+      "export": "تنزيل",
+      "grid": "التخطيط"
     }
   }
 }

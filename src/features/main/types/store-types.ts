@@ -11,7 +11,7 @@ import {
 export interface BoardStore {
   elements: Element[];
   backgroundColor: string;
-
+  backgroundGrid: string;
   currentElement: Element | null;
   activeTool: ToolName;
   selectedIds: string[];
@@ -46,5 +46,6 @@ export interface BoardStore {
   setFontSize: (size: number) => void;
   setFontFamily: (family: FontFamily) => void;
   setBackgroundColor: (color: string) => void;
+  setBackgroundGrid: (grid: string) => void;
   setTextAlign: (align: TextAlign) => void;
 }

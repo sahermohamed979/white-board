@@ -6,7 +6,8 @@
     },
     "sideDropDown": {
       "background": "Background :",
-      "export": "Export"
+      "export": "Export",
+      "grid": "Grid :"
     }
   }
 }

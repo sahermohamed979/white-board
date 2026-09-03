@@ -15,6 +15,8 @@ import Tools from "../components/tools";
 import { Loader } from "lucide-react";
 import ZoomUndoButtons from "../components/zoom-undo-buttons";
 
+import { gridStyleMap } from "../constants/grid.constant";
+
 export function Board() {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const exportContainerRef = useRef<HTMLDivElement | null>(null);
@@ -35,6 +37,9 @@ export function Board() {
     (point) => setTextPlacement(point),
     screenToCanvas,
   );
+  const backgroundGrid = useBoardStore((state) => state.backgroundGrid);
+
+  const gridStyle = gridStyleMap[backgroundGrid] ?? {};
 
   const viewportCenter = screenToCanvas(
     typeof window !== "undefined" ? window.innerWidth / 2 : 0,
@@ -66,6 +71,7 @@ export function Board() {
       />
       <div
         className={cn("w-full h-full", backgroundColor)}
+        style={gridStyle}
         ref={exportContainerRef}
       >
         <TextEditorOverlay

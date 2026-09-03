@@ -10,6 +10,7 @@ export const useBoardStore = create<BoardStore>()(
     immer((set) => ({
       elements: [],
       backgroundColor: "bg-background",
+      backgroundGrid: "none",
       currentElement: null,
       activeTool: "select",
       selectedIds: [],
@@ -37,6 +38,10 @@ export const useBoardStore = create<BoardStore>()(
       setBackgroundColor: (color) =>
         set((state) => {
           state.backgroundColor = color;
+        }),
+      setBackgroundGrid: (grid) =>
+        set((state) => {
+          state.backgroundGrid = grid;
         }),
 
       setSelectedIds: (ids) =>

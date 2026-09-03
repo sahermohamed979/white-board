@@ -14,6 +14,7 @@ import BackgroundSelection from "./background-selection";
 import { Menu } from "lucide-react";
 import { ExportButton } from "./export-butons";
 import { useTranslations } from "next-intl";
+import GridBackground from "./grid-background";
 
 export default function SideDropDown({
   containerRef,
@@ -47,8 +48,15 @@ export default function SideDropDown({
 
             <DropdownMenuItem closeOnClick={false}>
               {" "}
-              {/* ← لفيت BackgroundSelection */}
               <BackgroundSelection />
+            </DropdownMenuItem>
+            <DropdownMenuLabel className="text-[11px] font-medium text-foreground uppercase tracking-wider">
+              {t("main.sideDropDown.background")}
+            </DropdownMenuLabel>
+
+            <DropdownMenuItem closeOnClick={false}>
+              {" "}
+              <GridBackground />
             </DropdownMenuItem>
           </DropdownMenuGroup>
 
