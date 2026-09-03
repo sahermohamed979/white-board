@@ -1,5 +1,6 @@
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Noto_Serif } from "next/font/google";
-import { cn } from "@/src/shared/lib//utils";
+import { cn } from "@/src/shared/lib/utils";
 import { StylePanel } from "@/src/features/main/components/style-panel";
 import Providers from "@/src/shared/context/providers";
 import { routing } from "@/src/i18n/routing";
@@ -17,6 +18,115 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#121212" },
+  ],
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const isAr = locale === "ar";
+
+  const title = isAr
+    ? "Sketchly — لوحة بيضاء تفاعلية ذكية للرسم والتخطيط"
+    : "Sketchly — Interactive Virtual Whiteboard & Sketching App";
+
+  const description = isAr
+    ? "ارسم وخطط لأفكارك بحرية على لوحة بيضاء تفاعلية تدعم الرسم اليدوي، الأشكال الهندسية، الشبكات المخصصة، وتصدير الرسومات بدقة عالية."
+    : "Create diagrams, sketch wireframes, and unleash your creativity with hand-drawn rough aesthetics, real-time persistence, custom grids, and high-res vector export.";
+
+  const siteUrl = "https://sketchly-gamma.vercel.app/";
+
+  return {
+    title: {
+      default: title,
+      template: "%s | Sketchly",
+    },
+    description,
+    applicationName: "Sketchly",
+    authors: [{ name: "Saher Mohamed" }],
+    generator: "Next.js",
+    keywords: isAr
+      ? [
+          "لوحة بيضاء",
+          "وايت بورد",
+          "رسم تخطيطي",
+          "تطبيق رسم",
+          "مخططات هندسية",
+          "تصميم تفاعلي",
+          "Sketchly",
+        ]
+      : [
+          "virtual whiteboard",
+          "sketching app",
+          "excalidraw alternative",
+          "rough.js whiteboard",
+          "diagram maker",
+          "hand-drawn shapes",
+          "freehand vector drawing",
+          "collaborative whiteboard",
+          "Sketchly",
+        ],
+    creator: "Saher Mohamed",
+    publisher: "Sketchly",
+    metadataBase: new URL(siteUrl),
+    alternates: {
+      canonical: `/${locale}`,
+      languages: {
+        en: "/en",
+        ar: "/ar",
+      },
+    },
+    openGraph: {
+      type: "website",
+      locale: isAr ? "ar_EG" : "en_US",
+      url: `/${locale}`,
+      title,
+      description,
+      siteName: "Sketchly",
+      images: [
+        {
+          url: "/og-image.png",
+          width: 1200,
+          height: 630,
+          alt: "Sketchly Whiteboard Canvas",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      creator: "@sketchly",
+      images: ["/og-image.png"],
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
+    },
+    icons: {
+      icon: "/logo.webp",
+    },
+  };
+}
+
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
