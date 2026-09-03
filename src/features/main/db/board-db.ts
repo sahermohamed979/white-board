@@ -1,3 +1,4 @@
+"use client";
 import Dexie, { type Table } from "dexie";
 import type { Element } from "../types/element.types";
 
@@ -14,6 +15,9 @@ export class BoardDatabase extends Dexie {
 
 export const db = new BoardDatabase();
 
+db.open().catch((err) => {
+  console.error("Dexie failed to open:", err.name, err.message);
+});
 /**
  * Saves or updates a single element in IndexedDB.
  */
