@@ -51,7 +51,7 @@ export default function SideDropDown({
               <BackgroundSelection />
             </DropdownMenuItem>
             <DropdownMenuLabel className="text-[11px] font-medium text-foreground uppercase tracking-wider">
-              {t("main.sideDropDown.background")}
+              {t("main.sideDropDown.grid")}
             </DropdownMenuLabel>
 
             <DropdownMenuItem closeOnClick={false}>
