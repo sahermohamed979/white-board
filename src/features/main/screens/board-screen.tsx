@@ -64,6 +64,9 @@ export function Board() {
           : "cursor-default",
       )}
     >
+      <h1 className="sr-only">
+        Sketchly — Interactive Virtual Whiteboard & Sketching App
+      </h1>
       <Tools viewportCenter={viewportCenter} />
       <SideDropDown
         containerRef={exportContainerRef}
