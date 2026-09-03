@@ -47,10 +47,10 @@ export function ExportButton({
   };
 
   return (
-    <DropdownMenu>
+    <DropdownMenu >
       <DropdownMenuTrigger
         render={
-          <Button size="sm" variant="outline" disabled={isExporting}>
+          <Button className="w-full" variant="outlineBg" disabled={isExporting}>
             <Download size={16} className="mr-1" />
             {isExporting ? "..." : t("main.sideDropDown.export")}
           </Button>

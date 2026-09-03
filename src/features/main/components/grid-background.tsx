@@ -15,7 +15,7 @@ export default function GridBackground() {
             variant="outlineBg"
             key={background.id}
             onClick={() => setBackgroundGrid(background.id)}
-            className={`${background.className} w-6 h-6 rounded-sm cursor-pointer`}
+            className={` w-6 h-6 rounded-sm cursor-pointer`}
             style={background.style}
           />
         ))}

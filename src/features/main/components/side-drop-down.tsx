@@ -63,12 +63,12 @@ export default function SideDropDown({
           <DropdownMenuSeparator />
 
           <DropdownMenuGroup>
-            <DropdownMenuItem closeOnClick={false}>
+        
               <ExportButton
                 containerRef={containerRef}
                 backgroundColor={backgroundColor}
               />
-            </DropdownMenuItem>
+        
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
