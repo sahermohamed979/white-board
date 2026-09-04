@@ -2,24 +2,49 @@
 
 import { useEffect, useState } from "react";
 import { useBoardStore } from "../store/board-store";
-import { getAllElements, saveAllElements } from "../db/board-db";
+import {
+  getAllElements,
+  saveAllElements,
+  getBoardSettings,
+  saveBoardSettings,
+} from "../db/board-db";
 
 export function usePersistedBoard() {
   const elements = useBoardStore((s) => s.elements);
+  const backgroundColor = useBoardStore((s) => s.backgroundColor);
+  const backgroundGrid = useBoardStore((s) => s.backgroundGrid);
+
   const setElements = useBoardStore((s) => s.setElements);
-  const [isHydrated, setIsHydrated] = useState(false); // ← state بدل ref
+  const setBackgroundColor = useBoardStore((s) => s.setBackgroundColor);
+  const setBackgroundGrid = useBoardStore((s) => s.setBackgroundGrid);
+
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
 
     async function loadInitial() {
       try {
-        const saved = await getAllElements();
-        if (!cancelled && saved && saved.length > 0) {
-          setElements(saved);
+        const [savedElements, savedSettings] = await Promise.all([
+          getAllElements(),
+          getBoardSettings(),
+        ]);
+
+        if (!cancelled) {
+          if (savedElements && savedElements.length > 0) {
+            setElements(savedElements);
+          }
+          if (savedSettings) {
+            if (savedSettings.backgroundColor) {
+              setBackgroundColor(savedSettings.backgroundColor);
+            }
+            if (savedSettings.backgroundGrid) {
+              setBackgroundGrid(savedSettings.backgroundGrid);
+            }
+          }
         }
       } catch (err) {
-        console.error("Failed to load elements from DB:", err);
+        console.error("Failed to load data from DB:", err);
       } finally {
         if (!cancelled) setIsHydrated(true);
       }
@@ -29,10 +54,10 @@ export function usePersistedBoard() {
     return () => {
       cancelled = true;
     };
-  }, [setElements]);
+  }, [setElements, setBackgroundColor, setBackgroundGrid]);
 
   useEffect(() => {
-    if (!isHydrated) return; // ← الحفظ بيستنى الـ hydration الحقيقي
+    if (!isHydrated) return;
 
     const timer = setTimeout(() => {
       saveAllElements(elements).catch((err) => {
@@ -43,5 +68,17 @@ export function usePersistedBoard() {
     return () => clearTimeout(timer);
   }, [elements, isHydrated]);
 
-  return { isHydrated }; // ← رجّعها عشان تقدر تمنع رفع صور قبل ما تخلص
+  useEffect(() => {
+    if (!isHydrated) return;
+
+    const timer = setTimeout(() => {
+      saveBoardSettings({ backgroundColor, backgroundGrid }).catch((err) => {
+        console.error("Failed to persist board settings to DB:", err);
+      });
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [backgroundColor, backgroundGrid, isHydrated]);
+
+  return { isHydrated };
 }

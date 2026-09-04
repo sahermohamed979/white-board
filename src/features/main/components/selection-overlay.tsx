@@ -26,13 +26,14 @@ export function SelectionOverlay() {
     "cursor-nesw-resize",
     "cursor-ew-resize",
   ];
+  const activeTool = useBoardStore((s) => s.activeTool);
   const selectedIds = useBoardStore((s) => s.selectedIds);
   const elements = useBoardStore((s) => s.elements);
   const updateElement = useBoardStore((s) => s.updateElement);
 
   const resizeRef = useRef<ResizeState | null>(null);
 
-  if (selectedIds.length === 0) return null;
+  if (activeTool !== "select" || selectedIds.length === 0) return null;
 
   const selectedElements = elements.filter((el) => selectedIds.includes(el.id));
 

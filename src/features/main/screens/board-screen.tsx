@@ -28,8 +28,6 @@ export function Board() {
   const activeTool = useBoardStore((state) => state.activeTool);
   const backgroundColor = useBoardStore((state) => state.backgroundColor);
   const { isHydrated } = usePersistedBoard();
-
-  usePersistedBoard();
   useKeyboardShortcuts();
 
   const { pointerEventsProps } = usePointerEvents(
