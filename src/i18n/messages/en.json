@@ -2,7 +2,9 @@
   "main": {
     "tools": {
       "select": "Select",
-      "clear": "Clear"
+      "clear": "Clear",
+      "open": "Open tools",
+      "close": "Close tools"
     },
     "sideDropDown": {
       "background": "Background :",

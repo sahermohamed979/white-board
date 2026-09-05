@@ -2,7 +2,9 @@
   "main": {
     "tools": {
       "select": "اختيار",
-      "clear": "مسح"
+      "clear": "مسح",
+      "open": "فتح الأدوات",
+      "close": "إغلاق الأدوات"
     },
     "sideDropDown": {
       "background": "الخلفية:",

@@ -58,7 +58,6 @@ export default function ColorPicker({
 
       <DropdownMenuContent
         align="start"
-        side="right"
         className="w-auto p-0 border-0 bg-card"
       >
         <Sketch

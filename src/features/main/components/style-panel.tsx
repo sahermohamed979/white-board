@@ -176,14 +176,14 @@ export function StylePanel() {
   };
 
   return (
-    <div className="absolute top-20 left-6 z-20 flex flex-col gap-3 rounded-xl border border-gray-200 bg-card p-3 shadow-lg backdrop-blur-md">
+    <div className="absolute top-25 left-6 z-20 flex flex-col gap-3 rounded-xl border border-gray-200 bg-card p-3 shadow-lg backdrop-blur-md">
       {/* Stroke Color */}
       {showStrokeColor && (
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col  gap-1">
           <span className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">
-            Stroke
+            Color
           </span>
-          <div className="flex items-center gap-1.5">
+          <div className="flex flex-col md:flex-row gap-1.5">
             {STROKE_COLORS.map((c) => (
               <Button
                 key={c}
@@ -211,7 +211,7 @@ export function StylePanel() {
           <span className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">
             Fill
           </span>
-          <div className="flex items-center gap-1.5">
+          <div className="flex flex-col md:flex-row gap-1.5">
             {FILL_COLORS.map((c) => (
               <Button
                 key={c}
@@ -231,6 +231,10 @@ export function StylePanel() {
                 )}
               </Button>
             ))}
+            <ColorPicker
+              currentStrokeColor={currentFillColor}
+              handleStrokeColorChange={handleFillColorChange}
+            />
           </div>
         </div>
       )}
@@ -241,7 +245,7 @@ export function StylePanel() {
           <span className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">
             Width
           </span>
-          <div className="flex items-center gap-1.5 pt-1 pb-1">
+          <div className="flex flex-col md:flex-row gap-1.5 pt-1 pb-1">
             <Slider
               min={1}
               max={20}

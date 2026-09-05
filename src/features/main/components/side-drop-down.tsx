@@ -25,7 +25,7 @@ export default function SideDropDown({
 }) {
   const t = useTranslations();
   return (
-    <div className="absolute top-5 left-5 z-50">
+    <div className="absolute top-5 left-5 z-50 bg-card">
       <DropdownMenu>
         <DropdownMenuTrigger render={<Button variant="outline" />}>
           <Menu />
