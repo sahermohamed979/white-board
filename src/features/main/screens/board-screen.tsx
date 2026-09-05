@@ -85,7 +85,7 @@ export function Board() {
           {...pointerEventsProps}
           canvasTransform={transform}
         >
-          <SelectionOverlay />
+          <SelectionOverlay scale={transform.scale} />
         </CanvasSvgLayer>
       </div>
       <ZoomUndoButtons scale={transform.scale} />

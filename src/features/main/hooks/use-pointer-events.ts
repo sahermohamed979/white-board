@@ -29,6 +29,7 @@ export function usePointerEvents(
   const setCurrentElement = useBoardStore((s) => s.setCurrentElement);
   const setSelectedIds = useBoardStore((s) => s.setSelectedIds);
   const updateElement = useBoardStore((s) => s.updateElement);
+  const updateMultipleElements = useBoardStore((s) => s.updateMultipleElements);
   const deleteElements = useBoardStore((s) => s.deleteElements);
 
   // Interaction tracking refs
@@ -37,6 +38,8 @@ export function usePointerEvents(
   const freehandPointsRef = useRef<Point[]>([]);
   const dragOffsetsRef = useRef<DragOffset[]>([]);
   const dragOriginRef = useRef<[number, number] | null>(null);
+  const rafIdRef = useRef<number | null>(null);
+  const pendingPointRef = useRef<Point | null>(null);
 
   // Convert client coordinates to SVG canvas space
   const getCoordinates = useCallback(
@@ -65,6 +68,9 @@ export function usePointerEvents(
         onTextPlacement?.([point[0], point[1]]);
         return;
       }
+
+      // Pause history tracking during dragging/drawing for smooth performance
+      useBoardStore.temporal.getState().pause();
 
       // Capture pointer for drawing & selection dragging
       if (e.currentTarget.isConnected && e.buttons !== 0) {
@@ -228,11 +234,8 @@ export function usePointerEvents(
     ],
   );
 
-  const handlePointerMove = useCallback(
-    (e: React.PointerEvent<SVGSVGElement>) => {
-      if (!isPointerDownRef.current || activeTool === "text") return;
-      const point = getCoordinates(e);
-
+  const processPointerMove = useCallback(
+    (point: Point) => {
       switch (activeTool) {
         case "pen": {
           freehandPointsRef.current.push(point);
@@ -247,7 +250,6 @@ export function usePointerEvents(
         }
 
         case "rectangle":
-
         case "diamond":
         case "circle": {
           const start = startPointRef.current;
@@ -315,6 +317,8 @@ export function usePointerEvents(
           const dx = point[0] - origX;
           const dy = point[1] - origY;
 
+          const updates: Array<{ id: string; partial: Partial<Element> }> = [];
+
           for (const item of dragOffsetsRef.current) {
             const initial = item.initialElement;
             if (
@@ -324,32 +328,48 @@ export function usePointerEvents(
               initial.type === "text" ||
               initial.type === "image"
             ) {
-              updateElement(item.id, {
-                x: initial.x + dx,
-                y: initial.y + dy,
+              updates.push({
+                id: item.id,
+                partial: {
+                  x: initial.x + dx,
+                  y: initial.y + dy,
+                },
               });
             } else if (initial.type === "arrow") {
               const [p1, p2] = initial.points;
-              updateElement(item.id, {
-                points: [
-                  [p1[0] + dx, p1[1] + dy, p1[2]],
-                  [p2[0] + dx, p2[1] + dy, p2[2]],
-                ],
+              updates.push({
+                id: item.id,
+                partial: {
+                  points: [
+                    [p1[0] + dx, p1[1] + dy, p1[2]],
+                    [p2[0] + dx, p2[1] + dy, p2[2]],
+                  ],
+                },
               });
             } else if (initial.type === "freehand") {
               const shiftedPoints = initial.points.map(
                 ([px, py, pr]) => [px + dx, py + dy, pr] as Point,
               );
-              updateElement(item.id, { points: shiftedPoints });
+              updates.push({
+                id: item.id,
+                partial: { points: shiftedPoints },
+              });
             } else if (initial.type === "straightLine") {
               const { x1, y1, x2, y2 } = initial;
-              updateElement(item.id, {
-                x1: x1 + dx,
-                y1: y1 + dy,
-                x2: x2 + dx,
-                y2: y2 + dy,
+              updates.push({
+                id: item.id,
+                partial: {
+                  x1: x1 + dx,
+                  y1: y1 + dy,
+                  x2: x2 + dx,
+                  y2: y2 + dy,
+                },
               });
             }
+          }
+
+          if (updates.length > 0) {
+            updateMultipleElements(updates);
           }
           break;
         }
@@ -371,17 +391,47 @@ export function usePointerEvents(
     },
     [
       activeTool,
-      getCoordinates,
       setCurrentElement,
-      updateElement,
+      updateMultipleElements,
       deleteElements,
     ],
+  );
+
+  const handlePointerMove = useCallback(
+    (e: React.PointerEvent<SVGSVGElement>) => {
+      if (!isPointerDownRef.current || activeTool === "text") return;
+      const point = getCoordinates(e);
+      pendingPointRef.current = point;
+
+      if (rafIdRef.current === null) {
+        rafIdRef.current = requestAnimationFrame(() => {
+          rafIdRef.current = null;
+          const currentPoint = pendingPointRef.current;
+          if (!currentPoint || !isPointerDownRef.current) return;
+          processPointerMove(currentPoint);
+        });
+      }
+    },
+    [activeTool, getCoordinates, processPointerMove],
   );
 
   const handlePointerUp = useCallback(
     (e: React.PointerEvent<SVGSVGElement>) => {
       if (!isPointerDownRef.current || activeTool === "text") return;
       isPointerDownRef.current = false;
+
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
+      }
+
+      if (pendingPointRef.current) {
+        processPointerMove(pendingPointRef.current);
+        pendingPointRef.current = null;
+      }
+
+      // Resume history tracking
+      useBoardStore.temporal.getState().resume();
 
       // Release pointer capture
       try {
@@ -419,7 +469,7 @@ export function usePointerEvents(
       dragOffsetsRef.current = [];
       dragOriginRef.current = null;
     },
-    [activeTool, addElement, setCurrentElement],
+    [activeTool, addElement, setCurrentElement, processPointerMove],
   );
 
   return {

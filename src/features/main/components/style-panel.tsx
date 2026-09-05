@@ -3,8 +3,9 @@
 import { Button } from "@/src/shared/components/ui/button";
 import { useBoardStore } from "../store/board-store";
 import { Slider } from "@/src/shared/components/ui/slider";
-
 import type { Element } from "../types/element.types";
+
+import ColorPicker from "./color-picker";
 
 const STROKE_COLORS = ["#1e1e1e", "#e03131", "#2f9e44", "#1971c2", "#f08c00"];
 const FILL_COLORS = ["transparent", "#ffc9c9", "#b2f2bb", "#a5d8ff", "#ffec99"];
@@ -119,17 +120,17 @@ export function StylePanel() {
   const firstSelected = selectedElements[0];
   const currentStrokeColor =
     isSelection && firstSelected
-      ? getElementStrokeColor(firstSelected) ?? strokeColor
+      ? (getElementStrokeColor(firstSelected) ?? strokeColor)
       : strokeColor;
 
   const currentFillColor =
     isSelection && firstSelected
-      ? getElementFillColor(firstSelected) ?? fillColor
+      ? (getElementFillColor(firstSelected) ?? fillColor)
       : fillColor;
 
   const currentStrokeWidth =
     isSelection && firstSelected
-      ? getElementStrokeWidth(firstSelected) ?? strokeWidth
+      ? (getElementStrokeWidth(firstSelected) ?? strokeWidth)
       : strokeWidth;
 
   // Apply to selected elements as well as store defaults
@@ -196,6 +197,10 @@ export function StylePanel() {
                 onClick={() => handleStrokeColorChange(c)}
               />
             ))}
+            <ColorPicker
+              currentStrokeColor={currentStrokeColor}
+              handleStrokeColorChange={handleStrokeColorChange}
+            />
           </div>
         </div>
       )}

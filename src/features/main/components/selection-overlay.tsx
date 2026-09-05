@@ -15,7 +15,7 @@ type ResizeState = {
   startHeight: number;
 };
 
-export function SelectionOverlay() {
+export function SelectionOverlay({ scale = 1 }: { scale?: number }) {
   const resizeCursors = [
     "cursor-nwse-resize",
     "cursor-ns-resize",
@@ -32,6 +32,10 @@ export function SelectionOverlay() {
   const updateElement = useBoardStore((s) => s.updateElement);
 
   const resizeRef = useRef<ResizeState | null>(null);
+  const rafIdRef = useRef<number | null>(null);
+  const pendingEventRef = useRef<{ clientX: number; clientY: number } | null>(
+    null,
+  );
 
   if (activeTool !== "select" || selectedIds.length === 0) return null;
 
@@ -56,6 +60,8 @@ export function SelectionOverlay() {
       return;
     }
 
+    useBoardStore.temporal.getState().pause();
+
     resizeRef.current = {
       id: el.id,
       handle,
@@ -76,13 +82,12 @@ export function SelectionOverlay() {
     }
   };
 
-  const handlePointerMove = (e: React.PointerEvent<SVGRectElement>) => {
+  const processResize = (clientX: number, clientY: number) => {
     const resize = resizeRef.current;
-
     if (!resize) return;
 
-    const dx = e.clientX - resize.startX;
-    const dy = e.clientY - resize.startY;
+    const dx = (clientX - resize.startX) / (scale || 1);
+    const dy = (clientY - resize.startY) / (scale || 1);
 
     let x = resize.startElementX;
     let y = resize.startElementY;
@@ -132,8 +137,38 @@ export function SelectionOverlay() {
     });
   };
 
+  const handlePointerMove = (e: React.PointerEvent<SVGRectElement>) => {
+    if (!resizeRef.current) return;
+    pendingEventRef.current = { clientX: e.clientX, clientY: e.clientY };
+
+    if (rafIdRef.current === null) {
+      rafIdRef.current = requestAnimationFrame(() => {
+        rafIdRef.current = null;
+        if (!pendingEventRef.current || !resizeRef.current) return;
+        processResize(
+          pendingEventRef.current.clientX,
+          pendingEventRef.current.clientY,
+        );
+      });
+    }
+  };
+
   const handlePointerUp = (e: React.PointerEvent<SVGRectElement>) => {
+    if (rafIdRef.current !== null) {
+      cancelAnimationFrame(rafIdRef.current);
+      rafIdRef.current = null;
+    }
+
+    if (pendingEventRef.current && resizeRef.current) {
+      processResize(
+        pendingEventRef.current.clientX,
+        pendingEventRef.current.clientY,
+      );
+      pendingEventRef.current = null;
+    }
+
     resizeRef.current = null;
+    useBoardStore.temporal.getState().resume();
 
     try {
       if (e.currentTarget.hasPointerCapture(e.pointerId)) {

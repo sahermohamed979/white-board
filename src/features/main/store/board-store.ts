@@ -76,6 +76,20 @@ export const useBoardStore = create<BoardStore>()(
           }
         }),
 
+      updateMultipleElements: (updates) =>
+        set((state) => {
+          const updateMap = new Map(updates.map((u) => [u.id, u.partial]));
+          for (let i = 0; i < state.elements.length; i++) {
+            const partial = updateMap.get(state.elements[i].id);
+            if (partial) {
+              state.elements[i] = {
+                ...state.elements[i],
+                ...partial,
+              } as Element;
+            }
+          }
+        }),
+
       deleteElements: (ids) =>
         set((state) => {
           const idSet = new Set(ids);

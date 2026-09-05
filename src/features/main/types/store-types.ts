@@ -33,6 +33,9 @@ export interface BoardStore {
   setElements: (elements: Element[]) => void;
   setCurrentElement: (element: Element | null) => void;
   updateElement: (id: string, partial: Partial<Element>) => void;
+  updateMultipleElements: (
+    updates: Array<{ id: string; partial: Partial<Element> }>,
+  ) => void;
   deleteElements: (ids: string[]) => void;
   clearBoard: () => void;
   setStrokeColor: (color: string) => void;
