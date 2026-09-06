@@ -17,7 +17,7 @@ export default function ZoomUndoButtons({ scale }: ZoomIndicatorProps) {
   const canUndo = pastStates.length > 0;
   const canRedo = futureStates.length > 0;
   return (
-    <div className="absolute bottom-3 left-3 z-50 flex items-center gap-1 rounded-lg border border-popover-foreground bg-card px-1.5 py-1 text-xs font-medium shadow-md sm:bottom-5 sm:left-5 sm:gap-2 sm:px-3 sm:py-1.5">
+    <div className="fixed bottom-3 left-3 z-50 flex items-center gap-1 rounded-lg border border-popover-foreground bg-card px-1.5 py-1 text-xs font-medium shadow-md sm:absolute sm:bottom-5 sm:left-5 sm:gap-2 sm:px-3 sm:py-1.5">
       <Button
         variant="outline"
         size="icon-sm"
