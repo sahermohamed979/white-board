@@ -18,7 +18,7 @@ export default function SessionButton() {
   const [shareableLink, setShareableLink] = useState(false);
   const [started, setStarted] = useState(false);
   return (
-    <div className="fixed top-4 right-4 z-2">
+    <div className="fixed top-4 right-4 z-1">
       <Dialog>
         <DialogTrigger
           render={

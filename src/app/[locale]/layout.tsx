@@ -1,10 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Noto_Serif } from "next/font/google";
 import { cn } from "@/src/shared/lib/utils";
-import { StylePanel } from "@/src/features/main/components/style-panel";
+import { StylePanel } from "@/src/features/v1/components/style-panel";
 import Providers from "@/src/shared/context/providers";
 import { routing } from "@/src/i18n/routing";
-import SessionButton from "@/src/features/main/components/session-button";
+import SessionButton from "@/src/features/v2/components/session-button";
 
 const geistHeading = Geist({ subsets: ["latin"], variable: "--font-heading" });
 
