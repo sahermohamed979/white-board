@@ -4,6 +4,7 @@ import { cn } from "@/src/shared/lib/utils";
 import { StylePanel } from "@/src/features/main/components/style-panel";
 import Providers from "@/src/shared/context/providers";
 import { routing } from "@/src/i18n/routing";
+import SessionButton from "@/src/features/main/components/session-button";
 
 const geistHeading = Geist({ subsets: ["latin"], variable: "--font-heading" });
 
@@ -103,7 +104,9 @@ export async function generateMetadata({
           url: "/og-image.png",
           width: 1200,
           height: 630,
-          alt: isAr ? "لوحة رسم سكتشلي التفاعلية" : "Sketchly Whiteboard Canvas",
+          alt: isAr
+            ? "لوحة رسم سكتشلي التفاعلية"
+            : "Sketchly Whiteboard Canvas",
           type: "image/png",
         },
       ],
@@ -116,7 +119,9 @@ export async function generateMetadata({
       images: [
         {
           url: "/og-image.png",
-          alt: isAr ? "لوحة رسم سكتشلي التفاعلية" : "Sketchly Whiteboard Canvas",
+          alt: isAr
+            ? "لوحة رسم سكتشلي التفاعلية"
+            : "Sketchly Whiteboard Canvas",
         },
       ],
     },
@@ -198,6 +203,7 @@ export default async function RootLayout({
       </head>
       <body className="min-h-full flex flex-row relative">
         <Providers>
+          <SessionButton />
           {/* Floating Style Panel for Selection */}
           <StylePanel />
 
