@@ -187,7 +187,15 @@ pnpm install
 Create a `.env.local` file in the root of the project:
 ```env
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 ```
+
+Copy `.env.example` as a starting point. `NEXT_PUBLIC_SUPABASE_URL` is the URL
+from the Supabase project settings. `SUPABASE_SERVICE_ROLE_KEY` is the server-
+only service-role key from the same page; never expose it to client code or
+commit it to source control. The share API also requires the share tables and
+RPC described in [SUPABASE_BOARD_SCHEMA.md](SUPABASE_BOARD_SCHEMA.md).
 
 ### 4. Run the Development Server
 ```bash

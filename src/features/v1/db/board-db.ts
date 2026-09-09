@@ -3,6 +3,7 @@ import Dexie, { type Table } from "dexie";
 import type { Element } from "../types/element.types";
 
 export interface BoardSettings {
+  boardId?: string;
   backgroundColor?: string;
   backgroundGrid?: string;
 }
@@ -28,6 +29,7 @@ export const db = new BoardDatabase();
 db.open().catch((err) => {
   console.error("Dexie failed to open:", err.name, err.message);
 });
+
 /**
  * Saves or updates a single element in IndexedDB.
  */
@@ -60,9 +62,11 @@ export async function deleteElementsFromDb(ids: string[]): Promise<void> {
 }
 
 /**
- * Saves board settings (background color, grid) in IndexedDB.
+ * Saves board settings (boardId, background color, grid) in IndexedDB.
  */
-export async function saveBoardSettings(settings: BoardSettings): Promise<void> {
+export async function saveBoardSettings(
+  settings: BoardSettings,
+): Promise<void> {
   await db.settings.put({ key: "boardSettings", value: settings });
 }
 

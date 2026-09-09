@@ -1,11 +1,10 @@
-
 import {
   Element,
   FillStyle,
   FontFamily,
   StrokeStyle,
   TextAlign,
-  ToolName
+  ToolName,
 } from "./element.types";
 
 export interface BoardStore {
@@ -26,6 +25,9 @@ export interface BoardStore {
   fontSize: number;
   fontFamily: FontFamily;
   textAlign: TextAlign;
+  currentBoardId: string | null;
+
+  setCurrentBoardId: (id: string | null) => void;
 
   setActiveTool: (tool: ToolName) => void;
   setSelectedIds: (ids: string[]) => void;
