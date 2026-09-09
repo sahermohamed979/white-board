@@ -16,6 +16,7 @@ import { Loader } from "lucide-react";
 import ZoomUndoButtons from "../components/zoom-undo-buttons";
 
 import { gridStyleMap } from "../constants/grid.constant";
+import SessionButton from "../../v2/components/session-button";
 
 export function Board() {
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -65,6 +66,7 @@ export function Board() {
       <h1 className="sr-only">
         Sketchly — Interactive Virtual Whiteboard & Sketching App
       </h1>
+      <SessionButton />
       <Tools viewportCenter={viewportCenter} />
       <SideDropDown
         containerRef={exportContainerRef}

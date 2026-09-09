@@ -4,7 +4,6 @@ import { cn } from "@/src/shared/lib/utils";
 import { StylePanel } from "@/src/features/v1/components/style-panel";
 import Providers from "@/src/shared/context/providers";
 import { routing } from "@/src/i18n/routing";
-import SessionButton from "@/src/features/v2/components/session-button";
 
 const geistHeading = Geist({ subsets: ["latin"], variable: "--font-heading" });
 
@@ -203,7 +202,7 @@ export default async function RootLayout({
       </head>
       <body className="min-h-full flex flex-row relative">
         <Providers>
-          <SessionButton />
+       
           {/* Floating Style Panel for Selection */}
           <StylePanel />
 
