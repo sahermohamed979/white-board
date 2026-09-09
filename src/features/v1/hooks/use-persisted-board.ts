@@ -13,13 +13,16 @@ export function usePersistedBoard() {
   const elements = useBoardStore((s) => s.elements);
   const backgroundColor = useBoardStore((s) => s.backgroundColor);
   const backgroundGrid = useBoardStore((s) => s.backgroundGrid);
+  const boardId = useBoardStore((s) => s.currentBoardId);
 
   const setElements = useBoardStore((s) => s.setElements);
   const setBackgroundColor = useBoardStore((s) => s.setBackgroundColor);
   const setBackgroundGrid = useBoardStore((s) => s.setBackgroundGrid);
+  const setCurrentBoardId = useBoardStore((s) => s.setCurrentBoardId);
 
   const [isHydrated, setIsHydrated] = useState(false);
 
+  // تحميل البيانات المحفوظة عند أول تحميل
   useEffect(() => {
     let cancelled = false;
 
@@ -34,6 +37,10 @@ export function usePersistedBoard() {
           if (savedElements && savedElements.length > 0) {
             setElements(savedElements);
           }
+
+          // لو مفيش boardId محفوظ، نولّد UUID جديد وثابت لهذا الـ board
+          setCurrentBoardId(savedSettings?.boardId ?? crypto.randomUUID());
+
           if (savedSettings) {
             if (savedSettings.backgroundColor) {
               setBackgroundColor(savedSettings.backgroundColor);
@@ -54,8 +61,9 @@ export function usePersistedBoard() {
     return () => {
       cancelled = true;
     };
-  }, [setElements, setBackgroundColor, setBackgroundGrid]);
+  }, [setElements, setBackgroundColor, setBackgroundGrid, setCurrentBoardId]);
 
+  // حفظ الـ elements (debounced)
   useEffect(() => {
     if (!isHydrated) return;
 
@@ -68,17 +76,32 @@ export function usePersistedBoard() {
     return () => clearTimeout(timer);
   }, [elements, isHydrated]);
 
+  // حفظ فوري للـ boardId (بدون debounce) عشان نضمن ثباته من أول لحظة
   useEffect(() => {
-    if (!isHydrated) return;
+    if (!isHydrated || !boardId) return;
+
+    saveBoardSettings({ boardId, backgroundColor, backgroundGrid }).catch(
+      (err) => {
+        console.error("Failed to persist boardId to DB:", err);
+      },
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [boardId, isHydrated]);
+
+  // حفظ الـ background settings (debounced)
+  useEffect(() => {
+    if (!isHydrated || !boardId) return;
 
     const timer = setTimeout(() => {
-      saveBoardSettings({ backgroundColor, backgroundGrid }).catch((err) => {
-        console.error("Failed to persist board settings to DB:", err);
-      });
+      saveBoardSettings({ boardId, backgroundColor, backgroundGrid }).catch(
+        (err) => {
+          console.error("Failed to persist board settings to DB:", err);
+        },
+      );
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [backgroundColor, backgroundGrid, isHydrated]);
+  }, [boardId, backgroundColor, backgroundGrid, isHydrated]);
 
   return { isHydrated };
 }

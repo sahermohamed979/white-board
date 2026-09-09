@@ -3,9 +3,11 @@ import { Input } from "@/src/shared/components/ui/input";
 import { Label } from "@/src/shared/components/ui/label";
 import { Copy } from "lucide-react";
 
-export function ClipboardButton() {
-  const link = "https://excalidraw.com/#json=BOJu4Uwk...";
-
+export function ClipboardButton({
+  link,
+}: {
+  link: string;
+}) {
   const handleCopy = async () => {
     await navigator.clipboard.writeText(link);
   };

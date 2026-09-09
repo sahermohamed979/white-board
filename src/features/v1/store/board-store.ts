@@ -9,6 +9,7 @@ export const useBoardStore = create<BoardStore>()(
   temporal(
     immer((set) => ({
       elements: [],
+      currentBoardId: null,
       backgroundColor: "bg-background",
       backgroundGrid: "none",
       currentElement: null,
@@ -25,7 +26,11 @@ export const useBoardStore = create<BoardStore>()(
       fontSize: 20,
       fontFamily: "sans",
       textAlign: "left",
-
+      
+      setCurrentBoardId: (id) =>
+        set((state) => {
+          state.currentBoardId = id;
+        }),
       setActiveTool: (tool) =>
         set((state) => {
           state.activeTool = tool;

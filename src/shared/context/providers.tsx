@@ -1,5 +1,6 @@
 import { NextIntlClientProvider } from "next-intl";
 import { ThemeProvider } from "./provider/ThemeProvider";
+import ReactQueryProvider from "./provider/react-query-providers";
 
 export default function Providers({
   children,
@@ -7,15 +8,17 @@ export default function Providers({
   children: React.ReactNode;
 }>) {
   return (
-    <NextIntlClientProvider>
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="system"
-        enableSystem
-        disableTransitionOnChange
-      >
-        {children}
-      </ThemeProvider>
-    </NextIntlClientProvider>
+    <ReactQueryProvider>
+      <NextIntlClientProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
+      </NextIntlClientProvider>
+    </ReactQueryProvider>
   );
 }

@@ -13,10 +13,43 @@ import {
 } from "@/src/shared/components/ui/dialog";
 import { useState } from "react";
 import ShareLinkButton from "./sharelink-button";
+import { useCreateShareLink } from "../hooks/share-hook";
+import { useBoardStore } from "../../v1/store/board-store";
+import { CreateShareLinkApiResponse } from "../../v1/types/share.types";
 
 export default function SessionButton() {
+  const elements = useBoardStore((state) => state.elements);
+  const backgroundColor = useBoardStore((state) => state.backgroundColor);
+  const backgroundGrid = useBoardStore((state) => state.backgroundGrid);
+  const boardId = useBoardStore((state) => state.currentBoardId);
   const [shareableLink, setShareableLink] = useState(false);
   const [started, setStarted] = useState(false);
+  const { mutate, isPending, data } = useCreateShareLink();
+  console.log("id LINK", boardId);
+  const handleCreateShareLink = () => {
+    if (!boardId) return;
+
+    mutate(
+      {
+        boardId,
+        data: {
+          elements,
+          backgroundColor,
+          backgroundGrid,
+        },
+      },
+      {
+        onSuccess: (result) => {
+          if (result.status) {
+            setShareableLink(true);
+          }
+        },
+        onError: (error) => {
+          console.error("Failed to create share link:", error.message);
+        },
+      },
+    );
+  };
   return (
     <div className="fixed top-4 right-4 z-1">
       <Dialog>
@@ -33,7 +66,11 @@ export default function SessionButton() {
           }
         />
 
-        {shareableLink && <ShareLinkButton />}
+        {shareableLink && (
+          <ShareLinkButton
+            ShareData={data || ({} as CreateShareLinkApiResponse)}
+          />
+        )}
         {!started && !shareableLink && (
           <DialogContent className="md:max-w-xl w-screen h-fit gap-0 rounded-2xl p-6 text-center ">
             <DialogHeader className="items-center gap-3">
@@ -73,10 +110,13 @@ export default function SessionButton() {
               </span>
               <Button
                 className="mt-3 h-12 gap-3 px-6 text-sm sm:text-base text-white"
-                onClick={() => setShareableLink((prev) => !prev)}
+                disabled={isPending || !boardId }
+                onClick={() => {
+                  handleCreateShareLink();
+                }}
               >
                 <Link2 className="size-4" />
-                Export to link
+                {isPending ? "Generating link..." : "Export to link"}
               </Button>
             </section>
           </DialogContent>
