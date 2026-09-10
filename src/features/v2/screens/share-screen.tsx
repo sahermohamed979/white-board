@@ -65,7 +65,7 @@ export default function ShareScreen({ token }: { token: string }) {
       <Tools viewportCenter={viewportCenter} readonly={true} />
       <div
         dir="ltr"
-        className={cn("w-full h-full", boardData?.backgroundColor)}
+        className={cn("w-full h-full  touch-none", boardData?.backgroundColor)}
         style={gridStyle}
       >
         <CanvasSvgLayer
