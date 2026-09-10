@@ -9,7 +9,6 @@ import ColorPicker from "./color-picker";
 
 const STROKE_COLORS = ["#1e1e1e", "#e03131", "#2f9e44", "#1971c2", "#f08c00"];
 const FILL_COLORS = ["transparent", "#ffc9c9", "#b2f2bb", "#a5d8ff", "#ffec99"];
-// const STROKE_WIDTHS = [1, 2, 4, 5];
 
 function getElementStrokeColor(el: Element): string | undefined {
   if (el.type === "freehand") return el.strokeColor || el.color;
@@ -53,6 +52,11 @@ function getElementStrokeWidth(el: Element): number | undefined {
   return undefined;
 }
 
+function getElementFontSize(el: Element): number | undefined {
+  if (el.type === "text") return el.fontSize;
+  return undefined;
+}
+
 export function StylePanel() {
   const activeTool = useBoardStore((s) => s.activeTool);
   const selectedIds = useBoardStore((s) => s.selectedIds);
@@ -60,10 +64,12 @@ export function StylePanel() {
   const strokeColor = useBoardStore((s) => s.strokeColor);
   const fillColor = useBoardStore((s) => s.fillColor);
   const strokeWidth = useBoardStore((s) => s.strokeWidth);
+  const fontSize = useBoardStore((s) => s.fontSize);
 
   const setStrokeColor = useBoardStore((s) => s.setStrokeColor);
   const setFillColor = useBoardStore((s) => s.setFillColor);
   const setStrokeWidth = useBoardStore((s) => s.setStrokeWidth);
+  const setFontSize = useBoardStore((s) => s.setFontSize);
   const updateElement = useBoardStore((s) => s.updateElement);
 
   const isSelection = selectedIds.length > 0;
@@ -111,8 +117,12 @@ export function StylePanel() {
     ? selectedElements.some((el) => el.type !== "image" && el.type !== "text")
     : activeTool !== "text" && DRAWING_TOOLS.includes(activeTool);
 
+  const showFontSize = isSelection
+    ? selectedElements.some((el) => el.type === "text")
+    : activeTool === "text";
+
   // If no style options are relevant (e.g. image selected), don't render panel
-  if (!showStrokeColor && !showFillColor && !showStrokeWidth) {
+  if (!showStrokeColor && !showFillColor && !showStrokeWidth && !showFontSize) {
     return null;
   }
 
@@ -132,6 +142,11 @@ export function StylePanel() {
     isSelection && firstSelected
       ? (getElementStrokeWidth(firstSelected) ?? strokeWidth)
       : strokeWidth;
+
+  const currentFontSize =
+    isSelection && firstSelected
+      ? (getElementFontSize(firstSelected) ?? fontSize  )
+      : fontSize ;
 
   // Apply to selected elements as well as store defaults
   const handleStrokeColorChange = (color: string) => {
@@ -168,8 +183,19 @@ export function StylePanel() {
       selectedElements.forEach((el) => {
         if (el.type === "freehand") {
           updateElement(el.id, { strokeWidth: width, size: width * 3 });
-        } else if (el.type !== "image" && el.type !== "text") {
+        } else if (el.type !== "image") {
           updateElement(el.id, { strokeWidth: width });
+        }
+      });
+    }
+  };
+
+  const handleFontSizeChange = (size: number) => {
+    setFontSize(size);
+    if (isSelection) {
+      selectedElements.forEach((el) => {
+        if (el.type === "text") {
+          updateElement(el.id, { fontSize: size });
         }
       });
     }
@@ -254,6 +280,29 @@ export function StylePanel() {
               onValueChange={(value) => {
                 if (typeof value === "number") {
                   handleStrokeWidthChange(value);
+                }
+              }}
+              className="w-32"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Font Size */}
+      {showFontSize && (
+        <div className="flex flex-col gap-1">
+          <span className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">
+            Font Size
+          </span>
+          <div className="flex flex-col md:flex-row gap-1.5 pt-1 pb-1">
+            <Slider
+              min={10}
+              max={72}
+              step={1}
+              value={currentFontSize}
+              onValueChange={(value) => {
+                if (typeof value === "number") {
+                  handleFontSizeChange(value);
                 }
               }}
               className="w-32"

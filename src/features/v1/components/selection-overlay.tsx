@@ -50,7 +50,6 @@ export function SelectionOverlay({ scale = 1 }: { scale?: number }) {
   ) => {
     e.stopPropagation();
 
-    // حاليا الـ resize للعناصر اللي عندها x/y/width/height
     if (
       el.type !== "rectangle" &&
       el.type !== "circle" &&

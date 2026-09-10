@@ -16,6 +16,7 @@ export function TextEditorOverlay({
 }: TextEditorOverlayProps) {
   const addElement = useBoardStore((s) => s.addElement);
   const strokeColor = useBoardStore((s) => s.strokeColor);
+  const fontSize = useBoardStore((s) => s.fontSize);
   const setActiveTool = useBoardStore((s) => s.setActiveTool);
 
   const [text, setText] = useState("");
@@ -44,6 +45,7 @@ export function TextEditorOverlay({
   if (!placement) return null;
 
   const [x, y] = placement;
+  const currentFontSize = fontSize ?? 20;
 
   const handleCommit = () => {
     if (!isReadyRef.current) return;
@@ -55,7 +57,7 @@ export function TextEditorOverlay({
         x,
         y,
         text: trimmed,
-        fontSize: 20,
+        fontSize: currentFontSize,
         color: strokeColor || "#1e1e1e",
       };
       addElement(newEl);
@@ -91,8 +93,11 @@ export function TextEditorOverlay({
         onKeyDown={handleKeyDown}
         placeholder="Type something..."
         rows={Math.max(text.split("\n").length, 1)}
-        className="min-h-8 min-w-35 resize-none overflow-hidden rounded border-2 border-blue-500 bg-white/95 px-2 py-1 font-sans text-base leading-snug text-gray-900 shadow-xl outline-none"
-        style={{ color: strokeColor || "#1e1e1e" }}
+        className="min-h-8 min-w-35 resize-none overflow-hidden rounded border-2 border-blue-500 bg-white/95 px-2 py-1 font-sans leading-snug text-gray-900 shadow-xl outline-none"
+        style={{
+          color: strokeColor || "#1e1e1e",
+          fontSize: `${currentFontSize}px`,
+        }}
       />
     </div>
   );
