@@ -25,7 +25,6 @@ export default function SessionButton() {
   const [shareableLink, setShareableLink] = useState(false);
   const [started, setStarted] = useState(false);
   const { mutate, isPending, data } = useCreateShareLink();
-  console.log("id LINK", boardId);
   const handleCreateShareLink = () => {
     if (!boardId) return;
 

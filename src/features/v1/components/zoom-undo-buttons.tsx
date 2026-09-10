@@ -7,8 +7,12 @@ import { useStore } from "zustand";
 
 interface ZoomIndicatorProps {
   scale: number;
+  readonly?: boolean;
 }
-export default function ZoomUndoButtons({ scale }: ZoomIndicatorProps) {
+export default function ZoomUndoButtons({
+  scale,
+  readonly,
+}: ZoomIndicatorProps) {
   const { undo, redo } = useBoardStore.temporal.getState();
   const pastStates = useStore(useBoardStore.temporal, (s) => s.pastStates);
   const futureStates = useStore(useBoardStore.temporal, (s) => s.futureStates);
@@ -21,6 +25,7 @@ export default function ZoomUndoButtons({ scale }: ZoomIndicatorProps) {
       <Button
         variant="outline"
         size="icon-sm"
+        className={readonly ? "hidden" : ""}
         disabled={!canUndo}
         onClick={() => undo()}
       >
@@ -30,6 +35,7 @@ export default function ZoomUndoButtons({ scale }: ZoomIndicatorProps) {
       <Button
         variant="outline"
         size="icon-sm"
+        className={readonly ? "hidden" : ""}
         disabled={!canRedo}
         onClick={() => redo()}
       >

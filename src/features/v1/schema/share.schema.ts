@@ -86,3 +86,6 @@ export const sharedBoardResponseSchema = z.object({
   data: shareBoardDataSchema,
   expiresAt: z.number(),
 });
+export type Element = z.infer<typeof elementSchema>;
+export type SharedBoardData = z.infer<typeof shareBoardDataSchema>;
+export type SharedBoardResponse = z.infer<typeof sharedBoardResponseSchema>;

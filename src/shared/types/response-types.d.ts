@@ -1,27 +1,26 @@
-interface ErrorResponse {
+export interface ErrorResponse {
   status: false;
   message: string;
   code?: number;
 }
 
-interface SuccessResponse<T> {
+export interface SuccessResponse<T> {
   status: true;
   message?: string;
   code?: number;
   payload: T;
 }
 
-interface ShareRecord {
+export type ApiResponse<T> = SuccessResponse<T> | ErrorResponse;
+
+/* صف الجدول اللي بيترجع من SELECT وقت قراءة الـ share (GET) */
+export interface ShareBoardRecord {
   data: unknown;
   expires_at: string;
 }
-interface ShareLinkPayload {
-  url: string;
-  expiresAt: number;
-}
-interface ShareRecord {
+
+/* صف الجدول اللي بيترجع من الـ RPC وقت إنشاء/تجديد الـ share (POST) */
+export interface CreateShareRecord {
   token: string;
   expires_at: string;
 }
-
-type ApiResponse<T> = SuccessResponse<T> | ErrorResponse;

@@ -18,7 +18,7 @@ import ZoomUndoButtons from "../components/zoom-undo-buttons";
 import { gridStyleMap } from "../constants/grid.constant";
 import SessionButton from "../../v2/components/session-button";
 
-export function Board( ) {
+export function Board() {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const exportContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -84,6 +84,7 @@ export function Board( ) {
 
         <CanvasSvgLayer
           ref={svgRef}
+          readonly={false}
           {...pointerEventsProps}
           canvasTransform={transform}
         >

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { createSupabaseServerClient } from "@/src/features/v2/api/supabase-server";
 import {
+  shareBoardDataSchema,
   shareDataSchema,
   shareTokenSchema,
 } from "@/src/features/v1/schema/share.schema";
@@ -9,6 +10,7 @@ import type {
   ShareApiResponse,
   SharedBoardData,
 } from "@/src/features/v1/types/share.types";
+import { ShareBoardRecord } from "@/src/shared/types/response-types";
 
 function errorResponse(
   message: string,
@@ -39,7 +41,7 @@ export async function GET(
     if (error) return errorResponse("Unable to load shared board", 500);
     if (!data) return errorResponse("Share link not found", 404);
 
-    const record = data as ShareRecord;
+    const record = data as ShareBoardRecord;
     const expiresAt = Date.parse(record.expires_at);
     if (!Number.isFinite(expiresAt)) {
       return errorResponse("Unable to load shared board", 500);
@@ -48,15 +50,15 @@ export async function GET(
       return errorResponse("This share link has expired", 410);
     }
 
-    const parsedData = shareDataSchema.safeParse(record.data);
+    const parsedData = shareBoardDataSchema.safeParse(record.data);
     if (!parsedData.success) {
       return errorResponse("Shared board data is invalid", 500);
     }
 
     const boardData: SharedBoardData = {
-      elements: parsedData.data,
-      backgroundColor: "bg-background",
-      backgroundGrid: "none",
+      elements: parsedData.data.elements,
+      backgroundColor: parsedData.data.backgroundColor ?? "bg-background",
+      backgroundGrid: parsedData.data.backgroundGrid ?? "none",
     };
 
     return NextResponse.json({

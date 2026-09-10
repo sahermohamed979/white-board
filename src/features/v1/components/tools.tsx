@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/src/shared/components/ui/button";
 import { useBoardStore, type ToolName } from "../hooks/main-hook";
 import {
@@ -24,9 +24,10 @@ import { useTranslations } from "next-intl";
 
 interface ToolsProps {
   viewportCenter: { x: number; y: number };
+  readonly?: boolean;
 }
 
-export default function Tools({ viewportCenter }: ToolsProps) {
+export default function Tools({ viewportCenter, readonly }: ToolsProps) {
   const [isToolsOpen, setIsToolsOpen] = useState(true);
   const activeTool = useBoardStore((s) => s.activeTool);
   const setActiveTool = useBoardStore((s) => s.setActiveTool);
@@ -78,10 +79,17 @@ export default function Tools({ viewportCenter }: ToolsProps) {
     reader.readAsDataURL(file);
   };
 
+  useEffect(() => {
+    if (readonly) {
+      setActiveTool("hand");
+    }
+  }, [readonly]);
+
   return (
     <div
       className={cn(
         "absolute top-25 right-5 left-auto z-10 grid grid-rows-[0fr_auto] items-center justify-center overflow-hidden rounded-2xl border border-popover-foreground bg-card  md:p-0  shadow-lg backdrop-blur-md transition-[grid-template-rows] duration-300 ease-out md:top-9 md:right-auto md:left-1/2 md:-translate-x-1/2 md:grid-cols-[0fr_auto] md:grid-rows-none md:transition-[grid-template-columns]",
+        readonly && "hidden",
         isToolsOpen
           ? "grid-rows-[1fr_auto] md:grid-cols-[1fr_auto] md:p-1 py-2 px-0.5 justify-items-center"
           : "grid-rows-[0fr_auto] md:grid-cols-[0fr_auto] justify-items-center w-8 ",

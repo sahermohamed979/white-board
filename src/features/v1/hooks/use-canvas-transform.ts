@@ -50,6 +50,7 @@ export function useCanvasTransform() {
         }
       },
       onDrag: ({ delta: [dx, dy] }) => {
+
         if (activeTool !== "hand" && activeTool !== "select") return;
         if (activeTool === "hand") {
           setTransform((t) => ({ ...t, x: t.x + dx, y: t.y + dy }));

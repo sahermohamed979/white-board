@@ -6,6 +6,8 @@ import {
 } from "@/src/features/v1/schema/share.schema";
 import { createSupabaseServerClient } from "@/src/features/v2/api/supabase-server";
 import { routing } from "@/src/i18n/routing";
+import { ApiResponse, CreateShareRecord } from "@/src/shared/types/response-types";
+import { ShareLinkPayload } from "@/src/features/v1/types/share.types";
 
 function errorResponse(
   message: string,
@@ -84,7 +86,7 @@ export async function POST(
 
   const { data, error } = await supabase.rpc("create_or_refresh_share", {
     p_board_id: parsedBoardId.data,
-    p_data: JSON.stringify(parsedBody.data.data),
+    p_data: parsedBody.data.data,
   });
 
   if (error) {
@@ -97,7 +99,7 @@ export async function POST(
     return errorResponse("Unable to create share link", 500);
   }
 
-  const record = share as Partial<ShareRecord>;
+  const record = share as Partial<CreateShareRecord>;
   if (!record.token || !record.expires_at) {
     return errorResponse("Unable to create share link", 500);
   }

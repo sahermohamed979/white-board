@@ -8,8 +8,6 @@ export async function createSupabaseServerClient() {
   if (!supabaseUrl || !serviceRoleKey) {
     throw new Error("Supabase server environment variables are not configured");
   }
-  console.log("supabaseUrl", supabaseUrl);
-  console.log("serviceRoleKey", serviceRoleKey);
 
   return createClient(supabaseUrl, serviceRoleKey, {
     auth: { autoRefreshToken: false, persistSession: false },
