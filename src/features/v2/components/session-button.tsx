@@ -24,7 +24,7 @@ export default function SessionButton() {
   const boardId = useBoardStore((state) => state.currentBoardId);
   const [shareableLink, setShareableLink] = useState(false);
   const [started, setStarted] = useState(false);
-  const { mutate, isPending, data } = useCreateShareLink();
+  const { mutate, isPending, data, isError } = useCreateShareLink();
   const handleCreateShareLink = () => {
     if (!boardId) return;
 
@@ -109,7 +109,7 @@ export default function SessionButton() {
               </span>
               <Button
                 className="mt-3 h-12 gap-3 px-6 text-sm sm:text-base text-white"
-                disabled={isPending || !boardId }
+                disabled={isPending || !boardId}
                 onClick={() => {
                   handleCreateShareLink();
                 }}
@@ -117,6 +117,9 @@ export default function SessionButton() {
                 <Link2 className="size-4" />
                 {isPending ? "Generating link..." : "Export to link"}
               </Button>
+              {isError && (
+                <p className="text-red-500">Failed to create share link</p>
+              )}
             </section>
           </DialogContent>
         )}
