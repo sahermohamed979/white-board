@@ -13,6 +13,7 @@ export interface CanvasSvgLayerProps extends React.SVGProps<SVGSVGElement> {
   canvasTransform?: Transform;
   elementsShared?: Element[] | [];
   readonly: boolean;
+  background: React.CSSProperties;
 }
 
 export const CanvasSvgLayer = forwardRef<SVGSVGElement, CanvasSvgLayerProps>(
@@ -22,7 +23,7 @@ export const CanvasSvgLayer = forwardRef<SVGSVGElement, CanvasSvgLayerProps>(
       className = "",
       style,
       canvasTransform,
-
+      background,
       readonly,
       elementsShared,
       ...props
@@ -46,6 +47,7 @@ export const CanvasSvgLayer = forwardRef<SVGSVGElement, CanvasSvgLayerProps>(
         {...props}
       >
         <g
+          style={background}
           transform={`translate(${transform.x} ${transform.y}) scale(${transform.scale})`}
         >
           {/* Persistent board elements */}
