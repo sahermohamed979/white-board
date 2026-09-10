@@ -75,6 +75,7 @@ export function Board() {
       <div
         dir="ltr"
         className={cn("w-full h-full touch-none", backgroundColor)}
+        style={gridStyle}
         ref={exportContainerRef}
       >
         <TextEditorOverlay
@@ -85,7 +86,6 @@ export function Board() {
         <CanvasSvgLayer
           ref={svgRef}
           readonly={false}
-          background={gridStyle}
           {...pointerEventsProps}
           canvasTransform={transform}
         >

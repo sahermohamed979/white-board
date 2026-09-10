@@ -66,11 +66,11 @@ export default function ShareScreen({ token }: { token: string }) {
       <div
         dir="ltr"
         className={cn("w-full h-full  touch-none", boardData?.backgroundColor)}
+        style={gridStyle}
       >
         <CanvasSvgLayer
           ref={svgRef}
           readonly={true}
-          background={gridStyle}
           elementsShared={boardData?.elements}
           canvasTransform={transform}
         >
