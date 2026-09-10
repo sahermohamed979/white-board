@@ -204,7 +204,6 @@ export default async function RootLayout({
         <Providers>
        
           {/* Floating Style Panel for Selection */}
-          <StylePanel />
 
           {children}
         </Providers>

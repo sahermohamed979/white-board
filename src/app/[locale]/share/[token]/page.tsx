@@ -1,7 +1,5 @@
-import React from 'react'
+import ShareScreen from "@/src/features/v2/screens/share-screen";
 
 export default function page() {
-  return (
-    <div>page</div>
-  )
+  return <ShareScreen />;
 }
