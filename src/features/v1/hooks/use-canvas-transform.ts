@@ -26,10 +26,11 @@ export function useCanvasTransform() {
         if (altKey) {
           setTransform((t) => ({ ...t, y: t.y - dy }));
         } else if (shiftKey) {
-          setTransform((t) => ({ ...t, x: t.x - dy }));
+          setTransform((t) => ({ ...t, x: t.x - dx }));
         } else if (ctrlKey) {
           setTransform((t) => {
             const newScale = clamp(t.scale - dy * 0.001, 0.1, 5);
+
             const mouseX = event.clientX;
             const mouseY = event.clientY;
             const scaleRatio = newScale / t.scale;
@@ -41,28 +42,45 @@ export function useCanvasTransform() {
             };
           });
         } else {
-          setTransform((t) => ({ ...t, x: t.x - dx, y: t.y - dy }));
+          setTransform((t) => ({
+            ...t,
+            x: t.x - dx,
+            y: t.y - dy,
+          }));
         }
       },
-      onDragStart: () => {
-        if (activeTool === "hand") {
-          setIsPanning(true);
-        }
-      },
-      onDrag: ({ delta: [dx, dy] }) => {
 
-        if (activeTool !== "hand" && activeTool !== "select") return;
-        if (activeTool === "hand") {
-          setTransform((t) => ({ ...t, x: t.x + dx, y: t.y + dy }));
-        }
+      onPinch: ({ offset: [scale], origin: [originX, originY] }) => {
+        setTransform((t) => {
+          const newScale = clamp(scale, 0.1, 5);
+          const scaleRatio = newScale / t.scale;
+
+          return {
+            scale: newScale,
+            x: originX - (originX - t.x) * scaleRatio,
+            y: originY - (originY - t.y) * scaleRatio,
+          };
+        });
       },
-      onDragEnd: () => {
-        setIsPanning(false);
+
+      onDrag: ({ delta: [dx, dy], touches }) => {
+        // إصبعين: gesture ممكن يكون pinch
+        if (touches > 1) return;
+
+        if (activeTool === "hand") {
+          setTransform((t) => ({
+            ...t,
+            x: t.x + dx,
+            y: t.y + dy,
+          }));
+        }
       },
     },
     {
       target: typeof window !== "undefined" ? window : undefined,
-      eventOptions: { passive: false },
+      eventOptions: {
+        passive: false,
+      },
     },
   );
 
