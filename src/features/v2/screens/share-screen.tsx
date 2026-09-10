@@ -64,6 +64,7 @@ export default function ShareScreen({ token }: { token: string }) {
       </h1>
       <Tools viewportCenter={viewportCenter} readonly={true} />
       <div
+        dir="ltr"
         className={cn("w-full h-full", boardData?.backgroundColor)}
         style={gridStyle}
       >

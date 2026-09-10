@@ -16,8 +16,10 @@ import ShareLinkButton from "./sharelink-button";
 import { useCreateShareLink } from "../hooks/share-hook";
 import { useBoardStore } from "../../v1/store/board-store";
 import { CreateShareLinkApiResponse } from "../../v1/types/share.types";
+import { useTranslations } from "next-intl";
 
 export default function SessionButton() {
+  const t = useTranslations("main.session");
   const elements = useBoardStore((state) => state.elements);
   const backgroundColor = useBoardStore((state) => state.backgroundColor);
   const backgroundGrid = useBoardStore((state) => state.backgroundGrid);
@@ -60,7 +62,7 @@ export default function SessionButton() {
                 setShareableLink(false);
               }}
             >
-              <Radio /> live
+              <Radio /> {t("live")}
             </Button>
           }
         />
@@ -74,38 +76,35 @@ export default function SessionButton() {
           <DialogContent className="md:max-w-xl w-screen h-fit gap-0 rounded-2xl p-6 text-center ">
             <DialogHeader className="items-center gap-3">
               <DialogTitle className="text-xl font-semibold text-primary sm:text-2xl">
-                Live collaboration
+                {t("liveCollaboration")}
               </DialogTitle>
               <DialogDescription className="max-w-md text-sm leading-6 text-foreground/80 sm:text-base">
-                Invite people to collaborate on your drawing.
+                {t("invitePeopleToCollaborate")}
               </DialogDescription>
               <span className="max-w-lg text-sm leading-6 text-muted-foreground sm:text-base">
-                Your session is protected with end-to-end encryption, ensuring
-                that your work remains completely private. Your drawings are
-                accessible only to you and the people you choose to share them
-                with — not even our servers can view or access your content.
+                {t("protectedSession")}
               </span>
             </DialogHeader>
 
             <div className="mt-6 flex justify-center">
               <Button className="h-12 gap-3 px-6 text-sm sm:text-base text-white">
                 <Play className="size-4 fill-current" />
-                Start session
+                {t("startSession")}
               </Button>
             </div>
 
             <div className="my-8 flex items-center gap-3 text-sm text-muted-foreground">
               <span className="h-px flex-1 bg-border" />
-              <span className="px-1">Or</span>
+              <span className="px-1">{t("or")}</span>
               <span className="h-px flex-1 bg-border" />
             </div>
 
             <section className="flex flex-col items-center gap-3">
               <h2 className="text-xl font-semibold text-primary sm:text-2xl">
-                Shareable link
+                {t("shareableLink")}
               </h2>
               <span className="text-sm text-muted-foreground sm:text-base">
-                Export as a read-only link.
+                {t("exportAsReadOnlyLink")}
               </span>
               <Button
                 className="mt-3 h-12 gap-3 px-6 text-sm sm:text-base text-white"
@@ -115,10 +114,10 @@ export default function SessionButton() {
                 }}
               >
                 <Link2 className="size-4" />
-                {isPending ? "Generating link..." : "Export to link"}
+                {isPending ? t("generatingLink") : t("exportToLink")}
               </Button>
               {isError && (
-                <p className="text-red-500">Failed to create share link</p>
+                <p className="text-red-500">{t("failedToCreateShareLink")}</p>
               )}
             </section>
           </DialogContent>

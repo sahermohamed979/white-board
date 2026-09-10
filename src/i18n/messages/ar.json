@@ -10,6 +10,27 @@
       "background": "الخلفية:",
       "export": "تنزيل",
       "grid": "التخطيط"
+    },
+    "session": {
+      "live": "مباشر",
+      "Link": "الرابط",
+      "Copylink": "نسخ الرابط",
+
+      "liveCollaboration": "تعاون مباشر",
+      "invitePeopleToCollaborate": "اعزم ناس يشاركوا معاك في الرسم",
+      "protectedSession": "جلستك محمية بتشفير من الطرف للطرف، عشان شغلك يفضل خاص. رسوماتك متاحة ليك وللناس اللي اخترت تشاركها معاهم بس، وحتى سيرفراتنا مش بتقدر تشوف محتواك.",
+      "startSession": "ابدأ الجلسة",
+      "or": "أو",
+      "failedToCreateShareLink": "مش قادرين نعمل رابط المشاركة",
+      "shareableLink": "رابط المشاركة",
+      "exportToLink": "تصدير كرابط",
+      "generatingLink": "بنجهز الرابط...",
+      "thisLinkWillExpireIn": "الرابط ده هينتهي خلال",
+      "endToEndEncrypted": "مشفّر من الطرف للطرف. محتواك بيتشفّر قبل ما يخرج من جهازك، عشان كده سيرفرات Sketchly وأي جهة تانية مش بتقدر توصل لمحتواك.",
+      "exportAsReadOnlyLink": "تصدير كرابط للعرض فقط",
+      "invitePeople": "اعزم ناس يشاركوا معاك في الرسم",
+      "notEvenOurServers": "حتى سيرفراتنا مش بتقدر تشوف محتواك",
+      "yourWorkRemainsPrivate": "شغلك بيفضل خاص"
     }
   }
 }

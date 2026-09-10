@@ -73,6 +73,7 @@ export function Board() {
         backgroundColor={backgroundColor}
       />
       <div
+        dir="ltr"
         className={cn("w-full h-full", backgroundColor)}
         style={gridStyle}
         ref={exportContainerRef}

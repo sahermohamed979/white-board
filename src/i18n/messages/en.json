@@ -10,6 +10,26 @@
       "background": "Background :",
       "export": "Export",
       "grid": "Grid :"
+    },
+    "session": {
+      "live": "Live",
+      "Link": "Link",
+      "Copylink": "Copy link",
+      "liveCollaboration": "Live collaboration",
+      "invitePeopleToCollaborate": "Invite people to collaborate on your drawing",
+      "protectedSession": "Your session is protected with end-to-end encryption, ensuring that your work remains completely private. Your drawings are accessible only to you and the people you choose to share them with — not even our servers can view or access your content.",
+      "startSession": "Start session",
+      "or": "Or",
+      "failedToCreateShareLink": "Failed to create share link",
+      "shareableLink": "Shareable link",
+      "exportToLink": "Export to link",
+      "generatingLink": "Generating link...",
+      "thisLinkWillExpireIn": "This link will expire in",
+      "endToEndEncrypted": "End-to-end encrypted. Your upload is encrypted before it leaves your device, so Sketchly servers and third parties cannot access its contents.",
+      "exportAsReadOnlyLink": "Export as a read-only link",
+      "invitePeople": "Invite people to collaborate on your drawing",
+      "notEvenOurServers": "Not even our servers can view or access your content",
+      "yourWorkRemainsPrivate": "Your work remains completely private"
     }
   }
 }
