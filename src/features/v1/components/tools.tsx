@@ -79,11 +79,11 @@ export default function Tools({ viewportCenter, readonly }: ToolsProps) {
     reader.readAsDataURL(file);
   };
 
-  useEffect(() => {
-    if (readonly) {
-      setActiveTool("hand");
-    }
-  }, [readonly]);
+  // useEffect(() => {
+  //   if (readonly) {
+  //     setActiveTool("hand");
+  //   }
+  // }, [readonly]);
 
   return (
     <div
