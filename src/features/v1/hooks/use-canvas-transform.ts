@@ -29,7 +29,10 @@ type TransformListener = () => void;
 export function useCanvasTransform() {
   const activeTool = useBoardStore((state) => state.activeTool);
   const activeToolRef = useRef(activeTool);
-  activeToolRef.current = activeTool;
+
+  useEffect(() => {
+    activeToolRef.current = activeTool;
+  }, [activeTool]);
 
   const transformRef = useRef<Transform>({ ...INITIAL_TRANSFORM });
   const viewportGroupRef = useRef<SVGGElement | null>(null);
@@ -199,10 +202,7 @@ export function useCanvasTransform() {
     return screenToCanvas(window.innerWidth / 2, window.innerHeight / 2);
   }, [screenToCanvas]);
 
-  const getScale = useCallback(
-    (): number => transformRef.current.scale,
-    [],
-  );
+  const getScale = useCallback((): number => transformRef.current.scale, []);
 
   return {
     isPanning,
