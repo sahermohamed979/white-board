@@ -32,7 +32,7 @@ export default function SaveButton({
     setBackgroundColor(savedData.backgroundColor);
     setBackgroundGrid(savedData.backgroundGrid);
     setElements(savedData.elements);
-    router.push("/");
+    router.replace("/");
   };
 
   return (
