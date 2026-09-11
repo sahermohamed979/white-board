@@ -31,7 +31,7 @@ export default function ErrorShare({
       {/* CTA */}
       <Link
         href="/"
-        className="rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+        className="rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
       >
         Go to Sketchly
       </Link>

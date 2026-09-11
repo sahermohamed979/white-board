@@ -15,13 +15,16 @@ import { Menu } from "lucide-react";
 import { ExportButton } from "./export-butons";
 import { useTranslations } from "next-intl";
 import GridBackground from "./grid-background";
+import { cn } from "@/src/shared/lib/utils";
 
 export default function SideDropDown({
   containerRef,
   backgroundColor,
+  readonly,
 }: {
   containerRef: React.RefObject<HTMLDivElement | null>;
   backgroundColor?: string;
+  readonly?: boolean;
 }) {
   const t = useTranslations();
   return (
@@ -32,7 +35,10 @@ export default function SideDropDown({
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-35.7 mt-3">
           <DropdownMenuGroup>
-            <DropdownMenuItem closeOnClick={false}>
+            <DropdownMenuItem
+              closeOnClick={false}
+              className={cn(readonly && "hidden")}
+            >
               {" "}
               {/* ← بدل Label */}
               <ThemeToggle />
@@ -42,19 +48,35 @@ export default function SideDropDown({
               <LanguageToggle />
             </DropdownMenuItem>
 
-            <DropdownMenuLabel className="text-[11px] font-medium text-foreground uppercase tracking-wider">
+            <DropdownMenuLabel
+              className={cn(
+                "text-[11px] font-medium text-foreground uppercase tracking-wider",
+                readonly && "hidden",
+              )}
+            >
               {t("main.sideDropDown.background")}
             </DropdownMenuLabel>
 
-            <DropdownMenuItem closeOnClick={false}>
+            <DropdownMenuItem
+              closeOnClick={false}
+              className={cn(readonly && "hidden")}
+            >
               {" "}
               <BackgroundSelection />
             </DropdownMenuItem>
-            <DropdownMenuLabel className="text-[11px] font-medium text-foreground uppercase tracking-wider">
+            <DropdownMenuLabel
+              className={cn(
+                "text-[11px] font-medium text-foreground uppercase tracking-wider",
+                readonly && "hidden",
+              )}
+            >
               {t("main.sideDropDown.grid")}
             </DropdownMenuLabel>
 
-            <DropdownMenuItem closeOnClick={false}>
+            <DropdownMenuItem
+              closeOnClick={false}
+              className={cn(readonly && "hidden")}
+            >
               {" "}
               <GridBackground />
             </DropdownMenuItem>
@@ -63,12 +85,10 @@ export default function SideDropDown({
           <DropdownMenuSeparator />
 
           <DropdownMenuGroup>
-        
-              <ExportButton
-                containerRef={containerRef}
-                backgroundColor={backgroundColor}
-              />
-        
+            <ExportButton
+              containerRef={containerRef}
+              backgroundColor={backgroundColor}
+            />
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>

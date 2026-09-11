@@ -29,7 +29,11 @@
       "exportAsReadOnlyLink": "Export as a read-only link",
       "invitePeople": "Invite people to collaborate on your drawing",
       "notEvenOurServers": "Not even our servers can view or access your content",
-      "yourWorkRemainsPrivate": "Your work remains completely private"
+      "yourWorkRemainsPrivate": "Your work remains completely private",
+      "save": "Save",
+      "saveLocally": "Save Locally",
+      "saveTheBoardSoUCanEditOnItLocally": "Save this board to your device for later editing.",
+      "saveBoard": "Save Board"
     }
   }
 }

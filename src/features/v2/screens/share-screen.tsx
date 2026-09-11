@@ -16,9 +16,12 @@ import { gridStyleMap } from "../../v1/constants/grid.constant";
 import Tools from "../../v1/components/tools";
 import { useRevalidateLink } from "../hooks/share-hook";
 import ErrorShare from "../components/error-share";
+import SaveButton from "../components/save-button";
+import SideDropDown from "../../v1/components/side-drop-down";
 
 export default function ShareScreen({ token }: { token: string }) {
   const svgRef = useRef<SVGSVGElement | null>(null);
+  const exportContainerRef = useRef<HTMLDivElement | null>(null);
 
   const {
     isPanning,
@@ -73,6 +76,7 @@ export default function ShareScreen({ token }: { token: string }) {
         dir="ltr"
         className={cn("w-full h-full  touch-none", boardData?.backgroundColor)}
         style={gridStyle}
+        ref={exportContainerRef}
       >
         <CanvasSvgLayer
           ref={svgRef}
@@ -82,12 +86,18 @@ export default function ShareScreen({ token }: { token: string }) {
         >
           <SelectionOverlay getScale={getScale} />
         </CanvasSvgLayer>
+        <ZoomUndoButtons
+          subscribe={subscribe}
+          getTransformSnapshot={getTransformSnapshot}
+          readonly={true}
+        />
       </div>
-      <ZoomUndoButtons
-        subscribe={subscribe}
-        getTransformSnapshot={getTransformSnapshot}
+      <SideDropDown
+        containerRef={exportContainerRef}
+        backgroundColor={boardData?.backgroundColor}
         readonly={true}
       />
+      <SaveButton savedData={boardData} />
     </main>
   );
 }

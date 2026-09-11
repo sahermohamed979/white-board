@@ -30,7 +30,11 @@
       "exportAsReadOnlyLink": "تصدير كرابط للعرض فقط",
       "invitePeople": "اعزم ناس يشاركوا معاك في الرسم",
       "notEvenOurServers": "حتى سيرفراتنا مش بتقدر تشوف محتواك",
-      "yourWorkRemainsPrivate": "شغلك بيفضل خاص"
+      "yourWorkRemainsPrivate": "شغلك بيفضل خاص",
+      "save": "حفظ",
+      "saveLocally": "حفظ على الجهاز",
+      "saveTheBoardSoUCanEditOnItLocally": "احفظ البورد على جهازك علشان تقدر تعدّل عليها بعدين.",
+      "saveBoard": "حفظ البورد"
     }
   }
 }
