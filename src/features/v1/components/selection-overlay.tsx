@@ -15,7 +15,11 @@ type ResizeState = {
   startHeight: number;
 };
 
-export function SelectionOverlay({ scale = 1 }: { scale?: number }) {
+export function SelectionOverlay({
+  getScale = () => 1,
+}: {
+  getScale?: () => number;
+}) {
   const resizeCursors = [
     "cursor-nwse-resize",
     "cursor-ns-resize",
@@ -85,8 +89,9 @@ export function SelectionOverlay({ scale = 1 }: { scale?: number }) {
     const resize = resizeRef.current;
     if (!resize) return;
 
-    const dx = (clientX - resize.startX) / (scale || 1);
-    const dy = (clientY - resize.startY) / (scale || 1);
+    const scale = getScale() || 1;
+    const dx = (clientX - resize.startX) / scale;
+    const dy = (clientY - resize.startY) / scale;
 
     let x = resize.startElementX;
     let y = resize.startElementY;

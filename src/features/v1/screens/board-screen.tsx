@@ -1,6 +1,10 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { Loader } from "lucide-react";
+
+import { cn } from "@/src/shared/lib/utils";
+
 import { usePointerEvents } from "../hooks/use-pointer-events";
 import { usePersistedBoard } from "../hooks/use-persisted-board";
 import { useKeyboardShortcuts } from "../hooks/use-keyboard-shortcuts";
@@ -9,12 +13,9 @@ import { SelectionOverlay } from "../components/selection-overlay";
 import { TextEditorOverlay } from "../components/text-editor-overlay";
 import { useCanvasTransform } from "../hooks/use-canvas-transform";
 import { useBoardStore } from "../store/board-store";
-import { cn } from "@/src/shared/lib/utils";
 import SideDropDown from "../components/side-drop-down";
 import Tools from "../components/tools";
-import { Loader } from "lucide-react";
 import ZoomUndoButtons from "../components/zoom-undo-buttons";
-
 import { gridStyleMap } from "../constants/grid.constant";
 import SessionButton from "../../v2/components/session-button";
 
@@ -25,7 +26,17 @@ export function Board() {
   const [textPlacement, setTextPlacement] = useState<[number, number] | null>(
     null,
   );
-  const { isPanning, transform, screenToCanvas } = useCanvasTransform();
+
+  const {
+    isPanning,
+    viewportGroupRef,
+    screenToCanvas,
+    getViewportCenter,
+    getScale,
+    subscribe,
+    getTransformSnapshot,
+  } = useCanvasTransform();
+
   const activeTool = useBoardStore((state) => state.activeTool);
   const backgroundColor = useBoardStore((state) => state.backgroundColor);
   const { isHydrated } = usePersistedBoard();
@@ -40,11 +51,6 @@ export function Board() {
 
   const gridStyle = gridStyleMap[backgroundGrid] ?? {};
 
-  const viewportCenter = screenToCanvas(
-    typeof window !== "undefined" ? window.innerWidth / 2 : 0,
-    typeof window !== "undefined" ? window.innerHeight / 2 : 0,
-  );
-
   if (!isHydrated) {
     return (
       <div className="flex h-screen w-screen items-center justify-center">
@@ -52,6 +58,7 @@ export function Board() {
       </div>
     );
   }
+
   return (
     <main
       className={cn(
@@ -67,7 +74,7 @@ export function Board() {
         Sketchly — Interactive Virtual Whiteboard & Sketching App
       </h1>
       <SessionButton />
-      <Tools viewportCenter={viewportCenter} />
+      <Tools getViewportCenter={getViewportCenter} />
       <SideDropDown
         containerRef={exportContainerRef}
         backgroundColor={backgroundColor}
@@ -86,13 +93,16 @@ export function Board() {
         <CanvasSvgLayer
           ref={svgRef}
           readonly={false}
+          viewportGroupRef={viewportGroupRef}
           {...pointerEventsProps}
-          canvasTransform={transform}
         >
-          <SelectionOverlay scale={transform.scale} />
+          <SelectionOverlay getScale={getScale} />
         </CanvasSvgLayer>
       </div>
-      <ZoomUndoButtons scale={transform.scale} />
+      <ZoomUndoButtons
+        subscribe={subscribe}
+        getTransformSnapshot={getTransformSnapshot}
+      />
     </main>
   );
 }

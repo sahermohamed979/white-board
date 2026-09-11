@@ -23,11 +23,11 @@ import type { ImageElement } from "../types/element.types";
 import { useTranslations } from "next-intl";
 
 interface ToolsProps {
-  viewportCenter: { x: number; y: number };
+  getViewportCenter: () => { x: number; y: number };
   readonly?: boolean;
 }
 
-export default function Tools({ viewportCenter, readonly }: ToolsProps) {
+export default function Tools({ getViewportCenter, readonly }: ToolsProps) {
   const [isToolsOpen, setIsToolsOpen] = useState(true);
   const activeTool = useBoardStore((s) => s.activeTool);
   const setActiveTool = useBoardStore((s) => s.setActiveTool);
@@ -59,12 +59,13 @@ export default function Tools({ viewportCenter, readonly }: ToolsProps) {
         const width = img.width * scale;
         const height = img.height * scale;
 
+        const center = getViewportCenter();
         const newId = generateId();
         const newEl: ImageElement = {
           id: newId,
           type: "image",
-          x: viewportCenter.x - width / 2, //
-          y: viewportCenter.y - height / 2,
+          x: center.x - width / 2,
+          y: center.y - height / 2,
           width,
           height,
           src,

@@ -1,6 +1,10 @@
 "use client";
 
+import { useRef } from "react";
 import { Loader } from "lucide-react";
+
+import { cn } from "@/src/shared/lib/utils";
+
 import { CanvasSvgLayer } from "../../v1/components/canvas-svg-layer";
 import { SelectionOverlay } from "../../v1/components/selection-overlay";
 import ZoomUndoButtons from "../../v1/components/zoom-undo-buttons";
@@ -8,26 +12,28 @@ import { useBoardStore } from "../../v1/store/board-store";
 import { usePersistedBoard } from "../../v1/hooks/use-persisted-board";
 import { useKeyboardShortcuts } from "../../v1/hooks/use-keyboard-shortcuts";
 import { useCanvasTransform } from "../../v1/hooks/use-canvas-transform";
-import { useRef } from "react";
 import { gridStyleMap } from "../../v1/constants/grid.constant";
-import { cn } from "@/src/shared/lib/utils";
-import { useRevalidateLink } from "../hooks/share-hook";
 import Tools from "../../v1/components/tools";
+import { useRevalidateLink } from "../hooks/share-hook";
 import ErrorShare from "../components/error-share";
 
 export default function ShareScreen({ token }: { token: string }) {
   const svgRef = useRef<SVGSVGElement | null>(null);
 
-  const { isPanning, transform, screenToCanvas } = useCanvasTransform();
+  const {
+    isPanning,
+    viewportGroupRef,
+    getViewportCenter,
+    getScale,
+    subscribe,
+    getTransformSnapshot,
+  } = useCanvasTransform();
+
   const activeTool = useBoardStore((state) => state.activeTool);
   const { isHydrated } = usePersistedBoard();
   useKeyboardShortcuts();
   const revalidateLink = useRevalidateLink(token);
   const boardData = revalidateLink.data?.data;
-  const viewportCenter = screenToCanvas(
-    typeof window !== "undefined" ? window.innerWidth / 2 : 0,
-    typeof window !== "undefined" ? window.innerHeight / 2 : 0,
-  );
   const gridStyle = gridStyleMap[boardData?.backgroundGrid ?? "none"] ?? {};
 
   // Loading
@@ -62,7 +68,7 @@ export default function ShareScreen({ token }: { token: string }) {
       <h1 className="sr-only">
         Sketchly — Interactive Virtual Whiteboard & Sketching App
       </h1>
-      <Tools viewportCenter={viewportCenter} readonly={true} />
+      <Tools getViewportCenter={getViewportCenter} readonly={true} />
       <div
         dir="ltr"
         className={cn("w-full h-full  touch-none", boardData?.backgroundColor)}
@@ -72,12 +78,16 @@ export default function ShareScreen({ token }: { token: string }) {
           ref={svgRef}
           readonly={true}
           elementsShared={boardData?.elements}
-          canvasTransform={transform}
+          viewportGroupRef={viewportGroupRef}
         >
-          <SelectionOverlay scale={transform.scale} />
+          <SelectionOverlay getScale={getScale} />
         </CanvasSvgLayer>
       </div>
-      <ZoomUndoButtons scale={transform.scale} readonly={true} />
+      <ZoomUndoButtons
+        subscribe={subscribe}
+        getTransformSnapshot={getTransformSnapshot}
+        readonly={true}
+      />
     </main>
   );
 }

@@ -5,12 +5,11 @@ import React, { forwardRef } from "react";
 import { useBoardStore } from "../store/board-store";
 import { ElementRenderer } from "./element-renderer";
 
-import type { Transform } from "../hooks/use-canvas-transform";
-import { Element } from "../types/element.types";
+import type { Element } from "../types/element.types";
 
 export interface CanvasSvgLayerProps extends React.SVGProps<SVGSVGElement> {
   children?: React.ReactNode;
-  canvasTransform?: Transform;
+  viewportGroupRef?: React.RefObject<SVGGElement | null>;
   elementsShared?: Element[] | [];
   readonly: boolean;
 }
@@ -21,7 +20,7 @@ export const CanvasSvgLayer = forwardRef<SVGSVGElement, CanvasSvgLayerProps>(
       children,
       className = "",
       style,
-      canvasTransform,
+      viewportGroupRef,
       readonly,
       elementsShared,
       ...props
@@ -31,12 +30,6 @@ export const CanvasSvgLayer = forwardRef<SVGSVGElement, CanvasSvgLayerProps>(
     const elements = useBoardStore((s) => s.elements);
     const currentElement = useBoardStore((s) => s.currentElement);
 
-    const transform = canvasTransform ?? {
-      x: 0,
-      y: 0,
-      scale: 1,
-    };
-
     return (
       <svg
         ref={ref}
@@ -44,21 +37,16 @@ export const CanvasSvgLayer = forwardRef<SVGSVGElement, CanvasSvgLayerProps>(
         style={style}
         {...props}
       >
-        <g
-          transform={`translate(${transform.x} ${transform.y}) scale(${transform.scale})`}
-        >
+        <g ref={viewportGroupRef} transform="translate(0 0) scale(1)">
           {/* Persistent board elements */}
           {readonly ? (
             elementsShared?.map((element) => (
               <ElementRenderer key={element.id} element={element} />
             ))
           ) : (
-            <>
-              {" "}
-              {elements.map((element) => (
-                <ElementRenderer key={element.id} element={element} />
-              ))}
-            </>
+            elements.map((element) => (
+              <ElementRenderer key={element.id} element={element} />
+            ))
           )}
 
           {/* Current drawing */}
