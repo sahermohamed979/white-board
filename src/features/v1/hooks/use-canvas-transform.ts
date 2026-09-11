@@ -102,7 +102,10 @@ export function useCanvasTransform() {
         }
 
         if (shiftKey) {
-          applyTransform({ ...t, x: t.x - dx });
+          applyTransform({
+            ...t,
+            x: t.x - dy,
+          });
           return;
         }
 
