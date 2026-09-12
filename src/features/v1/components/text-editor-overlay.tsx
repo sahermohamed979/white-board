@@ -1,19 +1,22 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useImperativeHandle, useRef, useState } from "react";
 import { useBoardStore } from "../store/board-store";
 import { generateId } from "../lib/id";
 import type { TextElement } from "../types/element.types";
 
-interface TextEditorOverlayProps {
-  placement: [number, number] | null;
-  onClose: () => void;
+export interface TextEditorHandle {
+  commitPending: () => void;
 }
 
-export function TextEditorOverlay({
-  placement,
-  onClose,
-}: TextEditorOverlayProps) {
+interface TextEditorInstanceProps {
+  x: number;
+  y: number;
+  onClose: () => void;
+  ref?: React.Ref<TextEditorHandle>;
+}
+
+function TextEditorInstance({ x, y, onClose, ref }: TextEditorInstanceProps) {
   const addElement = useBoardStore((s) => s.addElement);
   const strokeColor = useBoardStore((s) => s.strokeColor);
   const fontSize = useBoardStore((s) => s.fontSize);
@@ -21,34 +24,20 @@ export function TextEditorOverlay({
 
   const [text, setText] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const isReadyRef = useRef(false);
-
-  useEffect(() => {
-    if (placement) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setText("");
-
-      isReadyRef.current = false;
-
-      const timer = setTimeout(() => {
-        if (textareaRef.current) {
-          textareaRef.current.focus();
-
-          isReadyRef.current = true;
-        }
-      }, 50);
-
-      return () => clearTimeout(timer);
-    }
-  }, [placement]);
-
-  if (!placement) return null;
-
-  const [x, y] = placement;
+  const justCommittedRef = useRef(false);
   const currentFontSize = fontSize ?? 20;
 
-  const handleCommit = () => {
-    if (!isReadyRef.current) return;
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      textareaRef.current?.focus();
+    }, 50);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const commit = () => {
+    if (justCommittedRef.current) return;
+    justCommittedRef.current = true;
+
     const trimmed = text.trim();
     if (trimmed.length > 0) {
       const newEl: TextElement = {
@@ -63,17 +52,28 @@ export function TextEditorOverlay({
       addElement(newEl);
       setActiveTool("select");
     }
+  };
 
-    setText("");
-    onClose();
+  useImperativeHandle(ref, () => ({ commitPending: commit }));
+
+  const handleBlur = () => {
+    const wasAlreadyCommitted = justCommittedRef.current;
+    commit();
+    if (!wasAlreadyCommitted) {
+      onClose();
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleCommit();
-    } else if (e.key === "Escape") {
-      setText("");
+      commit();
+      onClose();
+      return;
+    }
+    if (e.key === "Escape") {
+      e.preventDefault();
+      justCommittedRef.current = true;
       onClose();
     }
   };
@@ -89,11 +89,11 @@ export function TextEditorOverlay({
         ref={textareaRef}
         value={text}
         onChange={(e) => setText(e.target.value)}
-        onBlur={handleCommit}
+        onBlur={handleBlur}
         onKeyDown={handleKeyDown}
         placeholder="Type something..."
         rows={Math.max(text.split("\n").length, 1)}
-        className="min-h-8 min-w-35 resize-none overflow-hidden rounded border-2 border-blue-500 bg-white/95 px-2 py-1 font-sans leading-snug text-gray-900 shadow-xl outline-none"
+        className="min-h-8 min-w-35 resize-none overflow-hidden rounded px-2 py-1 font-sans leading-snug text-gray-900 shadow-xl outline-none"
         style={{
           color: strokeColor || "#1e1e1e",
           fontSize: `${currentFontSize}px`,
@@ -102,3 +102,36 @@ export function TextEditorOverlay({
     </div>
   );
 }
+
+interface TextEditorOverlayProps {
+  placement: [number, number] | null;
+  onClose: () => void;
+  ref?: React.Ref<TextEditorHandle>;
+}
+
+export function TextEditorOverlay({
+  placement,
+  onClose,
+  ref,
+}: TextEditorOverlayProps) {
+  const instanceRef = useRef<TextEditorHandle>(null);
+
+  useImperativeHandle(ref, () => ({
+    commitPending: () => instanceRef.current?.commitPending(),
+  }));
+
+  if (!placement) return null;
+  const [x, y] = placement;
+
+  return (
+    <TextEditorInstance
+      key={`${x}-${y}`}
+      ref={instanceRef}
+      x={x}
+      y={y}
+      onClose={onClose}
+    />
+  );
+}
+
+export default TextEditorOverlay;

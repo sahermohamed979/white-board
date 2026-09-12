@@ -10,7 +10,10 @@ import { usePersistedBoard } from "../hooks/use-persisted-board";
 import { useKeyboardShortcuts } from "../hooks/use-keyboard-shortcuts";
 import { CanvasSvgLayer } from "../components/canvas-svg-layer";
 import { SelectionOverlay } from "../components/selection-overlay";
-import { TextEditorOverlay } from "../components/text-editor-overlay";
+import {
+  TextEditorOverlay,
+  type TextEditorHandle,
+} from "../components/text-editor-overlay";
 import { useCanvasTransform } from "../hooks/use-canvas-transform";
 import { useBoardStore } from "../store/board-store";
 import SideDropDown from "../components/side-drop-down";
@@ -22,6 +25,7 @@ import SessionButton from "../../v2/components/session-button";
 export function Board() {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const exportContainerRef = useRef<HTMLDivElement | null>(null);
+  const textEditorRef = useRef<TextEditorHandle>(null);
 
   const [textPlacement, setTextPlacement] = useState<[number, number] | null>(
     null,
@@ -44,7 +48,12 @@ export function Board() {
 
   const { pointerEventsProps } = usePointerEvents(
     svgRef,
-    (point) => setTextPlacement(point),
+    (point) => {
+      // Commit whatever's currently being edited BEFORE moving to the new
+      // point — deterministic, no dependency on blur-event ordering.
+      textEditorRef.current?.commitPending();
+      setTextPlacement(point);
+    },
     screenToCanvas,
   );
   const backgroundGrid = useBoardStore((state) => state.backgroundGrid);
@@ -86,6 +95,7 @@ export function Board() {
         ref={exportContainerRef}
       >
         <TextEditorOverlay
+          ref={textEditorRef}
           placement={textPlacement}
           onClose={() => setTextPlacement(null)}
         />
