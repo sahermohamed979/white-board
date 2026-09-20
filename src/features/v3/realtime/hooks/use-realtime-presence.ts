@@ -41,6 +41,7 @@ interface UseRealtimePresenceOptions {
   isOwner?: boolean;
   name?: string;
   enabled?: boolean;
+  isSubscribed: boolean;
 }
 
 export function useRealtimePresence({
@@ -50,6 +51,7 @@ export function useRealtimePresence({
   isOwner = false,
   name,
   enabled = true,
+  isSubscribed,
 }: UseRealtimePresenceOptions) {
   const [presenceMap, setPresenceMap] = useState<
     Record<string, ParticipantPresence[]>
@@ -89,20 +91,23 @@ export function useRealtimePresence({
       setPresenceMap(state as Record<string, ParticipantPresence[]>);
     });
 
-    // Initial track when subscribed
-    channel.track(currentPresence).catch((err) => {
-      console.error("[Sketchly Presence] Initial track failed:", err);
-    });
-
     return () => {
       unregisterPresenceListener();
       channel.untrack().catch(() => {});
     };
-  }, [channel, enabled, currentPresence, registerPresenceListener]);
+  }, [channel, enabled, registerPresenceListener]);
+
+  useEffect(() => {
+    if (!channel || !enabled || !isSubscribed) return;
+
+    channel.track(currentPresence).catch((err) => {
+      console.error("[Sketchly Presence] Initial track failed:", err);
+    });
+  }, [channel, enabled, isSubscribed, currentPresence]);
 
   // 2. Throttled cursor publishing using requestAnimationFrame (~25-30 fps)
   const flushCursorUpdate = useCallback(() => {
-    if (!channel || !enabled) return;
+    if (!channel || !enabled || !isSubscribed) return;
 
     const now = performance.now();
     // Throttle to ~35ms (~28 updates/sec)
@@ -138,7 +143,7 @@ export function useRealtimePresence({
     }
 
     rafIdRef.current = null;
-  }, [channel, enabled, currentPresence]);
+  }, [channel, enabled, isSubscribed, currentPresence]);
 
   useEffect(() => {
     flushCursorUpdateRef.current = flushCursorUpdate;

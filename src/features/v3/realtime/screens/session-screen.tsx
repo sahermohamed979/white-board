@@ -94,6 +94,7 @@ export function SessionScreen({ token }: { token: string }) {
     participantId,
     isOwner,
     enabled: Boolean(channel),
+    isSubscribed: channelStatus === "SUBSCRIBED",
   });
 
   // 4. Realtime Board Sync (Broadcast)
