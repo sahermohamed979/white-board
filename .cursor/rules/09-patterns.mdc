@@ -1,0 +1,189 @@
+---
+description: Error handling, Sonner toasts, performance patterns, providers setup
+globs: ["**/*.ts", "**/*.tsx", "providers/**"]
+alwaysApply: false
+---
+
+# Error Handling, Toasts & Performance
+
+## Sonner Toast Patterns
+
+Import `toast` from `sonner`. Use it inside mutation `onSuccess`/`onError` callbacks or event handlers — never inside render.
+
+```typescript
+import { toast } from "sonner";
+
+// Success
+toast.success("Product created successfully");
+
+// Error
+toast.error("Failed to delete product");
+
+// With description
+toast.error("Upload failed", {
+  description: "File size must be under 5MB",
+});
+
+// Promise — best for async operations with loading state
+toast.promise(saveProduct(data), {
+  loading: "Saving...",
+  success: "Saved!",
+  error: "Failed to save",
+});
+```
+
+---
+
+## API Error Handling
+
+```typescript
+// lib/utils/error.util.ts
+
+export function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  if (typeof error === "string") return error;
+  return "An unexpected error occurred";
+}
+```
+
+Always handle errors in mutation hooks — not in components:
+
+```typescript
+// hooks/products/use-delete-product.ts
+const { mutate } = useMutation({
+  mutationFn: (id: string) => deleteProductAction(id),
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: queryKeys.products.all });
+    toast.success("Product deleted");
+  },
+  onError: (error) => {
+    toast.error(getErrorMessage(error));
+  },
+});
+```
+
+---
+
+## Providers Setup
+
+Group all global providers in `providers/app/index.tsx`. Never scatter provider wrappers across different layout files.
+
+```typescript
+// providers/app/components/query-provider.provider.tsx
+"use client";
+
+import { useState } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+export function QueryProvider({ children }: { children: React.ReactNode }) {
+  // State
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 1000 * 60 * 5,
+            retry: 1,
+          },
+        },
+      })
+  );
+
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+}
+
+// providers/app/index.tsx
+import { SessionProvider } from "next-auth/react";
+import { ThemeProvider } from "next-themes";
+import { Toaster } from "sonner";
+
+import { QueryProvider } from "./components/query-provider.provider";
+
+export function AppProviders({ children }: { children: React.ReactNode }) {
+  return (
+    <SessionProvider>
+      <QueryProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          {children}
+          <Toaster richColors position="top-center" />
+        </ThemeProvider>
+      </QueryProvider>
+    </SessionProvider>
+  );
+}
+```
+
+```typescript
+// app/layout.tsx
+import { AppProviders } from "@/providers/app";
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html>
+      <body>
+        <AppProviders>{children}</AppProviders>
+      </body>
+    </html>
+  );
+}
+```
+
+---
+
+## Performance — Dynamic Imports
+
+Use `next/dynamic` to lazy-load heavy components that are not needed on initial render:
+
+```typescript
+import dynamic from "next/dynamic";
+
+import { CarouselSkeleton } from "@/components/skeletons/shared/carousel.skeleton";
+
+const HeroCarousel = dynamic(
+  () => import("@/components/features/home/hero-carousel"),
+  {
+    ssr: false,
+    loading: () => <CarouselSkeleton />,
+  }
+);
+```
+
+---
+
+## Constants File Structure
+
+```typescript
+// lib/constants/api.constant.ts
+export const JSON_HEADER = {
+  "Content-Type": "application/json",
+} as const;
+
+export const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
+```
+
+---
+
+## Stale Time Guidelines
+
+```typescript
+// lib/constants/query.constant.ts
+export const STALE_TIMES = {
+  REAL_TIME: 0,                 // Live data (prices, stock)
+  SHORT: 1000 * 30,             // 30 seconds
+  STANDARD: 1000 * 60 * 5,     // 5 minutes (default)
+  LONG: 1000 * 60 * 30,        // 30 minutes (static lists)
+  PERMANENT: Infinity,          // User preferences, config
+} as const;
+```
+
+---
+
+## Rules Summary
+
+- ✅ All global providers go in `providers/app/index.tsx`
+- ✅ Toast calls go in mutation callbacks — never in render
+- ✅ Always handle `onError` in mutations with `toast.error`
+- ✅ Use `next/dynamic` for heavy client-only components
+- ✅ Set `staleTime` explicitly on all queries
+- ✅ Centralize API headers in `lib/constants/api.constant.ts`
+- ❌ Never leave `console.log` in committed code

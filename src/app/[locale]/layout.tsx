@@ -194,7 +194,7 @@ export default async function RootLayout({
         geistHeading.variable,
       )}
     >
-      <head>
+      <head suppressHydrationWarning>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -202,7 +202,6 @@ export default async function RootLayout({
       </head>
       <body className="min-h-full flex flex-row relative">
         <Providers>
-       
           {/* Floating Style Panel for Selection */}
 
           {children}

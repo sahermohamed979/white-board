@@ -11,6 +11,8 @@ export interface CanvasSvgLayerProps extends React.SVGProps<SVGSVGElement> {
   children?: React.ReactNode;
   viewportGroupRef?: React.RefObject<SVGGElement | null>;
   elementsShared?: Element[] | [];
+  elements?: Element[];
+  currentElement?: Element | null;
   readonly: boolean;
 }
 
@@ -23,12 +25,23 @@ export const CanvasSvgLayer = forwardRef<SVGSVGElement, CanvasSvgLayerProps>(
       viewportGroupRef,
       readonly,
       elementsShared,
+      elements: elementsProp,
+      currentElement: currentElementProp,
       ...props
     },
     ref,
   ) => {
-    const elements = useBoardStore((s) => s.elements);
-    const currentElement = useBoardStore((s) => s.currentElement);
+    const storeElements = useBoardStore((s) => s.elements);
+    const storeCurrentElement = useBoardStore((s) => s.currentElement);
+
+    const elementsToRender =
+      elementsProp ?? (readonly ? elementsShared ?? [] : storeElements);
+    const currentElementToRender =
+      currentElementProp !== undefined
+        ? currentElementProp
+        : !readonly
+          ? storeCurrentElement
+          : null;
 
     return (
       <svg
@@ -39,19 +52,13 @@ export const CanvasSvgLayer = forwardRef<SVGSVGElement, CanvasSvgLayerProps>(
       >
         <g ref={viewportGroupRef} transform="translate(0 0) scale(1)">
           {/* Persistent board elements */}
-          {readonly ? (
-            elementsShared?.map((element) => (
-              <ElementRenderer key={element.id} element={element} />
-            ))
-          ) : (
-            elements.map((element) => (
-              <ElementRenderer key={element.id} element={element} />
-            ))
-          )}
+          {elementsToRender.map((element) => (
+            <ElementRenderer key={element.id} element={element} />
+          ))}
 
           {/* Current drawing */}
-          {!readonly && currentElement && (
-            <ElementRenderer element={currentElement} />
+          {currentElementToRender && (
+            <ElementRenderer element={currentElementToRender} />
           )}
 
           {/* Selection */}

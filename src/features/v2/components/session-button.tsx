@@ -16,16 +16,30 @@ import ShareLinkButton from "./sharelink-button";
 import { useCreateShareLink } from "../hooks/share-hook";
 import { useBoardStore } from "../../v1/store/board-store";
 import { CreateShareLinkApiResponse } from "../../v1/types/share.types";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { useCreateRealtimeSession } from "@/src/features/v3/realtime/hooks/use-create-realtime-session";
+import { SessionShareDialog } from "@/src/features/v3/realtime/components/session-share-dialog";
 
 export default function SessionButton() {
   const t = useTranslations("main.session");
+  const locale = useLocale();
   const elements = useBoardStore((state) => state.elements);
   const backgroundColor = useBoardStore((state) => state.backgroundColor);
   const backgroundGrid = useBoardStore((state) => state.backgroundGrid);
   const boardId = useBoardStore((state) => state.currentBoardId);
   const [shareableLink, setShareableLink] = useState(false);
   const [started, setStarted] = useState(false);
+  const [sessionUrl, setSessionUrl] = useState<string | null>(null);
+  const [sessionExpiresAt, setSessionExpiresAt] = useState<number | undefined>(
+    undefined,
+  );
+
+  // Session mutation
+  const {
+    mutate: createSession,
+    isPending: isSessionPending,
+    isError: isSessionError,
+  } = useCreateRealtimeSession();
   const { mutate, isPending, data, isError } = useCreateShareLink();
   const handleCreateShareLink = () => {
     if (!boardId) return;
@@ -51,6 +65,29 @@ export default function SessionButton() {
       },
     );
   };
+
+  const handleStartSession = () => {
+    if (!boardId) return;
+
+    createSession(
+      { boardId },
+      {
+        onSuccess: (result) => {
+          if (result.status) {
+            sessionStorage.setItem(
+              "sketchly_owned_session",
+              result.payload.sessionId,
+            );
+            const url = `${window.location.origin}/${locale}/session/${result.payload.joinToken}`;
+            setSessionUrl(url);
+            setSessionExpiresAt(result.payload.expiresAt);
+            setStarted(true);
+            console.log("[Sketchly] Session created:", result.payload);
+          }
+        },
+      },
+    );
+  };
   return (
     <div className="fixed top-4 right-4 z-1">
       <Dialog>
@@ -72,6 +109,14 @@ export default function SessionButton() {
             ShareData={data || ({} as CreateShareLinkApiResponse)}
           />
         )}
+        {started && sessionUrl && (
+          <SessionShareDialog
+            open={started}
+            url={sessionUrl}
+            expiresAt={sessionExpiresAt}
+            onClose={() => setStarted(false)}
+          />
+        )}
         {!started && !shareableLink && (
           <DialogContent className="md:max-w-xl w-screen h-fit gap-0 rounded-2xl p-6 text-center ">
             <DialogHeader className="items-center gap-3">
@@ -86,11 +131,20 @@ export default function SessionButton() {
               </span>
             </DialogHeader>
 
-            <div className="mt-6 flex justify-center">
-              <Button className="h-12 gap-3 px-6 text-sm sm:text-base text-white">
+            <div className="mt-6 flex flex-col items-center gap-2">
+              <Button
+                className="h-12 gap-3 px-6 text-sm sm:text-base text-white"
+                disabled={isSessionPending || !boardId}
+                onClick={handleStartSession}
+              >
                 <Play className="size-4 fill-current" />
-                {t("startSession")}
+                {isSessionPending ? t("startingSession") : t("startSession")}
               </Button>
+              {isSessionError && (
+                <p className="text-sm text-destructive">
+                  {t("failedToStartSession")}
+                </p>
+              )}
             </div>
 
             <div className="my-8 flex items-center gap-3 text-sm text-muted-foreground">

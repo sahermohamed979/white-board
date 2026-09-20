@@ -47,7 +47,7 @@ export function ExportButton({
   };
 
   return (
-    <DropdownMenu >
+    <DropdownMenu>
       <DropdownMenuTrigger
         render={
           <Button className="w-full" variant="outlineBg" disabled={isExporting}>
