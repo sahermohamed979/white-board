@@ -116,28 +116,18 @@ export function useRealtimeChannel(boardId: string) {
     }
 
     channelRef.current = channel;
-    let subscribeTimer: number | null = null;
-    const prepareTimer = window.setTimeout(() => {
-      // Let dependent hooks register presence/broadcast callbacks before subscribe().
-      setChannelInstance(channel);
-      subscribeTimer = window.setTimeout(() => {
-        channel.subscribe(
-          (channelStatus: REALTIME_SUBSCRIBE_STATES, err?: Error) => {
-            setStatus(channelStatus);
+    channel.subscribe(
+      (channelStatus: REALTIME_SUBSCRIBE_STATES, err?: Error) => {
+        setStatus(channelStatus);
 
-            if (err) {
-              console.error("[Sketchly Realtime] Subscribe error:", err);
-            }
-          },
-        );
-      }, 0);
-    }, 0);
+        if (err) {
+          console.error("[Sketchly Realtime] Subscribe error:", err);
+        }
+      },
+    );
+    setChannelInstance(channel);
 
     return () => {
-      window.clearTimeout(prepareTimer);
-      if (subscribeTimer !== null) {
-        window.clearTimeout(subscribeTimer);
-      }
       disconnect();
     };
   }, [boardId, participantId, disconnect]);
