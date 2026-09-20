@@ -30,7 +30,7 @@ interface TestMessage {
  * Manages the Supabase RealtimeChannel lifecycle for a specific board.
  * Sets up broadcast (self: false) and presence (key: participantId).
  */
-export function useRealtimeChannel(boardId: string) {
+export function useRealtimeChannel(boardId: string, enabled = true) {
   const [status, setStatus] = useState<ChannelStatus>("INITIALIZING");
   const [channelInstance, setChannelInstance] =
     useState<RealtimeChannel | null>(null);
@@ -61,7 +61,7 @@ export function useRealtimeChannel(boardId: string) {
 
   useEffect(() => {
     // Skip if running during SSR or if boardId is missing
-    if (typeof window === "undefined" || !boardId) return;
+    if (typeof window === "undefined" || !boardId || !enabled) return;
 
     const supabase = getSupabaseBrowserClient();
 
@@ -130,7 +130,7 @@ export function useRealtimeChannel(boardId: string) {
     return () => {
       disconnect();
     };
-  }, [boardId, participantId, disconnect]);
+  }, [boardId, enabled, participantId, disconnect]);
 
   const registerPresenceListener = useCallback((listener: PresenceListener) => {
     presenceListenersRef.current.add(listener);

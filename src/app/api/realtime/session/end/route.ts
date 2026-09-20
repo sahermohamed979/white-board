@@ -18,8 +18,8 @@ function errorResponse(
 /**
  * POST /api/realtime/session/end
  *
- * Marks the realtime session inactive in PostgreSQL.
- * Does NOT delete or modify the original board in the boards table.
+ * Deletes the temporary realtime session from PostgreSQL.
+ * It does NOT delete or modify the original board in the boards table.
  *
  * ⚠️ DEV ONLY: the capability cookie proves this browser created the session,
  * but it is not an authenticated user identity. Replace with auth.users owner_id
@@ -49,7 +49,7 @@ export async function POST(
   }
 
   try {
-    // 1. Check if session exists and is active
+    // Session validation
     const { data: session, error: fetchError } = await supabase
       .from("realtime_sessions")
       .select("id, active, expires_at")
@@ -73,22 +73,34 @@ export async function POST(
       return errorResponse("Session has expired", 410);
     }
 
-    // 2. Mark session as inactive
-    const { error: updateError } = await supabase
+    // Delete only the temporary session record.
+    const { data: deletedSession, error: deleteError } = await supabase
       .from("realtime_sessions")
-      .update({ active: false })
-      .eq("id", parsed.data.sessionId);
+      .delete()
+      .eq("id", parsed.data.sessionId)
+      .select("id")
+      .maybeSingle();
 
-    if (updateError) {
-      console.error("Failed to end session in database:", updateError);
+    if (deleteError || !deletedSession) {
+      console.error("Failed to delete realtime session:", deleteError);
       return errorResponse("Unable to end session", 500);
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       status: true,
       payload: { ended: true },
-      message: "Session ended successfully",
+      message: "Session ended and removed successfully",
     });
+
+    response.cookies.set(OWNER_CAPABILITY_COOKIE, "", {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: 0,
+    });
+
+    return response;
   } catch (err) {
     console.error("Unexpected error ending session:", err);
     return errorResponse("Unable to end session", 500);

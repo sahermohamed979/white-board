@@ -1,13 +1,17 @@
 import { NextResponse } from "next/server";
 
 import { createSupabaseServerClient } from "@/src/features/v2/api/supabase-server";
-import { joinTokenSchema } from "@/src/features/v3/realtime/schema/session.schema";
+import {
+  joinTokenSchema,
+  updateSessionSnapshotSchema,
+} from "@/src/features/v3/realtime/schema/session.schema";
 import type { ApiResponse } from "@/src/shared/types/response-types";
 import type {
   JoinRealtimeSessionPayload,
   RealtimeSessionRow,
 } from "@/src/features/v3/realtime/types/session.types";
 import type { Element } from "@/src/features/v1/types/element.types";
+import { shareBoardDataSchema } from "@/src/features/v1/schema/share.schema";
 
 function errorResponse(
   message: string,
@@ -55,7 +59,7 @@ export async function GET(
     // 3. Find the session by join_token
     const { data: sessionData, error: sessionError } = await supabase
       .from("realtime_sessions")
-      .select("id, board_id, join_token, expires_at, max_participants, active")
+      .select("id, board_id, join_token, expires_at, max_participants, active, board_data")
       .eq("join_token", parsed.data)
       .maybeSingle();
 
@@ -86,52 +90,25 @@ export async function GET(
     // Ensure max_participants is respected.
     const maxParticipants = session.max_participants ?? 10;
 
-    // 7. Fetch the associated board snapshot
-    const { data: boardData, error: boardError } = await supabase
-      .from("boards")
-      .select("id, name, data")
-      .eq("id", session.board_id)
-      .maybeSingle();
-
-    if (boardError || !boardData) {
-      console.error("Board query error:", boardError);
-      return errorResponse("Associated board not found", 404);
+    // Session-only snapshot; this data is removed with the session record.
+    const boardSnapshot = shareBoardDataSchema.safeParse(session.board_data);
+    if (!boardSnapshot.success) {
+      console.error("Invalid temporary session snapshot:", boardSnapshot.error);
+      return errorResponse("Session data is invalid", 500);
     }
 
-    // 8. Safely parse board elements and styles from the authoritative server data
-    let elements: Element[] = [];
-    let backgroundColor = "bg-background";
-    let backgroundGrid = "none";
-
-    if (boardData.data) {
-      if (Array.isArray(boardData.data)) {
-        elements = boardData.data as Element[];
-      } else if (typeof boardData.data === "object" && boardData.data !== null) {
-        const raw = boardData.data as Record<string, unknown>;
-        if (Array.isArray(raw.elements)) {
-          elements = raw.elements as Element[];
-        }
-        if (typeof raw.backgroundColor === "string") {
-          backgroundColor = raw.backgroundColor;
-        }
-        if (typeof raw.backgroundGrid === "string") {
-          backgroundGrid = raw.backgroundGrid;
-        }
-      }
-    }
-
-    // 9. Return clean client payload
+    // Return clean client payload
     const payload: JoinRealtimeSessionPayload = {
       sessionId: session.id,
       boardId: session.board_id,
       expiresAt,
       maxParticipants,
       board: {
-        id: boardData.id,
-        name: boardData.name ?? "Collaborative Board",
-        elements,
-        backgroundColor,
-        backgroundGrid,
+        id: session.board_id,
+        name: "Collaborative Board",
+        elements: boardSnapshot.data.elements as Element[],
+        backgroundColor: boardSnapshot.data.backgroundColor ?? "bg-background",
+        backgroundGrid: boardSnapshot.data.backgroundGrid ?? "none",
       },
     };
 
@@ -143,4 +120,60 @@ export async function GET(
     console.error("Session join unexpected error:", err);
     return errorResponse("Unable to validate session", 500);
   }
+}
+
+/**
+ * Stores the latest board snapshot only for the lifetime of this session.
+ * `POST /api/realtime/session/end` deletes this row and its snapshot.
+ */
+export async function PATCH(
+  request: Request,
+  { params }: RouteParams,
+): Promise<NextResponse<ApiResponse<{ saved: boolean }>>> {
+  const { token } = await params;
+  const parsedToken = joinTokenSchema.safeParse(token);
+  if (!parsedToken.success) {
+    return errorResponse("Invalid session token format", 400);
+  }
+
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return errorResponse("Request body must be valid JSON", 400);
+  }
+
+  const parsedBody = updateSessionSnapshotSchema.safeParse(body);
+  if (!parsedBody.success) {
+    return errorResponse("Invalid session data", 400);
+  }
+
+  let supabase;
+  try {
+    supabase = await createSupabaseServerClient();
+  } catch (error) {
+    console.error("Supabase client creation failed:", error);
+    return errorResponse("Session service is not configured", 500);
+  }
+
+  const now = new Date().toISOString();
+  const { data: updatedSession, error } = await supabase
+    .from("realtime_sessions")
+    .update({ board_data: parsedBody.data.board })
+    .eq("join_token", parsedToken.data)
+    .eq("active", true)
+    .gt("expires_at", now)
+    .select("id")
+    .maybeSingle();
+
+  if (error) {
+    console.error("Failed to save temporary session snapshot:", error);
+    return errorResponse("Unable to save session data", 500);
+  }
+
+  if (!updatedSession) {
+    return errorResponse("Session has ended or expired", 410);
+  }
+
+  return NextResponse.json({ status: true, payload: { saved: true } });
 }

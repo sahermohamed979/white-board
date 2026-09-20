@@ -79,7 +79,10 @@ export function SessionScreen({ token }: { token: string }) {
     disconnect,
     registerPresenceListener,
     registerBroadcastListener,
-  } = useRealtimeChannel(boardId);
+  } = useRealtimeChannel(
+    boardId,
+    Boolean(sessionData && !sessionEnded),
+  );
 
   // 3. Realtime Presence & Remote Cursors
   const {
@@ -105,7 +108,7 @@ export function SessionScreen({ token }: { token: string }) {
     sessionId,
     participantId,
     onSessionEnded: () => setSessionEnded(true),
-    enabled: Boolean(channel),
+    enabled: Boolean(channel) && !sessionEnded,
   });
 
   // 5. End Session Mutation
@@ -115,8 +118,8 @@ export function SessionScreen({ token }: { token: string }) {
   const handleEndSession = () => {
     if (!sessionId) return;
     endSessionMutation(sessionId, {
-      onSuccess: () => {
-        broadcastEndSession(sessionId);
+      onSuccess: async () => {
+        await broadcastEndSession(sessionId);
         setSessionEnded(true);
       },
       onError: (err) => {
@@ -175,7 +178,38 @@ export function SessionScreen({ token }: { token: string }) {
     loadInitialSnapshot(boardSnapshot.elements);
   }, [boardSnapshot, loadInitialSnapshot]);
 
-  // 9. Countdown Timer for UI
+  // 9. Persist the session-only snapshot without affecting Broadcast operations.
+  useEffect(() => {
+    if (!sessionData || sessionEnded) return;
+
+    let saveTimer: ReturnType<typeof setTimeout> | null = null;
+    const unsubscribe = useBoardStore.subscribe((state) => {
+      if (saveTimer) clearTimeout(saveTimer);
+
+      saveTimer = setTimeout(() => {
+        void fetch(`/api/realtime/session/${encodeURIComponent(token)}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            board: {
+              elements: state.elements,
+              backgroundColor: state.backgroundColor,
+              backgroundGrid: state.backgroundGrid,
+            },
+          }),
+        }).catch((error: unknown) => {
+          console.error("Failed to save temporary session snapshot:", error);
+        });
+      }, 500);
+    });
+
+    return () => {
+      if (saveTimer) clearTimeout(saveTimer);
+      unsubscribe();
+    };
+  }, [sessionData, sessionEnded, token]);
+
+  // 10. Countdown Timer for UI
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
 
   useEffect(() => {

@@ -17,6 +17,11 @@ export interface RealtimeSession {
 /** Variables passed to the create-session mutation */
 export interface CreateRealtimeSessionVariables {
   boardId: string;
+  board: {
+    elements: Element[];
+    backgroundColor: string;
+    backgroundGrid: string;
+  };
 }
 
 /** Typed API response for create/refresh session */
@@ -66,5 +71,6 @@ export interface RealtimeSessionRow {
   expires_at: string; // ISO timestamp string from Postgres
   max_participants: number;
   active: boolean;
+  board_data: unknown;
   created_at: string;
 }

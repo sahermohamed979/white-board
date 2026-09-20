@@ -57,7 +57,10 @@ export async function POST(
   // Call RPC
   const { data, error } = await supabase.rpc(
     "create_or_refresh_realtime_session",
-    { p_board_id: parsed.data.boardId },
+    {
+      p_board_id: parsed.data.boardId,
+      p_board_data: parsed.data.board,
+    },
   );
 
   if (error) {

@@ -34,6 +34,31 @@ export const sessionEndEventSchema = z.object({
   timestamp: z.number().finite().nonnegative(),
 });
 
+export const participantPresenceSchema = z.object({
+  participantId: z.string().uuid(),
+  color: z.enum([
+    "#EF4444",
+    "#3B82F6",
+    "#22C55E",
+    "#A855F7",
+    "#F97316",
+    "#06B6D4",
+    "#EAB308",
+    "#EC4899",
+    "#14B8A6",
+    "#8B5CF6",
+  ]),
+  cursor: z
+    .object({
+      x: z.number().finite(),
+      y: z.number().finite(),
+    })
+    .nullable(),
+  joinedAt: z.number().finite().nonnegative(),
+  name: z.string().min(1).max(80).optional(),
+  isOwner: z.boolean().optional(),
+});
+
 export const endSessionRequestSchema = z
   .object({
     sessionId: z.string().uuid("Invalid session ID format"),

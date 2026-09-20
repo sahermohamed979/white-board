@@ -7,6 +7,7 @@ import type {
   CursorPosition,
   ParticipantPresence,
 } from "../types/realtime-collaboration.types";
+import { participantPresenceSchema } from "../schema/realtime-collaboration.schema";
 
 export const PARTICIPANT_COLORS = [
   "#EF4444", // Red
@@ -83,12 +84,30 @@ export function useRealtimePresence({
     [participantId, color, joinedAt, name, isOwner],
   );
 
-  // 1. Subscribe to Presence events
+  // Presence
   useEffect(() => {
     if (!channel || !enabled) return;
 
     const unregisterPresenceListener = registerPresenceListener((state) => {
-      setPresenceMap(state as Record<string, ParticipantPresence[]>);
+      const validPresenceMap: Record<string, ParticipantPresence[]> = {};
+
+      for (const [key, presences] of Object.entries(state)) {
+        const validPresences: ParticipantPresence[] = [];
+
+        for (const presence of presences) {
+          const parsed = participantPresenceSchema.safeParse(presence);
+          if (!parsed.success) {
+            console.error("[Sketchly Presence] Invalid presence payload:", parsed.error);
+            continue;
+          }
+
+          validPresences.push(parsed.data);
+        }
+
+        if (validPresences.length > 0) validPresenceMap[key] = validPresences;
+      }
+
+      setPresenceMap(validPresenceMap);
     });
 
     return () => {
@@ -191,7 +210,7 @@ export function useRealtimePresence({
 
   // Total connected participants count (including self)
   const participantCount = useMemo(() => {
-    return Object.keys(presenceMap).length || 1;
+    return Math.max(1, Object.keys(presenceMap).length);
   }, [presenceMap]);
 
   return {

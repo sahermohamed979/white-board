@@ -13,11 +13,11 @@ export function useCreateRealtimeSession() {
     Error,
     CreateRealtimeSessionVariables
   >({
-    mutationFn: async ({ boardId }) => {
+    mutationFn: async ({ boardId, board }) => {
       const response = await fetch("/api/realtime/session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ boardId }),
+        body: JSON.stringify({ boardId, board }),
       });
 
       const data: CreateRealtimeSessionResponse = await response.json();

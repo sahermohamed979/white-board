@@ -413,10 +413,10 @@ export function useRealtimeBoard({
   );
 
   const broadcastEndSession = useCallback(
-    (endedSessionId: string) => {
+    async (endedSessionId: string): Promise<void> => {
       if (!channel || !enabled) return;
 
-      void channel.send({
+      await channel.send({
         type: "broadcast",
         event: "session:end",
         payload: { sessionId: endedSessionId, timestamp: Date.now() },
