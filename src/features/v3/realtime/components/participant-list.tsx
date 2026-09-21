@@ -28,7 +28,7 @@ export function ParticipantList({
   const totalCount = participants.length + 1;
 
   return (
-    <div className="fixed top-16 left-4 z-50 w-64 rounded-2xl border border-border bg-card/95 backdrop-blur p-4 shadow-xl animate-in fade-in-0 zoom-in-95">
+    <div className="fixed bottom-18 right-7 z-50 w-64 rounded-2xl border border-border bg-card/95 backdrop-blur p-4 shadow-xl animate-in fade-in-0 zoom-in-95">
       <div className="flex items-center justify-between pb-3 border-b border-border/60">
         <div className="flex items-center gap-2">
           <Users className="size-4 text-primary" />
