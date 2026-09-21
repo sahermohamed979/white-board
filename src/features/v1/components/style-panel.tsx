@@ -6,6 +6,7 @@ import { Slider } from "@/src/shared/components/ui/slider";
 import type { Element } from "../types/element.types";
 
 import ColorPicker from "./color-picker";
+import { useTranslations } from "next-intl";
 
 const STROKE_COLORS = ["#1e1e1e", "#e03131", "#2f9e44", "#1971c2", "#f08c00"];
 const FILL_COLORS = ["transparent", "#ffc9c9", "#b2f2bb", "#a5d8ff", "#ffec99"];
@@ -58,6 +59,7 @@ function getElementFontSize(el: Element): number | undefined {
 }
 
 export function StylePanel() {
+  const t = useTranslations("main.toolTip");
   const activeTool = useBoardStore((s) => s.activeTool);
   const selectedIds = useBoardStore((s) => s.selectedIds);
   const elements = useBoardStore((s) => s.elements);
@@ -145,8 +147,8 @@ export function StylePanel() {
 
   const currentFontSize =
     isSelection && firstSelected
-      ? (getElementFontSize(firstSelected) ?? fontSize  )
-      : fontSize ;
+      ? (getElementFontSize(firstSelected) ?? fontSize)
+      : fontSize;
 
   // Apply to selected elements as well as store defaults
   const handleStrokeColorChange = (color: string) => {
@@ -207,6 +209,7 @@ export function StylePanel() {
       {showStrokeColor && (
         <div className="flex flex-col  gap-1">
           <span className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">
+            {t("color")}
             Color
           </span>
           <div className="flex flex-col md:flex-row gap-1.5">
@@ -235,7 +238,7 @@ export function StylePanel() {
       {showFillColor && (
         <div className="flex flex-col gap-1">
           <span className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">
-            Fill
+            {t("fill")}
           </span>
           <div className="flex flex-col md:flex-row gap-1.5">
             {FILL_COLORS.map((c) => (
@@ -269,7 +272,7 @@ export function StylePanel() {
       {showStrokeWidth && (
         <div className="flex flex-col gap-1">
           <span className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">
-            Width
+            {t("width")}
           </span>
           <div className="flex flex-col md:flex-row gap-1.5 pt-1 pb-1">
             <Slider
@@ -292,7 +295,7 @@ export function StylePanel() {
       {showFontSize && (
         <div className="flex flex-col gap-1">
           <span className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">
-            Font Size
+            {t("size")}
           </span>
           <div className="flex flex-col md:flex-row gap-1.5 pt-1 pb-1">
             <Slider

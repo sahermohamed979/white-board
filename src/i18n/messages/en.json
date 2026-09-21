@@ -11,6 +11,12 @@
       "export": "Export",
       "grid": "Grid :"
     },
+    "toolTip": {
+      "color": "Color",
+      "width": "Width",
+      "size": " Font Size",
+      "fill": "Fill"
+    },
     "session": {
       "live": "Live",
       "Link": "Link",
