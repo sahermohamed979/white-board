@@ -90,7 +90,7 @@ export async function POST(
     boardId: parsed.data.boardId,
     joinToken: row.join_token,
     expiresAt,
-    maxParticipants: row.max_participants ?? 10,
+    maxParticipants: row.max_participants ?? 5,
   };
 
   const response = NextResponse.json({

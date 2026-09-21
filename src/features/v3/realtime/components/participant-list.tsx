@@ -8,6 +8,7 @@ import { Button } from "@/src/shared/components/ui/button";
 export interface ParticipantListProps {
   participants: ParticipantPresence[];
   currentParticipant: ParticipantPresence;
+  maxParticipants: number;
   open: boolean;
   onClose: () => void;
 }
@@ -15,6 +16,7 @@ export interface ParticipantListProps {
 export function ParticipantList({
   participants,
   currentParticipant,
+  maxParticipants,
   open,
   onClose,
 }: ParticipantListProps) {
@@ -28,7 +30,7 @@ export function ParticipantList({
         <div className="flex items-center gap-2">
           <Users className="size-4 text-primary" />
           <span className="text-sm font-semibold text-foreground">
-            Participants ({totalCount}/10)
+            Participants ({totalCount}/{maxParticipants})
           </span>
         </div>
         <Button

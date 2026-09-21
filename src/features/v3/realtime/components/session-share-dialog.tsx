@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Copy, Radio, X } from "lucide-react";
+import { Check, Copy, Radio } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/src/shared/components/ui/button";

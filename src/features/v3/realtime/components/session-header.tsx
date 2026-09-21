@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Copy, Check, Users, Power, Radio } from "lucide-react";
+import { Copy, Check, Users, Power } from "lucide-react";
 import { Button } from "@/src/shared/components/ui/button";
 import { cn } from "@/src/shared/lib/utils";
 import type { ParticipantPresence } from "../types/realtime-collaboration.types";
@@ -11,6 +11,7 @@ import { EndSessionDialog } from "./end-session-dialog";
 export interface SessionHeaderProps {
   channelStatus: string;
   participantCount: number;
+  maxParticipants: number;
   participants: ParticipantPresence[];
   currentParticipant: ParticipantPresence;
   timeLeftFormatted: string | null;
@@ -24,6 +25,7 @@ export interface SessionHeaderProps {
 export function SessionHeader({
   channelStatus,
   participantCount,
+  maxParticipants,
   participants,
   currentParticipant,
   timeLeftFormatted,
@@ -83,7 +85,7 @@ export function SessionHeader({
         >
           <Users className="size-3.5 text-primary" />
           <span className="font-semibold">
-            {participantCount} / 10
+            {participantCount} / {maxParticipants}
           </span>
         </button>
 
@@ -142,6 +144,7 @@ export function SessionHeader({
         open={showParticipants}
         participants={participants}
         currentParticipant={currentParticipant}
+        maxParticipants={maxParticipants}
         onClose={() => setShowParticipants(false)}
       />
 

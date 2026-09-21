@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 import { createSupabaseServerClient } from "@/src/features/v2/api/supabase-server";
 import {
   joinTokenSchema,
+  joinSessionSearchSchema,
   updateSessionSnapshotSchema,
 } from "@/src/features/v3/realtime/schema/session.schema";
 import type { ApiResponse } from "@/src/shared/types/response-types";
@@ -24,18 +25,35 @@ interface RouteParams {
   params: Promise<{ token: string }>;
 }
 
+const PARTICIPANT_COLORS = [
+  "#EF4444",
+  "#3B82F6",
+  "#22C55E",
+  "#A855F7",
+  "#F97316",
+] as const;
+
+function getFallbackParticipantColor(participantId: string): string {
+  let hash = 0;
+
+  for (const character of participantId) {
+    hash = (hash << 5) - hash + character.charCodeAt(0);
+    hash |= 0;
+  }
+
+  return PARTICIPANT_COLORS[Math.abs(hash) % PARTICIPANT_COLORS.length];
+}
+
 /**
  * GET /api/realtime/session/[token]
  *
  * Validates a session join token, checks activity, expiration, and capacity,
  * and returns the session metadata along with the initial board snapshot.
  *
- * ⚠️ CAPACITY ENFORCEMENT NOTE:
- * Server-side atomic participant counting/reservation will be added in phase V3.20.
- * In this initial implementation, the session capacity limit is retrieved and verified.
+ * The join_realtime_session RPC atomically reserves a persistent participant slot.
  */
 export async function GET(
-  _request: Request,
+  request: NextRequest,
   { params }: RouteParams,
 ): Promise<NextResponse<ApiResponse<JoinRealtimeSessionPayload>>> {
   const { token } = await params;
@@ -44,6 +62,14 @@ export async function GET(
   const parsed = joinTokenSchema.safeParse(token);
   if (!parsed.success) {
     return errorResponse("Invalid session token format", 400);
+  }
+
+  const participant = joinSessionSearchSchema.safeParse({
+    participantId: request.nextUrl.searchParams.get("participantId"),
+    name: request.nextUrl.searchParams.get("name"),
+  });
+  if (!participant.success) {
+    return errorResponse("A valid participant identity and name are required", 400);
   }
 
   // 2. Initialize server Supabase client (service role — never exposed to client)
@@ -56,39 +82,62 @@ export async function GET(
   }
 
   try {
-    // 3. Find the session by join_token
-    const { data: sessionData, error: sessionError } = await supabase
-      .from("realtime_sessions")
-      .select("id, board_id, join_token, expires_at, max_participants, active, board_data")
-      .eq("join_token", parsed.data)
-      .maybeSingle();
+    // Atomically reserve this participant's persistent slot.
+    const { data: sessionData, error: sessionError } = await supabase.rpc(
+      "join_realtime_session",
+      {
+        p_join_token: parsed.data,
+        p_participant_id: participant.data.participantId,
+        p_display_name: participant.data.name,
+      },
+    );
 
-    if (sessionError) {
-      console.error("Session query error:", sessionError);
-      return errorResponse("Unable to validate session", 500);
+    let session = (Array.isArray(sessionData) ? sessionData[0] : sessionData) as
+      | (RealtimeSessionRow & { participant_color: string })
+      | null;
+
+    if (sessionError?.code === "PGRST202") {
+      // Compatibility while the participant-slot migration is being deployed.
+      const { data: fallbackSession, error: fallbackError } = await supabase
+        .from("realtime_sessions")
+        .select("id, board_id, join_token, expires_at, max_participants, active, board_data, created_at")
+        .eq("join_token", parsed.data)
+        .maybeSingle();
+
+      if (fallbackError) {
+        console.error("Session compatibility lookup failed:", fallbackError);
+        return errorResponse("Unable to join session", 500);
+      }
+
+      if (!fallbackSession) {
+        return errorResponse("Session not found", 404);
+      }
+
+      session = {
+        ...(fallbackSession as RealtimeSessionRow),
+        participant_color: getFallbackParticipantColor(participant.data.participantId),
+      };
+    } else if (sessionError) {
+      const message = sessionError.message;
+      if (message.includes("SESSION_FULL")) return errorResponse("Session is full", 409);
+      if (message.includes("SESSION_ENDED")) return errorResponse("This session has ended", 410);
+      if (message.includes("SESSION_EXPIRED")) return errorResponse("This session has expired", 410);
+      if (message.includes("SESSION_NOT_FOUND")) return errorResponse("Session not found", 404);
+      console.error("Session join RPC error:", sessionError);
+      return errorResponse("Unable to join session", 500);
     }
 
-    if (!sessionData) {
+    if (!session) {
       return errorResponse("Session not found", 404);
     }
 
-    const session = sessionData as RealtimeSessionRow;
-
-    // 4. Check if session is active
-    if (!session.active) {
-      return errorResponse("This session has ended", 410);
-    }
-
-    // 5. Check if session has expired
+    // Session expiration remains server-authoritative.
     const expiresAt = Date.parse(session.expires_at);
     if (!Number.isFinite(expiresAt) || expiresAt <= Date.now()) {
       return errorResponse("This session has expired", 410);
     }
 
-    // 6. Capacity check:
-    // Future V3.20: atomic reservation / heartbeat participant count in Postgres.
-    // Ensure max_participants is respected.
-    const maxParticipants = session.max_participants ?? 10;
+    const maxParticipants = Math.min(session.max_participants ?? 5, 5);
 
     // Session-only snapshot; this data is removed with the session record.
     const boardSnapshot = shareBoardDataSchema.safeParse(session.board_data);
@@ -103,6 +152,7 @@ export async function GET(
       boardId: session.board_id,
       expiresAt,
       maxParticipants,
+      participantColor: session.participant_color,
       board: {
         id: session.board_id,
         name: "Collaborative Board",

@@ -10,9 +10,12 @@ import type { ApiResponse } from "@/src/shared/types/response-types";
  */
 export async function getRealtimeSession(
   token: string,
+  participantId: string,
+  name: string,
 ): Promise<JoinRealtimeSessionPayload> {
+  const searchParams = new URLSearchParams({ participantId, name });
   const response = await fetch(
-    `/api/realtime/session/${encodeURIComponent(token)}`,
+    `/api/realtime/session/${encodeURIComponent(token)}?${searchParams.toString()}`,
   );
   const data: JoinRealtimeSessionResponse = await response.json();
 

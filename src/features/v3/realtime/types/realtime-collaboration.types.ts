@@ -16,6 +16,10 @@ export interface ParticipantPresence {
   joinedAt: number;
   name?: string;
   isOwner?: boolean;
+  style?: {
+    strokeColor: string;
+    strokeWidth: number;
+  };
 }
 
 /* ==============================================

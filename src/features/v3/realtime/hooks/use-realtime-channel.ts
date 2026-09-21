@@ -16,6 +16,8 @@ export type BroadcastEvent =
   | "element:create"
   | "element:update"
   | "element:delete"
+  | "drawing:stream"
+  | "drawing:end"
   | "session:end";
 export type BroadcastListener = (payload: unknown) => void;
 
@@ -30,7 +32,11 @@ interface TestMessage {
  * Manages the Supabase RealtimeChannel lifecycle for a specific board.
  * Sets up broadcast (self: false) and presence (key: participantId).
  */
-export function useRealtimeChannel(boardId: string, enabled = true) {
+export function useRealtimeChannel(
+  boardId: string,
+  participantId: string,
+  enabled = true,
+) {
   const [status, setStatus] = useState<ChannelStatus>("INITIALIZING");
   const [channelInstance, setChannelInstance] =
     useState<RealtimeChannel | null>(null);
@@ -40,13 +46,6 @@ export function useRealtimeChannel(boardId: string, enabled = true) {
   const presenceListenersRef = useRef(new Set<PresenceListener>());
   const broadcastListenersRef = useRef(
     new Map<BroadcastEvent, Set<BroadcastListener>>(),
-  );
-
-  // Participant ID generated once per browser session
-  const [participantId] = useState(() =>
-    typeof crypto !== "undefined" && crypto.randomUUID
-      ? crypto.randomUUID()
-      : `p-${Date.now().toString(36)}`,
   );
 
   const disconnect = useCallback(() => {
@@ -61,7 +60,7 @@ export function useRealtimeChannel(boardId: string, enabled = true) {
 
   useEffect(() => {
     // Skip if running during SSR or if boardId is missing
-    if (typeof window === "undefined" || !boardId || !enabled) return;
+    if (typeof window === "undefined" || !boardId || !participantId || !enabled) return;
 
     const supabase = getSupabaseBrowserClient();
 
@@ -99,6 +98,8 @@ export function useRealtimeChannel(boardId: string, enabled = true) {
       "element:create",
       "element:update",
       "element:delete",
+      "drawing:stream",
+      "drawing:end",
       "session:end",
     ];
 

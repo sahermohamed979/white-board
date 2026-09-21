@@ -13,6 +13,12 @@ import { useRealtimeBoard } from "../hooks/use-realtime-board";
 import { useEndRealtimeSession } from "../hooks/use-end-realtime-session";
 import { RemoteCursorLayer } from "../components/remote-cursor-layer";
 import { SessionHeader } from "../components/session-header";
+import { JoinSessionDialog } from "../components/join-session-dialog";
+import {
+  getParticipantIdentity,
+  saveParticipantIdentity,
+  type ParticipantIdentity,
+} from "../lib/participant-identity";
 
 import { CanvasSvgLayer } from "@/src/features/v1/components/canvas-svg-layer";
 import { SelectionOverlay } from "@/src/features/v1/components/selection-overlay";
@@ -28,6 +34,8 @@ import { useKeyboardShortcuts } from "@/src/features/v1/hooks/use-keyboard-short
 import { usePointerEvents } from "@/src/features/v1/hooks/use-pointer-events";
 import { useBoardStore } from "@/src/features/v1/store/board-store";
 import { gridStyleMap } from "@/src/features/v1/constants/grid.constant";
+import { StylePanel } from "@/src/features/v1/components/style-panel";
+import { ElementRenderer } from "@/src/features/v1/components/element-renderer";
 
 export interface SessionScreenProps {
   token: string;
@@ -52,6 +60,9 @@ export function SessionScreen({ token }: { token: string }) {
     null,
   );
   const [sessionEnded, setSessionEnded] = useState(false);
+  const [participant, setParticipant] = useState<ParticipantIdentity | null>(
+    () => getParticipantIdentity(token),
+  );
 
   // 1. Session Query (TanStack Query)
   const {
@@ -59,7 +70,7 @@ export function SessionScreen({ token }: { token: string }) {
     isPending,
     isError,
     error,
-  } = useRealtimeSession(token);
+  } = useRealtimeSession(token, participant?.participantId ?? null, participant?.name ?? null);
 
   const boardId = sessionData?.boardId ?? "";
   const sessionId = sessionData?.sessionId ?? "";
@@ -81,6 +92,7 @@ export function SessionScreen({ token }: { token: string }) {
     registerBroadcastListener,
   } = useRealtimeChannel(
     boardId,
+    participant?.participantId ?? "",
     Boolean(sessionData && !sessionEnded),
   );
 
@@ -94,14 +106,22 @@ export function SessionScreen({ token }: { token: string }) {
   } = useRealtimePresence({
     channel,
     registerPresenceListener,
-    participantId,
+    participantId: participant?.participantId ?? "",
+    color: sessionData?.participantColor ?? "#EF4444",
     isOwner,
+    name: participant?.name,
     enabled: Boolean(channel),
     isSubscribed: channelStatus === "SUBSCRIBED",
   });
 
   // 4. Realtime Board Sync (Broadcast)
-  const { loadInitialSnapshot, broadcastEndSession } = useRealtimeBoard({
+  const {
+    loadInitialSnapshot,
+    broadcastDrawingEnd,
+    broadcastDrawingStream,
+    broadcastEndSession,
+    remoteDrawingElements,
+  } = useRealtimeBoard({
     channel,
     registerBroadcastListener,
     boardId,
@@ -178,6 +198,49 @@ export function SessionScreen({ token }: { token: string }) {
     loadInitialSnapshot(boardSnapshot.elements);
   }, [boardSnapshot, loadInitialSnapshot]);
 
+  // Stream the in-progress local drawing at a bounded frame rate.
+  useEffect(() => {
+    let lastElementId: string | null = null;
+    let lastSentAt = 0;
+    let frameId: number | null = null;
+    let pendingElement: ReturnType<typeof useBoardStore.getState>["currentElement"] = null;
+
+    const flush = () => {
+      frameId = null;
+      const element = pendingElement;
+      if (!element) return;
+
+      const now = performance.now();
+      if (now - lastSentAt < 35) {
+        frameId = requestAnimationFrame(flush);
+        return;
+      }
+
+      broadcastDrawingStream(element);
+      lastSentAt = now;
+    };
+
+    const unsubscribe = useBoardStore.subscribe((state) => {
+      const element = state.currentElement;
+      if (!element && lastElementId) {
+        broadcastDrawingEnd(lastElementId);
+        lastElementId = null;
+        pendingElement = null;
+        return;
+      }
+
+      if (!element) return;
+      lastElementId = element.id;
+      pendingElement = element;
+      if (frameId === null) frameId = requestAnimationFrame(flush);
+    });
+
+    return () => {
+      if (frameId !== null) cancelAnimationFrame(frameId);
+      unsubscribe();
+    };
+  }, [broadcastDrawingEnd, broadcastDrawingStream]);
+
   // 9. Persist the session-only snapshot without affecting Broadcast operations.
   useEffect(() => {
     if (!sessionData || sessionEnded) return;
@@ -232,6 +295,16 @@ export function SessionScreen({ token }: { token: string }) {
     disconnect();
     clearCursor();
   }, [sessionEnded, isExpired, disconnect, clearCursor]);
+
+  // --- STATE: PARTICIPANT IDENTITY ---
+  if (!participant) {
+    return (
+      <JoinSessionDialog
+        open
+        onJoin={(name) => setParticipant(saveParticipantIdentity(token, name))}
+      />
+    );
+  }
 
   // --- STATE: LOADING ---
   if (isPending) {
@@ -346,6 +419,7 @@ export function SessionScreen({ token }: { token: string }) {
       <SessionHeader
         channelStatus={channelStatus}
         participantCount={participantCount}
+        maxParticipants={sessionData?.maxParticipants ?? 5}
         participants={remoteParticipants}
         currentParticipant={currentParticipant}
         timeLeftFormatted={
@@ -400,6 +474,9 @@ export function SessionScreen({ token }: { token: string }) {
           onPointerCancel={pointerEventsProps.onPointerCancel}
           onPointerLeave={handleCanvasPointerLeave}
         >
+          {remoteDrawingElements.map((element) => (
+            <ElementRenderer key={`remote-draft-${element.id}`} element={element} />
+          ))}
           <SelectionOverlay getScale={getScale} />
         </CanvasSvgLayer>
 
@@ -407,6 +484,8 @@ export function SessionScreen({ token }: { token: string }) {
           subscribe={subscribe}
           getTransformSnapshot={getTransformSnapshot}
         />
+
+        <StylePanel />
       </div>
     </main>
   );

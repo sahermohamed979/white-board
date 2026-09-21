@@ -5,7 +5,10 @@ import { useRealtimeChannel } from "@/src/features/v3/realtime/hooks/use-realtim
 
 export function RealtimeTest({ boardId }: { boardId: string }) {
   // Realtime channel
-  const { status, sendTestMessage } = useRealtimeChannel(boardId);
+  const { status, sendTestMessage } = useRealtimeChannel(
+    boardId,
+    "00000000-0000-4000-8000-000000000001",
+  );
   console.log("status", status);
 
   return (

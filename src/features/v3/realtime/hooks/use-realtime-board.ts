@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import type { Element } from "@/src/features/v1/types/element.types";
 import { useBoardStore } from "@/src/features/v1/store/board-store";
@@ -13,6 +13,8 @@ import {
   elementUpdateEventSchema,
   elementDeleteEventSchema,
   sessionEndEventSchema,
+  drawingEndEventSchema,
+  drawingStreamEventSchema,
 } from "../schema/realtime-collaboration.schema";
 import type {
   ElementCreatePayload,
@@ -45,6 +47,7 @@ export function useRealtimeBoard({
   onSessionEnded,
   enabled = true,
 }: UseRealtimeBoardOptions) {
+  const [remoteDrawingElements, setRemoteDrawingElements] = useState<Element[]>([]);
   // Bounded set for duplicate operation protection
   const processedOperationIdsRef = useRef<Set<string>>(new Set());
   const operationHistoryRef = useRef<string[]>([]);
@@ -166,6 +169,32 @@ export function useRealtimeBoard({
       });
     },
     [channel, boardId, participantId, markOperationProcessed],
+  );
+
+  const broadcastDrawingStream = useCallback(
+    (element: Element) => {
+      if (!channel || !enabled) return;
+
+      void channel.send({
+        type: "broadcast",
+        event: "drawing:stream",
+        payload: { boardId, participantId, timestamp: Date.now(), element },
+      });
+    },
+    [boardId, channel, enabled, participantId],
+  );
+
+  const broadcastDrawingEnd = useCallback(
+    (elementId: string) => {
+      if (!channel || !enabled) return;
+
+      void channel.send({
+        type: "broadcast",
+        event: "drawing:end",
+        payload: { boardId, participantId, timestamp: Date.now(), elementId },
+      });
+    },
+    [boardId, channel, enabled, participantId],
   );
 
   // 2. Subscribe to incoming Realtime Broadcast events
@@ -319,11 +348,43 @@ export function useRealtimeBoard({
       onSessionEnded?.();
     };
 
+    const handleDrawingStream = (payload: unknown) => {
+      const parsed = drawingStreamEventSchema.safeParse(payload);
+      if (!parsed.success) {
+        console.error("[Sketchly Realtime] Invalid drawing:stream payload:", parsed.error);
+        return;
+      }
+
+      const data = parsed.data;
+      if (!isValidEventContext(data.boardId, data.participantId)) return;
+
+      setRemoteDrawingElements((current) => [
+        ...current.filter((element) => element.id !== data.element.id),
+        data.element as Element,
+      ]);
+    };
+
+    const handleDrawingEnd = (payload: unknown) => {
+      const parsed = drawingEndEventSchema.safeParse(payload);
+      if (!parsed.success) {
+        console.error("[Sketchly Realtime] Invalid drawing:end payload:", parsed.error);
+        return;
+      }
+
+      const data = parsed.data;
+      if (!isValidEventContext(data.boardId, data.participantId)) return;
+      setRemoteDrawingElements((current) =>
+        current.filter((element) => element.id !== data.elementId),
+      );
+    };
+
     const unregisterListeners = [
       registerBroadcastListener("element:create", handleCreate),
       registerBroadcastListener("element:update", handleUpdate),
       registerBroadcastListener("element:delete", handleDelete),
       registerBroadcastListener("session:end", handleSessionEnd),
+      registerBroadcastListener("drawing:stream", handleDrawingStream),
+      registerBroadcastListener("drawing:end", handleDrawingEnd),
     ];
 
     return () => {
@@ -397,6 +458,8 @@ export function useRealtimeBoard({
     broadcastCreateElement,
     broadcastUpdateElement,
     broadcastDeleteElement,
+    broadcastDrawingStream,
+    broadcastDrawingEnd,
   ]);
 
   // Method to safely load initial snapshot without triggering local broadcast
@@ -429,7 +492,10 @@ export function useRealtimeBoard({
     broadcastCreateElement,
     broadcastUpdateElement,
     broadcastDeleteElement,
+    broadcastDrawingStream,
+    broadcastDrawingEnd,
     broadcastEndSession,
     loadInitialSnapshot,
+    remoteDrawingElements,
   };
 }

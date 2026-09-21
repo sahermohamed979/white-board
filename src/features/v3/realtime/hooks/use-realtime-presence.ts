@@ -8,6 +8,7 @@ import type {
   ParticipantPresence,
 } from "../types/realtime-collaboration.types";
 import { participantPresenceSchema } from "../schema/realtime-collaboration.schema";
+import { useBoardStore } from "@/src/features/v1/store/board-store";
 
 export const PARTICIPANT_COLORS = [
   "#EF4444", // Red
@@ -15,11 +16,6 @@ export const PARTICIPANT_COLORS = [
   "#22C55E", // Green
   "#A855F7", // Purple
   "#F97316", // Orange
-  "#06B6D4", // Cyan
-  "#EAB308", // Yellow
-  "#EC4899", // Pink
-  "#14B8A6", // Teal
-  "#8B5CF6", // Violet
 ] as const;
 
 /** Deterministic stable color per participantId */
@@ -39,6 +35,7 @@ interface UseRealtimePresenceOptions {
     listener: (state: PresenceState) => void,
   ) => () => void;
   participantId: string;
+  color: string;
   isOwner?: boolean;
   name?: string;
   enabled?: boolean;
@@ -49,6 +46,7 @@ export function useRealtimePresence({
   channel,
   registerPresenceListener,
   participantId,
+  color,
   isOwner = false,
   name,
   enabled = true,
@@ -58,11 +56,9 @@ export function useRealtimePresence({
     Record<string, ParticipantPresence[]>
   >({});
 
-  const color = useMemo(
-    () => getParticipantColor(participantId),
-    [participantId],
-  );
   const [joinedAt] = useState(() => Date.now());
+  const strokeColor = useBoardStore((state) => state.strokeColor);
+  const strokeWidth = useBoardStore((state) => state.strokeWidth);
 
   // Local cursor state for rAF throttling
   const latestCursorRef = useRef<CursorPosition | null>(null);
@@ -80,8 +76,9 @@ export function useRealtimePresence({
       joinedAt,
       name: name || (isOwner ? "Owner" : "Guest"),
       isOwner,
+      style: { strokeColor, strokeWidth },
     }),
-    [participantId, color, joinedAt, name, isOwner],
+    [participantId, color, joinedAt, name, isOwner, strokeColor, strokeWidth],
   );
 
   // Presence

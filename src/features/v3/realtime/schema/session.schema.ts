@@ -27,3 +27,8 @@ export const joinTokenSchema = z
   .regex(/^[a-fA-F0-9]+$/, "Invalid session token format");
 
 export type JoinToken = z.infer<typeof joinTokenSchema>;
+
+export const joinSessionSearchSchema = z.object({
+  participantId: z.string().uuid(),
+  name: z.string().trim().min(1).max(80),
+});
