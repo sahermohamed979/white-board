@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Users, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { ParticipantPresence } from "../types/realtime-collaboration.types";
 import { Button } from "@/src/shared/components/ui/button";
 
@@ -20,6 +21,8 @@ export function ParticipantList({
   open,
   onClose,
 }: ParticipantListProps) {
+  const t = useTranslations("main.session");
+
   if (!open) return null;
 
   const totalCount = participants.length + 1;
@@ -30,7 +33,10 @@ export function ParticipantList({
         <div className="flex items-center gap-2">
           <Users className="size-4 text-primary" />
           <span className="text-sm font-semibold text-foreground">
-            Participants ({totalCount}/{maxParticipants})
+            {t("participantsCount", {
+              total: totalCount,
+              max: maxParticipants,
+            })}
           </span>
         </div>
         <Button
@@ -52,11 +58,11 @@ export function ParticipantList({
               style={{ backgroundColor: currentParticipant.color }}
             />
             <span className="font-medium text-foreground">
-              {currentParticipant.name || "You"}
+              {currentParticipant.name || t("you")}
             </span>
           </div>
           <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
-            You
+            {t("you")}
           </span>
         </div>
 
@@ -72,12 +78,12 @@ export function ParticipantList({
                 style={{ backgroundColor: p.color }}
               />
               <span className="font-medium text-foreground">
-                {p.name || "Collaborator"}
+                {p.name || t("collaborator")}
               </span>
             </div>
             {p.isOwner && (
               <span className="rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium text-amber-500">
-                Owner
+                {t("owner")}
               </span>
             )}
           </div>

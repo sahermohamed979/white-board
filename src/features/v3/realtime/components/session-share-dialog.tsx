@@ -51,11 +51,10 @@ export function SessionShareDialog({
             <Radio className="size-6 animate-pulse" />
           </div>
           <DialogTitle className="text-xl font-semibold text-primary sm:text-2xl">
-            {t("sessionStarted") || "Session Started"}
+            {t("sessionStarted")}
           </DialogTitle>
           <DialogDescription className="max-w-md text-sm leading-6 text-foreground/80 sm:text-base">
-            {t("invitePeopleToCollaborate") ||
-              "Share this link with others to collaborate live on your whiteboard."}
+            {t("invitePeopleToCollaborate")}
           </DialogDescription>
         </DialogHeader>
 
@@ -75,12 +74,12 @@ export function SessionShareDialog({
               {copied ? (
                 <>
                   <Check className="size-4 text-emerald-400" />
-                  <span>{t("linkCopied") || "Copied!"}</span>
+                  <span>{t("linkCopied")}</span>
                 </>
               ) : (
                 <>
                   <Copy className="size-4" />
-                  <span>{t("Copylink") || "Copy"}</span>
+                  <span>{t("Copylink")}</span>
                 </>
               )}
             </Button>
@@ -88,7 +87,7 @@ export function SessionShareDialog({
 
           {expiresAt && (
             <p className="text-xs text-muted-foreground text-center">
-              ⏳ {t("thisLinkWillExpireIn") || "This session expires in 30 minutes"}
+              ⏳ {t("thisLinkWillExpireIn")}
             </p>
           )}
         </div>
@@ -99,7 +98,7 @@ export function SessionShareDialog({
             onClick={onClose}
             className="rounded-xl px-5"
           >
-            {t("close") || "Close"}
+            {t("close")}
           </Button>
         </div>
       </DialogContent>

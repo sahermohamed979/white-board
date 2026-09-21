@@ -2,6 +2,7 @@
 
 import React from "react";
 import { AlertCircle, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/src/shared/components/ui/button";
 import {
   Dialog,
@@ -24,6 +25,8 @@ export function EndSessionDialog({
   onConfirm,
   onClose,
 }: EndSessionDialogProps) {
+  const t = useTranslations("main.session");
+
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent className="max-w-md rounded-2xl p-6 text-center flex flex-col items-center gap-4">
@@ -33,11 +36,10 @@ export function EndSessionDialog({
 
         <DialogHeader className="items-center gap-2">
           <DialogTitle className="text-xl font-semibold text-foreground">
-            End this session?
+            {t("endSessionQuestion")}
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground leading-relaxed">
-            This will terminate live collaboration for all participants.
-            The board drawing will remain completely preserved on your device and server.
+            {t("endSessionDescription")}
           </DialogDescription>
         </DialogHeader>
 
@@ -48,7 +50,7 @@ export function EndSessionDialog({
             disabled={isPending}
             onClick={onClose}
           >
-            Cancel
+            {t("cancel")}
           </Button>
           <Button
             variant="destructive"
@@ -59,10 +61,10 @@ export function EndSessionDialog({
             {isPending ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
-                <span>Ending...</span>
+                <span>{t("endingSession")}</span>
               </>
             ) : (
-              <span>End Session</span>
+              <span>{t("endSession")}</span>
             )}
           </Button>
         </div>

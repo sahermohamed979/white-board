@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/src/shared/components/ui/button";
 import {
@@ -18,6 +19,8 @@ interface JoinSessionDialogProps {
 }
 
 export function JoinSessionDialog({ open, onJoin }: JoinSessionDialogProps) {
+  const t = useTranslations("main.session");
+
   // State
   const [name, setName] = useState("");
 
@@ -34,8 +37,8 @@ export function JoinSessionDialog({ open, onJoin }: JoinSessionDialogProps) {
     <Dialog open={open}>
       <DialogContent className="max-w-sm rounded-2xl">
         <DialogHeader>
-          <DialogTitle>Join Sketchly Session</DialogTitle>
-          <DialogDescription>Choose the name shown beside your cursor.</DialogDescription>
+          <DialogTitle>{t("joinSessionTitle")}</DialogTitle>
+          <DialogDescription>{t("chooseDisplayName")}</DialogDescription>
         </DialogHeader>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
@@ -43,11 +46,15 @@ export function JoinSessionDialog({ open, onJoin }: JoinSessionDialogProps) {
             autoFocus
             value={name}
             maxLength={80}
-            placeholder="Your name"
+            placeholder={t("yourName")}
             onChange={(event) => setName(event.target.value)}
           />
-          <Button className="w-full text-white" disabled={!isNameValid} type="submit">
-            Join Session
+          <Button
+            className="w-full text-white"
+            disabled={!isNameValid}
+            type="submit"
+          >
+            {t("joinSession")}
           </Button>
         </form>
       </DialogContent>

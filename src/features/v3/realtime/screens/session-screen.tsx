@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Clock, Loader, AlertTriangle, Radio } from "lucide-react";
 import { Link } from "@/src/i18n/navigation";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/src/shared/lib/utils";
 
 import { useRealtimeSession } from "../hooks/use-realtime-session";
@@ -52,6 +52,7 @@ function formatTimeRemaining(ms: number): string {
 
 export function SessionScreen({ token }: { token: string }) {
   const locale = useLocale();
+  const t = useTranslations("main.session");
   const svgRef = useRef<SVGSVGElement | null>(null);
   const exportContainerRef = useRef<HTMLDivElement | null>(null);
   const textEditorRef = useRef<TextEditorHandle>(null);
@@ -70,7 +71,11 @@ export function SessionScreen({ token }: { token: string }) {
     isPending,
     isError,
     error,
-  } = useRealtimeSession(token, participant?.participantId ?? null, participant?.name ?? null);
+  } = useRealtimeSession(
+    token,
+    participant?.participantId ?? null,
+    participant?.name ?? null,
+  );
 
   const boardId = sessionData?.boardId ?? "";
   const sessionId = sessionData?.sessionId ?? "";
@@ -203,7 +208,9 @@ export function SessionScreen({ token }: { token: string }) {
     let lastElementId: string | null = null;
     let lastSentAt = 0;
     let frameId: number | null = null;
-    let pendingElement: ReturnType<typeof useBoardStore.getState>["currentElement"] = null;
+    let pendingElement: ReturnType<
+      typeof useBoardStore.getState
+    >["currentElement"] = null;
 
     const flush = () => {
       frameId = null;
@@ -312,7 +319,7 @@ export function SessionScreen({ token }: { token: string }) {
       <div className="flex h-screen w-screen flex-col items-center justify-center gap-4 bg-background text-foreground">
         <Loader className="h-10 w-10 animate-spin text-primary" />
         <p className="text-sm font-medium text-muted-foreground animate-pulse">
-          Joining collaborative session...
+          {t("joiningSession")}
         </p>
       </div>
     );
@@ -326,17 +333,18 @@ export function SessionScreen({ token }: { token: string }) {
           <Radio className="size-12 opacity-50" />
         </div>
         <div className="text-center space-y-2 max-w-md">
-          <h1 className="text-3xl font-bold tracking-tight">Session Ended</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            {t("sessionEnded")}
+          </h1>
           <p className="text-sm text-muted-foreground">
-            This collaborative session has been ended. Your drawings and changes
-            remain saved.
+            {t("sessionEndedDescription")}
           </p>
         </div>
         <Link
           href="/"
           className="rounded-xl bg-primary px-6 py-2.5 text-sm font-medium text-white shadow hover:opacity-90 transition-all"
         >
-          Return to Board
+          {t("returnToBoard")}
         </Link>
       </div>
     );
@@ -350,16 +358,18 @@ export function SessionScreen({ token }: { token: string }) {
           <Clock className="size-12 opacity-50" />
         </div>
         <div className="text-center space-y-2 max-w-md">
-          <h1 className="text-3xl font-bold tracking-tight">Session Expired</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            {t("sessionExpired")}
+          </h1>
           <p className="text-sm text-muted-foreground">
-            The 30-minute collaboration window has ended.
+            {t("sessionExpiredDescription")}
           </p>
         </div>
         <Link
           href="/"
           className="rounded-xl bg-primary px-6 py-2.5 text-sm font-medium text-white shadow hover:opacity-90 transition-all"
         >
-          Return to Board
+          {t("returnToBoard")}
         </Link>
       </div>
     );
@@ -367,7 +377,7 @@ export function SessionScreen({ token }: { token: string }) {
 
   // --- STATE: ERROR (Invalid token / 404 / 410) ---
   if (isError) {
-    const rawMessage = error?.message ?? "Unable to join session";
+    const rawMessage = error?.message ?? t("unableToJoinSession");
     const errorCode = (error as Error & { code?: number })?.code;
     const isLinkExpired =
       rawMessage.toLowerCase().includes("expir") || errorCode === 410;
@@ -383,7 +393,7 @@ export function SessionScreen({ token }: { token: string }) {
         </div>
         <div className="text-center space-y-2 max-w-md">
           <h1 className="text-3xl font-bold tracking-tight">
-            {isLinkExpired ? "Session Expired" : "Session Unavailable"}
+            {isLinkExpired ? t("sessionExpired") : t("sessionUnavailable")}
           </h1>
           <p className="text-sm text-muted-foreground">{rawMessage}</p>
         </div>
@@ -391,7 +401,7 @@ export function SessionScreen({ token }: { token: string }) {
           href="/"
           className="rounded-xl bg-primary px-6 py-2.5 text-sm font-medium text-white shadow hover:opacity-90 transition-all"
         >
-          Go to Sketchly
+          {t("goToSketchly")}
         </Link>
       </div>
     );
@@ -412,7 +422,7 @@ export function SessionScreen({ token }: { token: string }) {
       )}
     >
       <h1 className="sr-only">
-        {boardSnapshot?.name ?? "Sketchly Collaborative Session"}
+        {boardSnapshot?.name ?? t("collaborativeSession")}
       </h1>
 
       {/* 1. Realtime Session Header Toolbar */}
@@ -475,7 +485,10 @@ export function SessionScreen({ token }: { token: string }) {
           onPointerLeave={handleCanvasPointerLeave}
         >
           {remoteDrawingElements.map((element) => (
-            <ElementRenderer key={`remote-draft-${element.id}`} element={element} />
+            <ElementRenderer
+              key={`remote-draft-${element.id}`}
+              element={element}
+            />
           ))}
           <SelectionOverlay getScale={getScale} />
         </CanvasSvgLayer>
