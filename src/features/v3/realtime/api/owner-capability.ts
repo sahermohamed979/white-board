@@ -1,3 +1,4 @@
+
 import { createHmac, timingSafeEqual } from "node:crypto";
 
 export const OWNER_CAPABILITY_COOKIE = "sketchly_owner_capability";
