@@ -43,6 +43,18 @@ export const drawingEndEventSchema = z.object({
   elementId: z.string().min(1),
 });
 
+export const cursorMoveEventSchema = z.object({
+  participantId: z.string().uuid(),
+  boardId: z.string().uuid(),
+  timestamp: z.number().finite().nonnegative(),
+  cursor: z
+    .object({
+      x: z.number().finite(),
+      y: z.number().finite(),
+    })
+    .nullable(),
+});
+
 export const sessionEndEventSchema = z.object({
   sessionId: z.string().uuid(),
   timestamp: z.number().finite().nonnegative(),

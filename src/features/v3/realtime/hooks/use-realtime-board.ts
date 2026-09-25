@@ -344,7 +344,6 @@ export function useRealtimeBoard({
 
       if (parsed.data.sessionId !== sessionId) return;
 
-      console.log("[Sketchly Realtime] Received session:end event");
       onSessionEnded?.();
     };
 

@@ -16,17 +16,11 @@ export type BroadcastEvent =
   | "element:create"
   | "element:update"
   | "element:delete"
+  | "cursor:move"
   | "drawing:stream"
   | "drawing:end"
   | "session:end";
 export type BroadcastListener = (payload: unknown) => void;
-
-interface TestMessage {
-  type: "test";
-  message: string;
-  senderId: string;
-  timestamp: number;
-}
 
 /**
  * Manages the Supabase RealtimeChannel lifecycle for a specific board.
@@ -75,14 +69,6 @@ export function useRealtimeChannel(
       },
     });
 
-    channel.on(
-      "broadcast",
-      { event: "test" },
-      (message: { payload: TestMessage }) => {
-        console.log("[Sketchly Realtime] Received test:", message.payload);
-      },
-    );
-
     const dispatchPresence = () => {
       const state = channel.presenceState() as PresenceState;
       for (const listener of presenceListenersRef.current) {
@@ -98,6 +84,7 @@ export function useRealtimeChannel(
       "element:create",
       "element:update",
       "element:delete",
+      "cursor:move",
       "drawing:stream",
       "drawing:end",
       "session:end",
@@ -161,23 +148,6 @@ export function useRealtimeChannel(
     [],
   );
 
-  const sendTestMessage = useCallback(() => {
-    if (!channelRef.current || status !== "SUBSCRIBED") return;
-
-    const payload: TestMessage = {
-      type: "test",
-      message: "Hello from Sketchly",
-      senderId: participantId,
-      timestamp: Date.now(),
-    };
-
-    channelRef.current.send({
-      type: "broadcast",
-      event: "test",
-      payload,
-    });
-  }, [status, participantId]);
-
   return {
     status,
     channel: channelInstance,
@@ -185,6 +155,5 @@ export function useRealtimeChannel(
     disconnect,
     registerPresenceListener,
     registerBroadcastListener,
-    sendTestMessage,
   } as const;
 }

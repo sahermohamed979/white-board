@@ -84,7 +84,7 @@ export default function Tools({ getViewportCenter, readonly }: ToolsProps) {
     if (readonly) {
       setActiveTool("hand");
     }
-  }, [readonly]);
+  }, [readonly, setActiveTool]);
 
   return (
     <div

@@ -28,7 +28,6 @@ export function usePointerEvents(
   const addElement = useBoardStore((s) => s.addElement);
   const setCurrentElement = useBoardStore((s) => s.setCurrentElement);
   const setSelectedIds = useBoardStore((s) => s.setSelectedIds);
-  const updateElement = useBoardStore((s) => s.updateElement);
   const updateMultipleElements = useBoardStore((s) => s.updateMultipleElements);
   const deleteElements = useBoardStore((s) => s.deleteElements);
 

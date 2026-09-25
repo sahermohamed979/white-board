@@ -4,6 +4,7 @@ import { createSupabaseServerClient } from "@/src/features/v2/api/supabase-serve
 import { endSessionRequestSchema } from "@/src/features/v3/realtime/schema/realtime-collaboration.schema";
 import type { ApiResponse } from "@/src/shared/types/response-types";
 import {
+  getOwnerCapabilityCookieName,
   isOwnerCapabilityValid,
   OWNER_CAPABILITY_COOKIE,
 } from "@/src/features/v3/realtime/api/owner-capability";
@@ -60,7 +61,9 @@ export async function POST(
       return errorResponse("Session not found", 404);
     }
 
-    const ownerCapability = request.cookies.get(OWNER_CAPABILITY_COOKIE)?.value;
+    const ownerCapability =
+      request.cookies.get(getOwnerCapabilityCookieName(parsed.data.sessionId))
+        ?.value ?? request.cookies.get(OWNER_CAPABILITY_COOKIE)?.value;
     if (!isOwnerCapabilityValid(ownerCapability, parsed.data.sessionId)) {
       return errorResponse("Only the session owner can end this session", 403);
     }
@@ -92,7 +95,7 @@ export async function POST(
       message: "Session ended and removed successfully",
     });
 
-    response.cookies.set(OWNER_CAPABILITY_COOKIE, "", {
+    response.cookies.set(getOwnerCapabilityCookieName(parsed.data.sessionId), "", {
       httpOnly: true,
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",

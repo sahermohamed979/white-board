@@ -9,7 +9,7 @@ import type {
 } from "@/src/features/v3/realtime/types/session.types";
 import {
   createOwnerCapability,
-  OWNER_CAPABILITY_COOKIE,
+  getOwnerCapabilityCookieName,
 } from "@/src/features/v3/realtime/api/owner-capability";
 
 function errorResponse(
@@ -100,11 +100,12 @@ export async function POST(
   const ownerCapability = createOwnerCapability(payload.sessionId);
 
   if (ownerCapability) {
-    response.cookies.set(OWNER_CAPABILITY_COOKIE, ownerCapability, {
+    response.cookies.set(getOwnerCapabilityCookieName(payload.sessionId), ownerCapability, {
       httpOnly: true,
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
       path: "/",
+      maxAge: 60 * 30,
     });
   }
 

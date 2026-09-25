@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Clock, Loader, AlertTriangle, Radio } from "lucide-react";
 import { Link } from "@/src/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
@@ -81,11 +81,7 @@ export function SessionScreen({ token }: { token: string }) {
   const sessionId = sessionData?.sessionId ?? "";
   const boardSnapshot = sessionData?.board;
 
-  // ⚠️ DEV ONLY: Check if current browser tab created this session
-  const isOwner = useMemo(() => {
-    if (typeof window === "undefined" || !sessionId) return false;
-    return sessionStorage.getItem("sketchly_owned_session") === sessionId;
-  }, [sessionId]);
+  const isOwner = sessionData?.isOwner ?? false;
 
   // 2. Realtime Channel Lifecycle
   const {
@@ -110,7 +106,9 @@ export function SessionScreen({ token }: { token: string }) {
     clearCursor,
   } = useRealtimePresence({
     channel,
+    boardId,
     registerPresenceListener,
+    registerBroadcastListener,
     participantId: participant?.participantId ?? "",
     color: sessionData?.participantColor ?? "#EF4444",
     isOwner,

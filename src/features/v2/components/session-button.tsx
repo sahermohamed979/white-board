@@ -76,10 +76,6 @@ export default function SessionButton() {
       {
         onSuccess: (result) => {
           if (result.status) {
-            sessionStorage.setItem(
-              "sketchly_owned_session",
-              result.payload.sessionId,
-            );
             router.push(`/session/${result.payload.joinToken}`);
           }
         },

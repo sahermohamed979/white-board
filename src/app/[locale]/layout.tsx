@@ -1,23 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Noto_Serif } from "next/font/google";
 import { cn } from "@/src/shared/lib/utils";
-import { StylePanel } from "@/src/features/v1/components/style-panel";
 import Providers from "@/src/shared/context/providers";
 import { routing } from "@/src/i18n/routing";
-
-const geistHeading = Geist({ subsets: ["latin"], variable: "--font-heading" });
-
-const notoSerif = Noto_Serif({ subsets: ["latin"], variable: "--font-serif" });
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const viewport: Viewport = {
   themeColor: [
@@ -187,11 +171,7 @@ export default async function RootLayout({
       className={cn(
         "h-full",
         "antialiased",
-        geistSans.variable,
-        geistMono.variable,
         "font-serif",
-        notoSerif.variable,
-        geistHeading.variable,
       )}
     >
       <head suppressHydrationWarning>
@@ -202,8 +182,6 @@ export default async function RootLayout({
       </head>
       <body className="min-h-full flex flex-row relative">
         <Providers>
-          {/* Floating Style Panel for Selection */}
-
           {children}
         </Providers>
       </body>

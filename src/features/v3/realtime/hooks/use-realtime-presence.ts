@@ -4,10 +4,18 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import type { PresenceState } from "./use-realtime-channel";
 import type {
+  BroadcastEvent,
+  BroadcastListener,
+} from "./use-realtime-channel";
+import type {
+  CursorMovePayload,
   CursorPosition,
   ParticipantPresence,
 } from "../types/realtime-collaboration.types";
-import { participantPresenceSchema } from "../schema/realtime-collaboration.schema";
+import {
+  cursorMoveEventSchema,
+  participantPresenceSchema,
+} from "../schema/realtime-collaboration.schema";
 import { useBoardStore } from "@/src/features/v1/store/board-store";
 
 export const PARTICIPANT_COLORS = [
@@ -31,8 +39,13 @@ export function getParticipantColor(id: string): string {
 
 interface UseRealtimePresenceOptions {
   channel: RealtimeChannel | null;
+  boardId: string;
   registerPresenceListener: (
     listener: (state: PresenceState) => void,
+  ) => () => void;
+  registerBroadcastListener: (
+    event: BroadcastEvent,
+    listener: BroadcastListener,
   ) => () => void;
   participantId: string;
   color: string;
@@ -44,7 +57,9 @@ interface UseRealtimePresenceOptions {
 
 export function useRealtimePresence({
   channel,
+  boardId,
   registerPresenceListener,
+  registerBroadcastListener,
   participantId,
   color,
   isOwner = false,
@@ -55,6 +70,9 @@ export function useRealtimePresence({
   const [presenceMap, setPresenceMap] = useState<
     Record<string, ParticipantPresence[]>
   >({});
+  const [remoteCursorMap, setRemoteCursorMap] = useState<
+    Record<string, CursorPosition | null>
+  >({});
 
   const [joinedAt] = useState(() => Date.now());
   const strokeColor = useBoardStore((state) => state.strokeColor);
@@ -62,8 +80,8 @@ export function useRealtimePresence({
 
   // Local cursor state for rAF throttling
   const latestCursorRef = useRef<CursorPosition | null>(null);
-  const lastTrackedCursorRef = useRef<CursorPosition | null>(null);
-  const lastTrackedTimeRef = useRef<number>(0);
+  const lastBroadcastCursorRef = useRef<CursorPosition | null>(null);
+  const lastBroadcastTimeRef = useRef<number>(0);
   const rafIdRef = useRef<number | null>(null);
   const flushCursorUpdateRef = useRef<() => void>(() => undefined);
 
@@ -121,13 +139,13 @@ export function useRealtimePresence({
     });
   }, [channel, enabled, isSubscribed, currentPresence]);
 
-  // 2. Throttled cursor publishing using requestAnimationFrame (~25-30 fps)
+  // 2. Throttled cursor broadcasting using requestAnimationFrame (~25-30 fps)
   const flushCursorUpdate = useCallback(() => {
     if (!channel || !enabled || !isSubscribed) return;
 
     const now = performance.now();
     // Throttle to ~35ms (~28 updates/sec)
-    if (now - lastTrackedTimeRef.current < 35) {
+    if (now - lastBroadcastTimeRef.current < 35) {
       rafIdRef.current = requestAnimationFrame(() =>
         flushCursorUpdateRef.current(),
       );
@@ -135,7 +153,7 @@ export function useRealtimePresence({
     }
 
     const latest = latestCursorRef.current;
-    const last = lastTrackedCursorRef.current;
+    const last = lastBroadcastCursorRef.current;
 
     const hasChanged =
       (latest === null && last !== null) ||
@@ -145,25 +163,48 @@ export function useRealtimePresence({
         (latest.x !== last.x || latest.y !== last.y));
 
     if (hasChanged) {
-      lastTrackedCursorRef.current = latest;
-      lastTrackedTimeRef.current = now;
+      const payload: CursorMovePayload = {
+        participantId,
+        boardId,
+        timestamp: Date.now(),
+        cursor: latest,
+      };
 
-      channel
-        .track({
-          ...currentPresence,
-          cursor: latest,
-        })
-        .catch(() => {
-          // Silent presence errors to avoid spamming
-        });
+      lastBroadcastCursorRef.current = latest;
+      lastBroadcastTimeRef.current = now;
+
+      void channel.send({
+        type: "broadcast",
+        event: "cursor:move",
+        payload,
+      });
     }
 
     rafIdRef.current = null;
-  }, [channel, enabled, isSubscribed, currentPresence]);
+  }, [boardId, channel, enabled, isSubscribed, participantId]);
 
   useEffect(() => {
     flushCursorUpdateRef.current = flushCursorUpdate;
   }, [flushCursorUpdate]);
+
+  // Receive cursor movement separately from Presence so frequent pointer updates
+  // never flood the online-participant state.
+  useEffect(() => {
+    if (!enabled) return;
+
+    return registerBroadcastListener("cursor:move", (payload: unknown) => {
+      const parsed = cursorMoveEventSchema.safeParse(payload);
+      if (!parsed.success) return;
+
+      const data = parsed.data;
+      if (data.boardId !== boardId || data.participantId === participantId) return;
+
+      setRemoteCursorMap((current) => ({
+        ...current,
+        [data.participantId]: data.cursor,
+      }));
+    });
+  }, [boardId, enabled, participantId, registerBroadcastListener]);
 
   const updateCursor = useCallback((worldX: number, worldY: number) => {
     latestCursorRef.current = { x: Math.round(worldX), y: Math.round(worldY) };
@@ -199,11 +240,15 @@ export function useRealtimePresence({
     for (const [key, presences] of Object.entries(presenceMap)) {
       if (key !== participantId && presences && presences.length > 0) {
         // Use the latest presence entry
-        list.push(presences[presences.length - 1]);
+        const presence = presences[presences.length - 1];
+        list.push({
+          ...presence,
+          cursor: remoteCursorMap[presence.participantId] ?? presence.cursor,
+        });
       }
     }
     return list;
-  }, [presenceMap, participantId]);
+  }, [presenceMap, participantId, remoteCursorMap]);
 
   // Total connected participants count (including self)
   const participantCount = useMemo(() => {

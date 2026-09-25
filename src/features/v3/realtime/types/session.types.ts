@@ -51,6 +51,7 @@ export interface JoinRealtimeSessionPayload {
   expiresAt: number; // Unix timestamp in milliseconds
   maxParticipants: number;
   participantColor: string;
+  isOwner: boolean;
   board: BoardSnapshot;
 }
 

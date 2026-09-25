@@ -221,7 +221,7 @@ npm run start
 
 ## 🗺️ Roadmap
 
-- [ ] **Real-time Collaboration**: Multi-user live rooms with WebRTC / WebSocket cursors.
+- [x] **Real-time Collaboration**: Multi-user live sessions with Supabase Realtime, cursor names and colors, temporary session snapshots, and owner-controlled ending.
 - [ ] **Custom Templates**: Flowcharts, wireframe blueprints, and architecture templates.
 - [ ] **Image Upload & Annotation**: Drag-and-drop external images onto the canvas with cropping and drawing overlays.
 - [ ] **Cloud Sync & Workspaces**: Optional cloud backup and team sharing powered by Supabase.

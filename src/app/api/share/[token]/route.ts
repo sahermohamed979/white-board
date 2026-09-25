@@ -3,7 +3,6 @@ import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/src/features/v2/api/supabase-server";
 import {
   shareBoardDataSchema,
-  shareDataSchema,
   shareTokenSchema,
 } from "@/src/features/v1/schema/share.schema";
 import type {

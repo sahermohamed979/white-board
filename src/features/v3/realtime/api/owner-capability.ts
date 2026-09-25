@@ -2,6 +2,10 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 
 export const OWNER_CAPABILITY_COOKIE = "sketchly_owner_capability";
 
+export function getOwnerCapabilityCookieName(sessionId: string): string {
+  return `sketchly_owner_${sessionId}`;
+}
+
 function getCapabilitySecret(): string | null {
   return process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXTAUTH_SECRET ?? null;
 }

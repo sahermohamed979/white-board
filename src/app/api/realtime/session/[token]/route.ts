@@ -13,6 +13,11 @@ import type {
 } from "@/src/features/v3/realtime/types/session.types";
 import type { Element } from "@/src/features/v1/types/element.types";
 import { shareBoardDataSchema } from "@/src/features/v1/schema/share.schema";
+import {
+  getOwnerCapabilityCookieName,
+  isOwnerCapabilityValid,
+  OWNER_CAPABILITY_COOKIE,
+} from "@/src/features/v3/realtime/api/owner-capability";
 
 function errorResponse(
   message: string,
@@ -138,6 +143,10 @@ export async function GET(
     }
 
     const maxParticipants = Math.min(session.max_participants ?? 5, 5);
+    const ownerCapability =
+      request.cookies.get(getOwnerCapabilityCookieName(session.id))?.value ??
+      request.cookies.get(OWNER_CAPABILITY_COOKIE)?.value;
+    const isOwner = isOwnerCapabilityValid(ownerCapability, session.id);
 
     // Session-only snapshot; this data is removed with the session record.
     const boardSnapshot = shareBoardDataSchema.safeParse(session.board_data);
@@ -153,6 +162,7 @@ export async function GET(
       expiresAt,
       maxParticipants,
       participantColor: session.participant_color,
+      isOwner,
       board: {
         id: session.board_id,
         name: "Collaborative Board",

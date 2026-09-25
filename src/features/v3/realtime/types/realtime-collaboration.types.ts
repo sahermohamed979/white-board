@@ -22,6 +22,13 @@ export interface ParticipantPresence {
   };
 }
 
+export interface CursorMovePayload {
+  participantId: string;
+  boardId: string;
+  timestamp: number;
+  cursor: CursorPosition | null;
+}
+
 /* ==============================================
    2. Realtime Broadcast Operation Types
 ============================================== */
