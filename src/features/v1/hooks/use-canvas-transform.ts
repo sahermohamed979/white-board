@@ -181,6 +181,11 @@ export function useCanvasTransform() {
       eventOptions: {
         passive: false,
       },
+      drag: {
+        pointer: {
+          capture: false,
+        },
+      },
       pinch: {
         scaleBounds: { min: MIN_SCALE, max: MAX_SCALE },
         rubberband: true,

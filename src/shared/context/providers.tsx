@@ -1,6 +1,7 @@
 import { NextIntlClientProvider } from "next-intl";
 import { ThemeProvider } from "./provider/ThemeProvider";
 import ReactQueryProvider from "./provider/react-query-providers";
+import { TooltipProvider } from "../components/ui/tooltip";
 
 export default function Providers({
   children,
@@ -16,7 +17,10 @@ export default function Providers({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <TooltipProvider>
+            {children}
+
+          </TooltipProvider>
         </ThemeProvider>
       </NextIntlClientProvider>
     </ReactQueryProvider>

@@ -30,7 +30,9 @@ export default function SideDropDown({
   return (
     <div className="absolute top-5 left-5 z-50 bg-card">
       <DropdownMenu>
-        <DropdownMenuTrigger render={<Button variant="outline" />}>
+        <DropdownMenuTrigger
+          render={<Button variant="outline" aria-label="Menu" />}
+        >
           <Menu />
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-35.7 mt-3">

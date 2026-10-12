@@ -73,6 +73,16 @@
       "sessionUnavailable": "Session Unavailable",
       "goToSketchly": "Go to Sketchly",
       "collaborativeSession": "Sketchly Collaborative Session"
+    },
+    "legal": {
+      "buttonTooltip": "Terms & Privacy Policy",
+      "buttonLabel": "Legal",
+      "dialogTitle": "Terms of Service & Privacy Policy",
+      "dialogDescription": "Review our terms of use, limitation of liability, and privacy commitments.",
+      "termsTab": "Terms of Service",
+      "privacyTab": "Privacy Policy",
+      "lastUpdated": "Last updated",
+      "close": "Close"
     }
   }
 }

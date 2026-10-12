@@ -74,6 +74,16 @@
       "sessionUnavailable": "الجلسة غير متاحة",
       "goToSketchly": "الذهاب إلى Sketchly",
       "collaborativeSession": "جلسة Sketchly التعاونية"
+    },
+    "legal": {
+      "buttonTooltip": "شروط الخدمة وسياسة الخصوصية",
+      "buttonLabel": "الشروط والخصوصية",
+      "dialogTitle": "شروط الخدمة وسياسة الخصوصية",
+      "dialogDescription": "تعرف على شروط الاستخدام، إخلاء المسؤولية القانونية، وضمانات حماية الخصوصية.",
+      "termsTab": "شروط الخدمة",
+      "privacyTab": "سياسة الخصوصية",
+      "lastUpdated": "آخر تحديث",
+      "close": "إغلاق"
     }
   }
 }

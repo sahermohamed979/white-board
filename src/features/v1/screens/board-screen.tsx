@@ -20,7 +20,9 @@ import SideDropDown from "../components/side-drop-down";
 import Tools from "../components/tools";
 import ZoomUndoButtons from "../components/zoom-undo-buttons";
 import { gridStyleMap } from "../constants/grid.constant";
+import { useLocale } from "next-intl";
 import SessionButton from "../../v2/components/session-button";
+import { LegalModal } from "@/src/shared/components/legal-modal";
 
 export function Board() {
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -60,6 +62,9 @@ export function Board() {
 
   const gridStyle = gridStyleMap[backgroundGrid] ?? {};
 
+  const locale = useLocale();
+  const isAr = locale === "ar";
+
   if (!isHydrated) {
     return (
       <div className="flex h-screen w-screen items-center justify-center">
@@ -80,8 +85,15 @@ export function Board() {
       )}
     >
       <h1 className="sr-only">
-        Sketchly — Interactive Virtual Whiteboard & Sketching App
+        {isAr
+          ? "Sketchly — لوحة بيضاء تفاعلية ذكية للرسم والتخطيط"
+          : "Sketchly — Interactive Virtual Whiteboard & Sketching App"}
       </h1>
+      <p className="sr-only">
+        {isAr
+          ? "لوحة رسم بيضاء تفاعلية مجانية تدعم الرسم اليدوي الحر، الأشكال الهندسية، الشبكات، والعمل الجماعي المباشر مع تشفير من طرف لطرف."
+          : "Free interactive virtual whiteboard for sketching diagrams, hand-drawn wireframes, real-time collaboration with end-to-end encryption, and vector export."}
+      </p>
       <SessionButton />
       <Tools getViewportCenter={getViewportCenter} />
       <SideDropDown
@@ -113,6 +125,7 @@ export function Board() {
         subscribe={subscribe}
         getTransformSnapshot={getTransformSnapshot}
       />
+      <LegalModal />
     </main>
   );
 }

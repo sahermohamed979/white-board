@@ -69,6 +69,7 @@ export function usePointerEvents(
       }
 
       // Pause history tracking during dragging/drawing for smooth performance
+      e.stopPropagation();
       useBoardStore.temporal.getState().pause();
 
       // Capture pointer for drawing & selection dragging

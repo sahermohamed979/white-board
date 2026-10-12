@@ -21,6 +21,11 @@ import UploadImage from "./upload-image";
 import { generateId } from "../lib/id";
 import type { ImageElement } from "../types/element.types";
 import { useTranslations } from "next-intl";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/src/shared/components/ui/tooltip";
 
 interface ToolsProps {
   getViewportCenter: () => { x: number; y: number };
@@ -105,51 +110,77 @@ export default function Tools({ getViewportCenter, readonly }: ToolsProps) {
         inert={!isToolsOpen}
       >
         {TOOLS.map((tool) => (
-          <Button
-            key={tool.name}
-            size="sm"
-            variant={activeTool === tool.name ? "default" : "outline"}
-            className={cn(
-              "h-8 cursor-pointer p-1 text-xs font-medium text-primary-foreground md:p-2",
-              activeTool === tool.name && "text-white",
-            )}
-            onClick={() => setActiveTool(tool.name)}
-            tabIndex={isToolsOpen ? 0 : -1}
-          >
-            {tool.label}
-          </Button>
+          <Tooltip key={tool.name}>
+            <TooltipTrigger
+              render={
+                <Button
+                  size="sm"
+                  variant={activeTool === tool.name ? "default" : "outline"}
+                  className={cn(
+                    "h-8 cursor-pointer p-1 text-xs font-medium text-primary-foreground md:p-2",
+                    activeTool === tool.name && "text-white",
+                  )}
+                  onClick={() => setActiveTool(tool.name)}
+                  tabIndex={isToolsOpen ? 0 : -1}
+                  aria-label={tool.name}
+                >
+                  {tool.label}
+                </Button>
+              }
+            ></TooltipTrigger>
+            <TooltipContent side="top">
+              <span className="capitalize">{tool.name}</span>
+            </TooltipContent>
+          </Tooltip>
         ))}
-
         <UploadImage onImageSelect={handleImageSelect} />
 
         <div className="mx-1 hidden h-4 w-px md:block" />
 
-        <Button
-          size="sm"
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <Button
+                size="sm"
           className="mt-2 h-8 cursor-pointer bg-transparent text-xs font-medium text-destructive md:mt-0 md:bg-destructive md:text-white"
-          onClick={clearBoard}
-          tabIndex={isToolsOpen ? 0 : -1}
-        >
-          {t("main.tools.clear")}
-        </Button>
+                onClick={clearBoard}
+                tabIndex={isToolsOpen ? 0 : -1}
+              >
+                {t("main.tools.clear")}
+              </Button>
+            }
+          ></TooltipTrigger>
+          <TooltipContent>{t("main.tools.clear")}</TooltipContent>
+        </Tooltip>
       </div>
 
-      <Button
-        type="button"
-        size="icon"
-        variant="ghost"
-        className="h-8 w-8 shrink-0 cursor-pointer flex justify-center items-center"
-        aria-label={isToolsOpen ? t("main.tools.close") : t("main.tools.open")}
-        title={isToolsOpen ? t("main.tools.close") : t("main.tools.open")}
-        aria-expanded={isToolsOpen}
-        onClick={() => setIsToolsOpen((isOpen) => !isOpen)}
-      >
-        {isToolsOpen ? (
-          <PanelLeftClose className="h-4 w-4 rotate-90 md:rotate-0" />
-        ) : (
-          <PanelLeftOpen className="h-4 w-4 rotate-90 md:rotate-0" />
-        )}
-      </Button>
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <Button
+              type="button"
+              size="icon"
+              variant="ghost"
+              className="h-8 w-8 shrink-0 cursor-pointer"
+              aria-label={
+                isToolsOpen ? t("main.tools.close") : t("main.tools.open")
+              }
+              title={isToolsOpen ? t("main.tools.close") : t("main.tools.open")}
+              aria-expanded={isToolsOpen}
+              onClick={() => setIsToolsOpen((o) => !o)}
+            >
+              {isToolsOpen ? (
+                <PanelLeftClose className="h-4 w-4 rotate-90 md:rotate-0" />
+              ) : (
+                <PanelLeftOpen className="h-4 w-4 rotate-90 md:rotate-0" />
+              )}
+            </Button>
+          }
+        ></TooltipTrigger>
+        <TooltipContent>
+          {isToolsOpen ? t("main.tools.close") : t("main.tools.open")}
+        </TooltipContent>
+      </Tooltip>
     </div>
   );
 }

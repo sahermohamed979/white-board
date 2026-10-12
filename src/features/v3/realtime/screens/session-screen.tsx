@@ -36,6 +36,7 @@ import { useBoardStore } from "@/src/features/v1/store/board-store";
 import { gridStyleMap } from "@/src/features/v1/constants/grid.constant";
 import { StylePanel } from "@/src/features/v1/components/style-panel";
 import { ElementRenderer } from "@/src/features/v1/components/element-renderer";
+import { LegalModal } from "@/src/shared/components/legal-modal";
 
 export interface SessionScreenProps {
   token: string;
@@ -498,6 +499,7 @@ export function SessionScreen({ token }: { token: string }) {
 
         <StylePanel />
       </div>
+      <LegalModal className="bottom-16 right-3 sm:bottom-18 sm:right-4" />
     </main>
   );
 }

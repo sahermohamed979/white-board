@@ -31,11 +31,14 @@ export const CanvasSvgLayer = forwardRef<SVGSVGElement, CanvasSvgLayerProps>(
     },
     ref,
   ) => {
-    const storeElements = useBoardStore((s) => s.elements);
-    const storeCurrentElement = useBoardStore((s) => s.currentElement);
+    const isExternal = Boolean(readonly || elementsProp);
+    const storeElements = useBoardStore((s) => (isExternal ? null : s.elements));
+    const storeCurrentElement = useBoardStore((s) =>
+      isExternal || currentElementProp !== undefined ? null : s.currentElement,
+    );
 
     const elementsToRender =
-      elementsProp ?? (readonly ? elementsShared ?? [] : storeElements);
+      elementsProp ?? (readonly ? elementsShared ?? [] : storeElements ?? []);
     const currentElementToRender =
       currentElementProp !== undefined
         ? currentElementProp

@@ -1,0 +1,51 @@
+# Sketchly — Interactive Virtual Whiteboard & Sketching App
+
+> Sketchly is a modern, high-performance web-based virtual whiteboard and sketching canvas with hand-drawn rough aesthetics, real-time live collaboration, end-to-end encryption, and multi-language support (English and Arabic RTL).
+
+## Overview
+- **Name**: Sketchly
+- **Website**: https://sketchly-gamma.vercel.app
+- **Category**: Design Application / Interactive Whiteboard / Visual Collaboration
+- **License / Pricing**: Free to use, no mandatory login required to start drawing
+- **Creator**: Saher Mohamed
+- **Supported Languages**: English (`/en`), Arabic with full RTL (`/ar`)
+
+## Key Features & Capabilities
+1. **Hand-Drawn & Rough Aesthetics**: Utilizes Rough.js and Perfect-Freehand to provide organic, hand-drawn vector strokes and shapes.
+2. **Comprehensive Drawing Tools**:
+   - Select and move elements
+   - Freehand pen with smooth pressure-sensitive curves
+   - Geometric shapes: Rectangles, Circles, Diamonds, Straight lines, Arrows
+   - Text tool with custom font styling
+   - Eraser tool for removing elements
+   - Image upload and placement on the canvas
+3. **Real-Time Collaboration**: Live multiplayer canvas sessions powered by WebSockets, allowing multiple users to draw simultaneously.
+4. **End-to-End Encryption (E2EE)**: Collaborative sessions are protected with client-side end-to-end encryption. Content is encrypted before leaving the device, ensuring neither servers nor third parties can inspect drawings.
+5. **Local Persistence**: Automatic offline storage using IndexedDB (Dexie), allowing users to preserve their work across page refreshes.
+6. **Export & Sharing**:
+   - High-resolution image export (PNG, SVG)
+   - Shareable read-only links with expiration settings
+   - Project JSON state export and import
+7. **Custom Canvas Styling**: Customizable background colors, rough stroke styles, fill styles, stroke width, and grid overlays (dots, lines, or none).
+
+## Target Audiences & Use Cases
+- **Software Engineers & System Architects**: Wireframing, architecture diagrams, flowchart sketching, quick design brainstorming.
+- **Educators & Students**: Interactive whiteboarding, visual explanations, math/geometry problem solving.
+- **Remote Teams**: Collaborative brainstorm sessions, sprint retrospectives, visual notes.
+- **Content Creators & Designers**: Visual sketching, concept design, social media diagrams.
+
+## Alternatives Comparison
+- **Excalidraw Alternative**: Free, lightweight web whiteboard featuring similar hand-drawn vector aesthetics with built-in Arabic (RTL) localization and local offline persistence.
+- **Miro / Mural Alternative**: Lightweight, zero friction, instant-load canvas without complex account setups for rapid ideation.
+
+## Technical Stack
+- **Framework**: Next.js (App Router), React 19, TypeScript
+- **Rendering & Drawing**: HTML5 Canvas, Rough.js, Perfect-Freehand
+- **Styling**: Tailwind CSS, Shadcn UI
+- **State Management & Persistence**: Zustand, Dexie (IndexedDB)
+- **Internationalization**: next-intl (Full LTR and RTL support)
+
+## Canonical URLs
+- English Whiteboard: https://sketchly-gamma.vercel.app/en
+- Arabic Whiteboard: https://sketchly-gamma.vercel.app/ar
+- Sitemap: https://sketchly-gamma.vercel.app/sitemap.xml

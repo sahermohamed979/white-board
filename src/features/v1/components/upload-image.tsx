@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useRef } from "react";
@@ -7,6 +6,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { imageSchema } from "../schema/image.schema";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/src/shared/components/ui/tooltip";
+import { Button } from "@/src/shared/components/ui/button";
 
 interface UploadImageProps {
   onImageSelect: (file: File) => void;
@@ -16,9 +21,7 @@ type ImageFormValues = {
   image: File | null;
 };
 
-export default function UploadImage({
-  onImageSelect,
-}: UploadImageProps) {
+export default function UploadImage({ onImageSelect }: UploadImageProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const {
@@ -32,9 +35,7 @@ export default function UploadImage({
     },
   });
 
-  const handleImageChange = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] ?? null;
 
     if (!file) return;
@@ -57,13 +58,25 @@ export default function UploadImage({
 
   return (
     <>
-      <button
-        type="button"
-        className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border"
-        onClick={() => inputRef.current?.click()}
-      >
-        <ImagePlus className="h-5 w-5" />
-      </button>
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <Button
+              type="button"
+              variant="outline"
+              aria-label="Upload image"
+              className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border"
+              onClick={() => inputRef.current?.click()}
+            >
+              <ImagePlus className="h-5 w-5" />
+            </Button>
+          }
+        >
+        </TooltipTrigger>
+        <TooltipContent>
+          <span className="capitalize">image</span>
+        </TooltipContent>
+      </Tooltip>
 
       <input
         ref={inputRef}
@@ -81,4 +94,3 @@ export default function UploadImage({
     </>
   );
 }
-
