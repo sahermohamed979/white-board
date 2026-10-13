@@ -1,0 +1,188 @@
+---
+description: NextAuth v4 — auth.ts config, session types, route protection via middleware
+globs: ["auth.ts", "middleware.ts", "lib/actions/auth.action.ts", "hooks/auth/**"]
+alwaysApply: false
+---
+
+# Authentication — NextAuth v4
+
+## Config (`auth.ts`)
+
+NextAuth config lives at `auth.ts` in the project root (next to `middleware.ts`).
+
+```typescript
+// auth.ts
+import NextAuth from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+
+import { loginSchema } from "@/lib/schemes/auth.schema";
+
+export const { handlers, auth, signIn, signOut } = NextAuth({
+  session: { strategy: "jwt" },
+  pages: {
+    signIn: "/auth/login",
+    error: "/auth/login",
+  },
+  providers: [
+    CredentialsProvider({
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        const parsed = loginSchema.safeParse(credentials);
+        if (!parsed.success) return null;
+
+        const res = await fetch(`${process.env.API}/auth/login`, {
+          method: "POST",
+          body: JSON.stringify(parsed.data),
+          headers: { "Content-Type": "application/json" },
+        });
+
+        if (!res.ok) return null;
+
+        const user = await res.json();
+
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          token: user.token,
+        };
+      },
+    }),
+  ],
+  callbacks: {
+    jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.role = user.role;
+        token.accessToken = user.token;
+      }
+      return token;
+    },
+    session({ session, token }) {
+      session.user.id = token.id as string;
+      session.user.role = token.role as string;
+      session.user.accessToken = token.accessToken as string;
+      return session;
+    },
+  },
+});
+```
+
+---
+
+## Route Handler for NextAuth
+
+```typescript
+// app/api/auth/[...nextauth]/route.ts
+import { handlers } from "@/auth";
+
+export const { GET, POST } = handlers;
+```
+
+---
+
+## Type Augmentation
+
+```typescript
+// lib/types/next-auth.d.ts
+import type { DefaultSession } from "next-auth";
+
+declare module "next-auth" {
+  interface Session {
+    user: DefaultSession["user"] & {
+      id: string;
+      role: string;
+      accessToken: string;
+    };
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    id: string;
+    role: string;
+    accessToken: string;
+  }
+}
+```
+
+---
+
+## Getting Session
+
+```typescript
+// Server Components / Route Handlers
+import { auth } from "@/auth";
+import { redirect } from "@/i18n/navigation";
+
+export default async function ProtectedPage() {
+  const session = await auth();
+  if (!session) redirect("/auth/login");
+
+  return <div>Hello, {session.user.name}</div>;
+}
+
+// Client Components
+"use client";
+
+import { useSession } from "next-auth/react";
+
+export function UserMenu() {
+  // Hooks
+  const { data: session, status } = useSession();
+
+  if (status === "loading") return <UserMenuSkeleton />;
+  if (!session) return null;
+
+  return <div>{session.user.name}</div>;
+}
+```
+
+---
+
+## Middleware — Auth + i18n Combined
+
+```typescript
+// middleware.ts
+import { auth } from "@/auth";
+import createIntlMiddleware from "next-intl/middleware";
+import type { NextRequest } from "next/server";
+
+import { routing } from "./i18n/routing";
+
+const intlMiddleware = createIntlMiddleware(routing);
+
+const protectedRoutes = ["/dashboard", "/profile", "/checkout"];
+
+export default auth(function middleware(req: NextRequest) {
+  const { nextUrl, auth: session } = req as NextRequest & { auth: unknown };
+  const isProtected = protectedRoutes.some((route) =>
+    nextUrl.pathname.includes(route)
+  );
+
+  if (isProtected && !session) {
+    return Response.redirect(new URL("/auth/login", req.url));
+  }
+
+  return intlMiddleware(req);
+});
+
+export const config = {
+  matcher: ["/((?!api|_next|.*\\..*).*)"],
+};
+```
+
+---
+
+## Rules Summary
+
+- ✅ Auth config lives in `auth.ts` at project root
+- ✅ Augment `Session` and `JWT` types in `lib/types/next-auth.d.ts`
+- ✅ Protect routes in `middleware.ts` — not inside pages
+- ✅ Use `auth()` in Server Components for session
+- ✅ Use `useSession()` in Client Components for session
+- ❌ Never expose raw tokens in session without type augmentation

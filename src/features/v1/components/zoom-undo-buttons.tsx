@@ -1,0 +1,68 @@
+"use client";
+
+import { Button } from "@/src/shared/components/ui/button";
+import { Redo2, Undo2 } from "lucide-react";
+import { useStore } from "zustand";
+
+import { useBoardStore } from "../store/board-store";
+import {
+  useTransformScale,
+  type Transform,
+} from "../hooks/use-canvas-transform";
+
+interface ZoomIndicatorProps {
+  subscribe: (listener: () => void) => () => void;
+  getTransformSnapshot: () => Transform;
+  readonly?: boolean;
+}
+
+export default function ZoomUndoButtons({
+  subscribe,
+  getTransformSnapshot,
+  readonly,
+}: ZoomIndicatorProps) {
+  const { undo, redo } = useBoardStore.temporal.getState();
+  const canUndo = useStore(
+    useBoardStore.temporal,
+    (s) => (readonly ? false : s.pastStates.length > 0),
+  );
+  const canRedo = useStore(
+    useBoardStore.temporal,
+    (s) => (readonly ? false : s.futureStates.length > 0),
+  );
+
+  const scale = useTransformScale(subscribe, getTransformSnapshot);
+  const percentage = Math.round(scale * 100);
+
+  if (readonly) {
+    return (
+      <div className="fixed bottom-3 left-3 z-50 flex items-center gap-1 rounded-lg border border-popover-foreground bg-card px-1.5 py-1 text-xs font-medium shadow-md sm:absolute sm:bottom-5 sm:left-5 sm:gap-2 sm:px-3 sm:py-1.5">
+        <span>{percentage}%</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="fixed bottom-3 left-3 z-50 flex items-center gap-1 rounded-lg border border-popover-foreground bg-card px-1.5 py-1 text-xs font-medium shadow-md sm:absolute sm:bottom-5 sm:left-5 sm:gap-2 sm:px-3 sm:py-1.5">
+      <Button
+        variant="outline"
+        size="icon-sm"
+        aria-label="Undo"
+        disabled={!canUndo}
+        onClick={() => undo()}
+      >
+        <Undo2 />
+      </Button>
+      <span>{percentage}%</span>
+      <Button
+        variant="outline"
+        size="icon-sm"
+        aria-label="Redo"
+        disabled={!canRedo}
+        onClick={() => redo()}
+      >
+        <Redo2 />
+      </Button>
+    </div>
+  );
+}

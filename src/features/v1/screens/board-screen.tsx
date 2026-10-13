@@ -1,0 +1,133 @@
+"use client";
+
+import { useRef, useState } from "react";
+import { Loader } from "lucide-react";
+
+import { cn } from "@/src/shared/lib/utils";
+
+import { usePointerEvents } from "../hooks/use-pointer-events";
+import { usePersistedBoard } from "../hooks/use-persisted-board";
+import { useKeyboardShortcuts } from "../hooks/use-keyboard-shortcuts";
+import { CanvasSvgLayer } from "../components/canvas-svg-layer";
+import { SelectionOverlay } from "../components/selection-overlay";
+import {
+  TextEditorOverlay,
+  type TextEditorHandle,
+} from "../components/text-editor-overlay";
+import { useCanvasTransform } from "../hooks/use-canvas-transform";
+import { useBoardStore } from "../store/board-store";
+import SideDropDown from "../components/side-drop-down";
+import Tools from "../components/tools";
+import ZoomUndoButtons from "../components/zoom-undo-buttons";
+import { gridStyleMap } from "../constants/grid.constant";
+import { useLocale } from "next-intl";
+import SessionButton from "../../v2/components/session-button";
+import { LegalModal } from "@/src/shared/components/legal-modal";
+
+export function Board() {
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  const exportContainerRef = useRef<HTMLDivElement | null>(null);
+  const textEditorRef = useRef<TextEditorHandle>(null);
+
+  const [textPlacement, setTextPlacement] = useState<[number, number] | null>(
+    null,
+  );
+
+  const {
+    isPanning,
+    viewportGroupRef,
+    screenToCanvas,
+    getViewportCenter,
+    getScale,
+    subscribe,
+    getTransformSnapshot,
+  } = useCanvasTransform();
+
+  const activeTool = useBoardStore((state) => state.activeTool);
+  const backgroundColor = useBoardStore((state) => state.backgroundColor);
+  const { isHydrated } = usePersistedBoard();
+  useKeyboardShortcuts();
+
+  const { pointerEventsProps } = usePointerEvents(
+    svgRef,
+    (point) => {
+      // Commit whatever's currently being edited BEFORE moving to the new
+      // point — deterministic, no dependency on blur-event ordering.
+      textEditorRef.current?.commitPending();
+      setTextPlacement(point);
+    },
+    screenToCanvas,
+  );
+  const backgroundGrid = useBoardStore((state) => state.backgroundGrid);
+
+  const gridStyle = gridStyleMap[backgroundGrid] ?? {};
+
+  const locale = useLocale();
+  const isAr = locale === "ar";
+
+  if (!isHydrated) {
+    return (
+      <div className="flex h-screen w-screen items-center justify-center">
+        <Loader className="animate-spin h-16 w-16 text-primary" />
+      </div>
+    );
+  }
+
+  return (
+    <main
+      className={cn(
+        "relative h-screen w-screen overflow-hidden",
+        activeTool === "hand"
+          ? isPanning
+            ? "cursor-grabbing"
+            : "cursor-grab"
+          : "cursor-default",
+      )}
+    >
+      <h1 className="sr-only">
+        {isAr
+          ? "Sketchly — لوحة بيضاء تفاعلية ذكية للرسم والتخطيط"
+          : "Sketchly — Interactive Virtual Whiteboard & Sketching App"}
+      </h1>
+      <p className="sr-only">
+        {isAr
+          ? "لوحة رسم بيضاء تفاعلية مجانية تدعم الرسم اليدوي الحر، الأشكال الهندسية، الشبكات، والعمل الجماعي المباشر مع تشفير من طرف لطرف."
+          : "Free interactive virtual whiteboard for sketching diagrams, hand-drawn wireframes, real-time collaboration with end-to-end encryption, and vector export."}
+      </p>
+      <SessionButton />
+      <Tools getViewportCenter={getViewportCenter} />
+      <SideDropDown
+        containerRef={exportContainerRef}
+        backgroundColor={backgroundColor}
+      />
+      <div
+        dir="ltr"
+        className={cn("w-full h-full touch-none", backgroundColor)}
+        style={gridStyle}
+        ref={exportContainerRef}
+      >
+        <TextEditorOverlay
+          ref={textEditorRef}
+          placement={textPlacement}
+          onClose={() => setTextPlacement(null)}
+        />
+
+        <CanvasSvgLayer
+          ref={svgRef}
+          readonly={false}
+          viewportGroupRef={viewportGroupRef}
+          {...pointerEventsProps}
+        >
+          <SelectionOverlay getScale={getScale} />
+        </CanvasSvgLayer>
+      </div>
+      <ZoomUndoButtons
+        subscribe={subscribe}
+        getTransformSnapshot={getTransformSnapshot}
+      />
+      <LegalModal />
+    </main>
+  );
+}
+
+export default Board;

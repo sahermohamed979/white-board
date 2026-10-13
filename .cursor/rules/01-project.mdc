@@ -1,0 +1,267 @@
+---
+description:
+alwaysApply: true
+---
+
+---
+
+description: Core project architecture, folder structure, naming conventions, TypeScript, and code quality rules
+globs: ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"]
+alwaysApply: true
+
+---
+
+# Project Architecture Rules
+
+## Stack
+
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript (strict mode)
+- **Styling**: Tailwind CSS + shadcn/ui
+- **Data Fetching**: TanStack React Query v5
+- **Forms**: React Hook Form + Zod
+- **Auth**: NextAuth v4
+- **i18n**: next-intl v4
+- **Toasts**: Sonner
+
+---
+
+## Folder Structure
+
+```
+src/
+├── app/
+│   ├── api/
+│   │   └── <route>/
+│   │       └── route.ts                  # Route Handler (avoid exposing tokens/API URL)
+│   ├── <route>/                          # kebab-case always
+│   │   ├── _actions/                     # Private server actions (not reused elsewhere)
+│   │   │   └── <action-name>.action.ts
+│   │   ├── _components/                  # Truly private, one-off components only
+│   │   │   │                             # (page-specific wrappers, unique layout shells)
+│   │   │   │                             # NOT for feature sections — those go in features/
+│   │   │   └── <component-name>.tsx
+│   │   ├── _hooks/                       # Private hooks (not reused elsewhere)
+│   │   │   └── <hook-name>.ts
+│   │   ├── _utils/                       # Private utils (not reused elsewhere)
+│   │   │   └── <utility-name>.ts
+│   │   ├── <nested-route>/               # Nested route segment
+│   │   ├── not-found.tsx
+│   │   ├── error.tsx
+│   │   ├── loading.tsx
+│   │   ├── layout.tsx
+│   │   └── page.tsx
+│   ├── layout.tsx                        # Root layout
+│   ├── page.tsx
+│   ├── error.tsx
+│   ├── global-error.tsx
+│   ├── not-found.tsx
+│   └── loading.tsx
+│
+├── components/
+│   ├── shared/                           # Small, generic, highly reusable (no feature logic)
+│   │   └── <component-name>.tsx
+│   ├── features/                         # Anything belonging to a feature domain
+│   │   └── <feature-name>/               # Grouped by domain regardless of reuse count
+│   │       └── <component-name>.tsx      # (home/, products/, auth/, bag/, categories/...)
+│   ├── skeletons/
+│   │   ├── shared/                       # Base skeleton parts (e.g. bar.skeleton.tsx)
+│   │   │   └── <component-name>.skeleton.tsx
+│   │   └── <feature-name>/               # Feature skeletons (e.g. product.skeleton.tsx)
+│   │       └── <component-name>.skeleton.tsx
+│   ├── layout/
+│   │   ├── app/                          # Global UI: Navbar, Footer
+│   │   │   └── <component-name>.tsx
+│   │   └── <feature-name>/               # Feature layout: sidebar, auth-header
+│   │       └── <component-name>.tsx
+│   └── ui/                               # shadcn generated — NEVER edit manually
+│       └── <component-name>.tsx
+│
+├── components/providers/
+│   ├── app/
+│   │   ├── index.tsx                     # Groups all global providers
+│   │   └── components/
+│   │       └── <provider>.provider.tsx
+│   └── <feature-name>/
+│       └── <provider-name>.provider.tsx
+│
+├── hooks/
+│   ├── shared/                           # Non-feature-specific hooks
+│   │   └── <hook-name>.ts
+│   └── <feature-name>/                   # Feature-specific hooks
+│       └── <hook-name>.ts
+│
+├── lib/
+│   ├── constants/
+│   │   └── <feature-name>.constant.ts
+│   ├── schemes/                          # Zod validation schemas
+│   │   └── <feature-name>.schema.ts
+│   ├── types/
+│   │   └── <feature-name>.d.ts
+│   ├── utils/
+│   │   └── <feature-name>.util.ts
+│   ├── services/                         # API call functions (fetch wrappers)
+│   │   └── <feature-name>.service.ts
+│   └── actions/                          # Global server actions (reused across routes)
+│       └── <feature-name>.action.ts
+│
+├── messages/
+│   └── <language>.json                   # Flat, one-level translations
+│
+├── i18n/
+│   ├── request.ts
+│   ├── routing.ts
+│   └── navigation.ts
+│
+├── middleware.ts
+└── auth.ts
+```
+
+---
+
+## Naming Conventions
+
+| Type          | Convention                  | Example                                |
+| ------------- | --------------------------- | -------------------------------------- |
+| Route folders | kebab-case                  | `forgot-password/`, `product-details/` |
+| Components    | PascalCase                  | `ProductCard.tsx`                      |
+| Hooks         | camelCase + `use` prefix    | `useProducts.ts`                       |
+| Schemas       | camelCase + `Schema` suffix | `loginSchema`                          |
+| Services      | camelCase + feature         | `auth.service.ts`                      |
+| Actions       | camelCase + `Action` suffix | `registerAction`                       |
+| Constants     | SCREAMING_SNAKE_CASE        | `JSON_HEADER`, `BASE_URL`              |
+| Types files   | camelCase + `.d.ts`         | `product.d.ts`                         |
+| Utility files | camelCase + feature         | `date.util.ts`                         |
+
+---
+
+## TypeScript Rules
+
+- Never use `any` — use `unknown` and narrow it, or define a proper type
+- Always derive TypeScript types from Zod schemas using `z.infer<typeof schema>`
+- Type all function return values explicitly
+- Prefer discriminated unions over boolean flags
+
+```typescript
+// ✅ Good — type derived from schema
+export type LoginFields = z.infer<typeof loginSchema>;
+
+// ✅ Good — unknown narrowed
+function handleError(error: unknown) {
+  if (error instanceof Error) return error.message;
+  return "Unexpected error";
+}
+
+// ❌ Bad
+const handler = async (data: any) => { ... };
+```
+
+---
+
+## File Exports
+
+- One component per file
+- Named exports for all components
+- Default export only for Next.js pages and layouts
+
+```typescript
+// ✅ components/features/products/ProductCard.tsx
+export function ProductCard({ product }: ProductCardProps) { ... }
+
+// ✅ app/products/page.tsx
+export default function ProductsPage() { ... }
+```
+
+---
+
+## Code Quality Rules
+
+**Blank lines between sections** — always leave a blank line after `"use client"`, imports, constants, and between logical sections inside a component or function.
+
+**Comments before sections** — add a short, concise comment before each logical section inside a component body. Do not write obvious or long descriptions.
+
+```typescript
+// ✅ Good — concise section comments
+"use client";
+
+import { useTranslations } from "next-intl";
+
+export default function MyComponent() {
+  // Translation
+  const t = useTranslations("products");
+
+  // State
+  const [open, setOpen] = useState(false);
+
+  // Queries
+  const { data } = useProducts();
+
+  // Functions
+  function handleOpen() { setOpen(true); }
+
+  return <></>;
+}
+```
+
+**No commented-out code** — remove all dead code. If intentionally kept, add a clear comment explaining why.
+
+**No `console.log`** — remove all console.log before committing. Use `console.error` only for caught errors if needed.
+
+**No unused imports** — every import must be used. Unused imports increase bundle size.
+
+**Stable keys in lists** — never use array index as a React key. Use a unique, stable identifier from the data.
+
+```typescript
+// ✅ Good
+products.map((product) => <ProductCard key={product.id} product={product} />)
+
+// ❌ Bad
+products.map((product, index) => <ProductCard key={index} product={product} />)
+```
+
+---
+
+## Import Order
+
+```typescript
+// 1. React / Next.js core
+import { useState } from "react";
+import { useRouter } from "next-intl"; // NOT next/navigation
+
+// 2. Third-party libraries
+import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
+
+// 3. Internal aliases
+import { Button } from "@/components/ui/button";
+import { loginSchema } from "@/lib/schemes/auth.schema";
+
+// 4. Relative
+import { ProductCard } from "./ProductCard";
+import type { ProductCardProps } from "./types";
+```
+
+---
+
+## Component Internal Order
+
+Always follow this order inside every component body:
+
+```typescript
+export default function MyComponent() {
+  // Translation
+  // Navigation
+  // State
+  // Ref
+  // Context
+  // Hooks
+  // Queries
+  // Mutation
+  // Form & validation
+  // Variables  (flexible — use when needed)
+  // Functions
+  // Effects
+
+  return <></>;
+}
+```

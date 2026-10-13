@@ -1,0 +1,263 @@
+---
+description: Mutations flow — Server Action, custom hook with React Query, form component integration
+globs: ["lib/actions/**", "hooks/**", "**/_actions/**", "**/_hooks/**", "**/*.tsx"]
+alwaysApply: false
+---
+
+# Mutations Flow
+
+Always follow this three-layer pattern for mutations triggered from Client Components:
+
+```
+Server Action  →  Custom Hook (useMutation)  →  Form / Client Component
+```
+
+---
+
+## Layer 1 — Server Action
+
+Place in `lib/actions/<feature>.action.ts` if reused globally, or in `app/<route>/_actions/<name>.action.ts` if private to that route.
+
+```typescript
+// lib/actions/auth.action.ts
+"use server";
+
+import { JSON_HEADER } from "@/lib/constants/api.constant";
+import type { RegistrationFields } from "@/lib/schemes/auth.schema";
+import type { APIResponse, RegisterResponse } from "@/lib/types/auth.d";
+
+export const registerAction = async (
+  fields: RegistrationFields
+): Promise<APIResponse<RegisterResponse>> => {
+  const response = await fetch(`${process.env.API}/auth/signup`, {
+    method: "POST",
+    body: JSON.stringify(fields),
+    headers: { ...JSON_HEADER },
+  });
+
+  const payload: APIResponse<RegisterResponse> = await response.json();
+
+  return payload;
+};
+```
+
+---
+
+## Layer 2 — Custom Hook
+
+Place in `hooks/<feature-name>/<hook-name>.ts` if reused, or `app/<route>/_hooks/<hook-name>.ts` if private.
+
+Always handle `onError` inside the mutation.
+
+```typescript
+// hooks/auth/use-register.ts
+"use client";
+
+import { useMutation } from "@tanstack/react-query";
+import { useSearchParams } from "next/navigation";          // useSearchParams is NOT locale-specific
+import { useRouter } from "@/i18n/navigation";              // useRouter IS locale-specific
+
+import { registerAction } from "@/lib/actions/auth.action";
+import type { RegistrationFields } from "@/lib/schemes/auth.schema";
+
+export default function useRegister() {
+  // Navigation
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Mutation
+  const { isPending, error, mutate } = useMutation({
+    mutationFn: async (fields: RegistrationFields) => registerAction(fields),
+    onSuccess: () => {
+      router.push(`/auth/login?${searchParams.toString()}`);
+    },
+    onError: () => {
+      // Error is returned and surfaced in the form
+    },
+  });
+
+  return { isPending, error, register: mutate };
+}
+```
+
+---
+
+## Layer 3 — Form Component
+
+Place in `app/<route>/_components/<form-name>.tsx` or `components/features/<feature>/<form-name>.tsx`.
+
+Always follow the internal order: Translation → Navigation → Hooks → Form → Functions.
+
+```typescript
+// app/auth/register/_components/register-form.tsx
+"use client";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
+import { useForm } from "react-hook-form";
+
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { registerSchema, type RegistrationFields } from "@/lib/schemes/auth.schema";
+import useRegister from "@/hooks/auth/use-register";
+
+export default function RegisterForm() {
+  // Translation
+  const t = useTranslations("auth");
+
+  // Hooks
+  const { isPending, error, register } = useRegister();
+
+  // Form
+  const form = useForm<RegistrationFields>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      rePassword: "",
+    },
+  });
+
+  // Functions
+  function onSubmit(values: RegistrationFields) {
+    register(values);
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+
+        {/* First name */}
+        <FormField
+          control={form.control}
+          name="firstName"
+          render={({ field }) => (
+            <FormItem>
+              {/* Label */}
+              <FormLabel>{t("firstname-label")}</FormLabel>
+
+              {/* Field */}
+              <FormControl>
+                <Input
+                  placeholder={t("firstname-placeholder")}
+                  autoComplete="given-name"
+                  {...field}
+                />
+              </FormControl>
+
+              {/* Feedback */}
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Submit */}
+        <Button type="submit" className="w-full" disabled={isPending}>
+          {isPending ? t("registering") : t("register")}
+        </Button>
+
+      </form>
+    </Form>
+  );
+}
+```
+
+---
+
+## Services vs Actions
+
+| | `lib/services/` | `lib/actions/` |
+|---|---|---|
+| **Runs on** | Server (called from Server Components) | Server only (`"use server"`) |
+| **Called from** | Server Components, Route Handlers | Client Components (via mutation hook) |
+| **Use for** | GET / read operations | POST / PUT / DELETE mutations |
+
+```typescript
+// lib/services/product.service.ts — used in Server Components
+export async function getProducts(): Promise<Product[]> {
+  const res = await fetch(`${process.env.API}/products`, {
+    next: { revalidate: 300 },
+  });
+  const data: APIResponse<Product[]> = await res.json();
+  return data.payload;
+}
+
+// lib/actions/product.action.ts — used in mutations from Client Components
+"use server";
+
+export const deleteProductAction = async (id: string): Promise<APIResponse<void>> => {
+  const res = await fetch(`${process.env.API}/products/${id}`, {
+    method: "DELETE",
+    headers: { ...JSON_HEADER },
+  });
+  return res.json();
+};
+```
+
+---
+
+## Query Key Factory
+
+Centralize all query keys — never hardcode strings inline.
+
+```typescript
+// lib/constants/query-keys.constant.ts
+export const queryKeys = {
+  products: {
+    all: ["products"] as const,
+    list: (filters?: ProductFilters) => ["products", "list", filters] as const,
+    detail: (id: string) => ["products", "detail", id] as const,
+  },
+  orders: {
+    all: ["orders"] as const,
+    byUser: (userId: string) => ["orders", userId] as const,
+  },
+} as const;
+```
+
+---
+
+## Read Queries (Client-side)
+
+Wrap every `useQuery` call in a custom hook. Never call `useQuery` directly inside a component.
+
+```typescript
+// hooks/products/use-products.ts
+"use client";
+
+import { useQuery } from "@tanstack/react-query";
+
+import { queryKeys } from "@/lib/constants/query-keys.constant";
+import type { ProductFilters } from "@/lib/types/product.d";
+
+export function useProducts(filters: ProductFilters) {
+  return useQuery({
+    queryKey: queryKeys.products.list(filters),
+    queryFn: () => fetch(`/api/products?${new URLSearchParams(filters as Record<string, string>)}`).then(r => r.json()),
+    staleTime: 1000 * 60 * 5,
+  });
+}
+```
+
+---
+
+## Rules Summary
+
+- ✅ Server Actions for all mutations
+- ✅ Custom hook wraps every mutation/query — never call `useMutation`/`useQuery` raw in components
+- ✅ Always handle `onError` in mutation hooks
+- ✅ Use Next.js `fetch()` — never Axios
+- ✅ Services for reads in Server Components, Actions for mutations from Client Components
+- ✅ Centralize query keys in constants
+- ❌ Never fetch in `useEffect`
+- ❌ Never filter/sort data on the client if it can be done on the server
