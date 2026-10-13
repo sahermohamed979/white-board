@@ -8,6 +8,7 @@ import { cn } from "@/src/shared/lib/utils";
 import type { ParticipantPresence } from "../types/realtime-collaboration.types";
 import { ParticipantList } from "./participant-list";
 import { EndSessionDialog } from "./end-session-dialog";
+import { toast } from "@/src/shared/components/ui/sonner";
 
 export interface SessionHeaderProps {
   channelStatus: string;
@@ -48,9 +49,10 @@ export function SessionHeader({
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
+      toast.success(t("linkCopied"));
       setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error("Failed to copy link:", err);
+    } catch {
+      toast.error(t("failedToCopy"));
     }
   };
 

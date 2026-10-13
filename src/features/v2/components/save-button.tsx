@@ -13,6 +13,7 @@ import { SharedBoardData } from "@/src/features/v1/types/share.types";
 import { useBoardStore } from "../../v1/store/board-store";
 import { useRouter } from "@/src/i18n/navigation";
 import { useTranslations } from "next-intl";
+import { toast } from "@/src/shared/components/ui/sonner";
 
 export default function SaveButton({
   savedData,
@@ -26,13 +27,19 @@ export default function SaveButton({
   const setBackgroundGrid = useBoardStore((s) => s.setBackgroundGrid);
   const setElements = useBoardStore((s) => s.setElements);
   const router = useRouter();
+
   const SetDatahandler = () => {
     if (!savedData) return;
-    clearBoard();
-    setBackgroundColor(savedData.backgroundColor);
-    setBackgroundGrid(savedData.backgroundGrid);
-    setElements(savedData.elements);
-    router.replace("/");
+    try {
+      clearBoard();
+      setBackgroundColor(savedData.backgroundColor);
+      setBackgroundGrid(savedData.backgroundGrid);
+      setElements(savedData.elements);
+      toast.success(t("boardSaved"));
+      router.replace("/");
+    } catch {
+      toast.error(t("failedToStartSession"));
+    }
   };
 
   return (

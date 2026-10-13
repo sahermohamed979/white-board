@@ -14,6 +14,8 @@ import {
   DialogDescription,
 } from "@/src/shared/components/ui/dialog";
 
+import { toast } from "@/src/shared/components/ui/sonner";
+
 export interface SessionShareDialogProps {
   open: boolean;
   url: string;
@@ -35,11 +37,12 @@ export function SessionShareDialog({
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
+      toast.success(t("linkCopied"));
       setTimeout(() => {
         setCopied(false);
       }, 2000);
-    } catch (err) {
-      console.error("Failed to copy link:", err);
+    } catch {
+      toast.error(t("failedToCopy"));
     }
   };
 

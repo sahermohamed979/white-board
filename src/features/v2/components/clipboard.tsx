@@ -4,15 +4,22 @@ import { Label } from "@/src/shared/components/ui/label";
 import { Copy } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { toast } from "@/src/shared/components/ui/sonner";
+
 export function ClipboardButton({
   link,
 }: {
   link: string;
 }) {
-   const t = useTranslations("main.session");
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(link);
+  const t = useTranslations("main.session");
 
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(link);
+      toast.success(t("linkCopied"));
+    } catch {
+      toast.error(t("failedToCopy"));
+    }
   };
 
   return (

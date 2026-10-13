@@ -12,6 +12,8 @@ import {
 import { exportBoardAsPng, exportBoardAsJpeg } from "../lib/export";
 import { useTranslations } from "next-intl";
 
+import { toast } from "@/src/shared/components/ui/sonner";
+
 interface ExportButtonProps {
   containerRef: React.RefObject<HTMLDivElement | null>;
   backgroundColor?: string;
@@ -41,6 +43,9 @@ export function ExportButton({
           backgroundColor,
         );
       }
+      toast.success(t("main.session.exportSuccess"));
+    } catch {
+      toast.error(t("main.session.exportFailed"));
     } finally {
       setIsExporting(false);
     }
