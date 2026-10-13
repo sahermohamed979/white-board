@@ -2,7 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { cn } from "@/src/shared/lib/utils";
 import Providers from "@/src/shared/context/providers";
 import { routing } from "@/src/i18n/routing";
-import { Analytics } from "@vercel/analytics/next"
+import { Analytics } from "@vercel/analytics/next";
+
 export const viewport: Viewport = {
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#ffffff" },
@@ -264,8 +265,10 @@ export default async function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
           <Analytics />
+        </Providers>
 
       </body>
     </html>

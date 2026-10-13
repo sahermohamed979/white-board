@@ -503,5 +503,3 @@ export function SessionScreen({ token }: { token: string }) {
     </main>
   );
 }
-
-export default SessionScreen;

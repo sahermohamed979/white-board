@@ -225,5 +225,3 @@ export function SessionHeader({
     </>
   );
 }
-
-export default SessionHeader;

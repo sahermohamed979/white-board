@@ -62,13 +62,9 @@ export const sessionEndEventSchema = z.object({
 
 export const participantPresenceSchema = z.object({
   participantId: z.string().uuid(),
-  color: z.enum([
-    "#EF4444",
-    "#3B82F6",
-    "#22C55E",
-    "#A855F7",
-    "#F97316",
-  ]),
+  color: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{3,8}$/, "Invalid hex color format"),
   cursor: z
     .object({
       x: z.number().finite(),

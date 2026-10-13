@@ -12,7 +12,7 @@ import { ThemeToggle } from "@/src/shared/components/ui/ThemeToggle";
 import LanguageToggle from "@/src/shared/components/ui/language-toggle";
 import BackgroundSelection from "./background-selection";
 import { Menu } from "lucide-react";
-import { ExportButton } from "./export-butons";
+import { ExportButton } from "./export-buttons";
 import { useTranslations } from "next-intl";
 import GridBackground from "./grid-background";
 import { cn } from "@/src/shared/lib/utils";

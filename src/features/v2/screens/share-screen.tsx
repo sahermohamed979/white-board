@@ -16,7 +16,7 @@ import SaveButton from "../components/save-button";
 import SideDropDown from "../../v1/components/side-drop-down";
 import { LegalModal } from "@/src/shared/components/legal-modal";
 
-export default function ShareScreen({ token }: { token: string }) {
+export function ShareScreen({ token }: { token: string }) {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const exportContainerRef = useRef<HTMLDivElement | null>(null);
 

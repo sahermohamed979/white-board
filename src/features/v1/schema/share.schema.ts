@@ -75,7 +75,11 @@ export const shareBoardDataSchema = z.object({
 export const createShareRequestSchema = z
   .object({ data: shareBoardDataSchema })
   .strict();
-export const shareTokenSchema = z.string().min(1).max(512);
+export const shareTokenSchema = z
+  .string()
+  .min(1)
+  .max(128)
+  .regex(/^[a-zA-Z0-9_-]+$/, "Invalid share token format");
 
 export const boardIdSchema = z
   .string()

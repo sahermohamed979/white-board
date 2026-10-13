@@ -105,5 +105,3 @@ export function SessionShareDialog({
     </Dialog>
   );
 }
-
-export default SessionShareDialog;

@@ -28,6 +28,9 @@ export function useCreateRealtimeSession() {
 
       return data;
     },
+    onError: () => {
+      // Error surfaced in caller / mutation state
+    },
   });
 
   return createSessionMutation;

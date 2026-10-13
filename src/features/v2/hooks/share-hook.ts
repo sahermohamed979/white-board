@@ -31,6 +31,9 @@ export function useCreateShareLink() {
 
       return responseData;
     },
+    onError: () => {
+      // Error surfaced in caller / mutation state
+    },
   });
 
   return createLinkMutation;
