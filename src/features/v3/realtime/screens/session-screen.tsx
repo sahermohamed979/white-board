@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { Clock, Loader, AlertTriangle, Radio } from "lucide-react";
-import { Link } from "@/src/i18n/navigation";
+import { Link, useRouter } from "@/src/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/src/shared/lib/utils";
 
@@ -52,8 +52,13 @@ function formatTimeRemaining(ms: number): string {
 }
 
 export function SessionScreen({ token }: { token: string }) {
+  // Translation
   const locale = useLocale();
   const t = useTranslations("main.session");
+
+  // Navigation
+  const router = useRouter();
+
   const svgRef = useRef<SVGSVGElement | null>(null);
   const exportContainerRef = useRef<HTMLDivElement | null>(null);
   const textEditorRef = useRef<TextEditorHandle>(null);
@@ -307,6 +312,7 @@ export function SessionScreen({ token }: { token: string }) {
     return (
       <JoinSessionDialog
         open
+        onClose={() => router.push("/")}
         onJoin={(name) => setParticipant(saveParticipantIdentity(token, name))}
       />
     );

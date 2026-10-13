@@ -13,12 +13,20 @@ import {
 } from "@/src/shared/components/ui/dialog";
 import { Input } from "@/src/shared/components/ui/input";
 
+import { cn } from "@/src/shared/lib/utils";
+
 interface JoinSessionDialogProps {
   open: boolean;
   onJoin: (name: string) => void;
+  onClose?: () => void;
 }
 
-export function JoinSessionDialog({ open, onJoin }: JoinSessionDialogProps) {
+export function JoinSessionDialog({
+  open,
+  onJoin,
+  onClose,
+}: JoinSessionDialogProps) {
+  // Translation
   const t = useTranslations("main.session");
 
   // State
@@ -34,7 +42,7 @@ export function JoinSessionDialog({ open, onJoin }: JoinSessionDialogProps) {
   }
 
   return (
-    <Dialog open={open}>
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose?.()}>
       <DialogContent className="max-w-sm rounded-2xl">
         <DialogHeader>
           <DialogTitle>{t("joinSessionTitle")}</DialogTitle>
@@ -49,13 +57,25 @@ export function JoinSessionDialog({ open, onJoin }: JoinSessionDialogProps) {
             placeholder={t("yourName")}
             onChange={(event) => setName(event.target.value)}
           />
-          <Button
-            className="w-full text-white"
-            disabled={!isNameValid}
-            type="submit"
-          >
-            {t("joinSession")}
-          </Button>
+          <div className="flex gap-2">
+            {onClose && (
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1"
+                onClick={onClose}
+              >
+                {t("cancel")}
+              </Button>
+            )}
+            <Button
+              className={cn("text-white", onClose ? "flex-1" : "w-full")}
+              disabled={!isNameValid}
+              type="submit"
+            >
+              {t("joinSession")}
+            </Button>
+          </div>
         </form>
       </DialogContent>
     </Dialog>
