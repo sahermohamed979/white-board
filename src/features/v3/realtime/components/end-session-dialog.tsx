@@ -54,17 +54,17 @@ export function EndSessionDialog({
           </Button>
           <Button
             variant="destructive"
-            className="flex-1 rounded-xl h-11 text-white gap-2 font-medium"
+            className="flex-1 rounded-xl h-11 bg-destructive hover:bg-destructive/90 text-white gap-2 font-medium transition-colors"
             disabled={isPending}
             onClick={onConfirm}
           >
             {isPending ? (
               <>
-                <Loader2 className="size-4 animate-spin" />
-                <span>{t("endingSession")}</span>
+                <Loader2 className="size-4 animate-spin text-white" />
+                <span className="text-white">{t("endingSession")}</span>
               </>
             ) : (
-              <span>{t("endSession")}</span>
+              <span className="text-white">{t("endSession")}</span>
             )}
           </Button>
         </div>
@@ -72,5 +72,3 @@ export function EndSessionDialog({
     </Dialog>
   );
 }
-
-export default EndSessionDialog;

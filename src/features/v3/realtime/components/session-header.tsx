@@ -193,13 +193,14 @@ export function SessionHeader({
                 "h-7 rounded-lg",
                 "px-2 sm:px-2.5",
                 "text-xs font-medium text-white",
-                "shadow-xs",
+                "bg-destructive hover:bg-destructive/90 dark:bg-destructive dark:hover:bg-destructive/90",
+                "shadow-xs transition-colors",
               )}
               title={t("endSession")}
             >
-              <Power className="size-3.5 shrink-0 sm:mr-1" />
+              <Power className="size-3.5 shrink-0 sm:mr-1 text-white" />
 
-              <span className="hidden sm:inline">{t("endSession")}</span>
+              <span className="hidden sm:inline text-white">{t("endSession")}</span>
             </Button>
           </>
         )}
